@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp">
+
+    <com.sanron.yidumusic.widget.RatioLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:ratio="1"
+        app:type="height">
+
+        <TextView
+            android:id="@+id/tv_tag1"
+            style="@style/HotTagText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/ic_classify_img01"
+            />
+    </com.sanron.yidumusic.widget.RatioLayout>
+
+    <com.sanron.yidumusic.widget.RatioLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_weight="1"
+        app:ratio="1"
+        app:type="height">
+
+        <TextView
+            android:id="@+id/tv_tag2"
+            style="@style/HotTagText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/ic_classify_img02"
+            />
+    </com.sanron.yidumusic.widget.RatioLayout>
+
+    <com.sanron.yidumusic.widget.RatioLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_weight="1"
+        app:ratio="1"
+        app:type="height">
+
+        <TextView
+            android:id="@+id/tv_tag3"
+            style="@style/HotTagText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/ic_classify_img03"
+            />
+    </com.sanron.yidumusic.widget.RatioLayout>
+
+    <com.sanron.yidumusic.widget.RatioLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_weight="1"
+        app:ratio="1"
+        app:type="height">
+
+        <TextView
+            android:id="@+id/tv_tag4"
+            style="@style/HotTagText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/ic_classify_img04"
+            android:text="更多"
+            />
+    </com.sanron.yidumusic.widget.RatioLayout>
+
+</LinearLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.sanron.yidumusic.widget.RatioLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    app:ratio="0.4"
+    app:type="height">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager_focus_pic"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.viewpagerindicator.CirclePageIndicator
+            android:id="@+id/page_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="4dp"
+            app:centered="true"
+            app:fillColor="#FFFFFFFF"
+            app:padding="8dp"
+            app:pageColor="#B2FFFFFF"
+            app:radius="4dp"
+            app:strokeWidth="0dp"/>
+    </RelativeLayout>
+</com.sanron.yidumusic.widget.RatioLayout>
