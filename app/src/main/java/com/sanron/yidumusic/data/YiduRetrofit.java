@@ -2,6 +2,8 @@ package com.sanron.yidumusic.data;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sanron.yidumusic.YiduApp;
+import com.sanron.yidumusic.util.baidu.DeviceTool;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +37,7 @@ public class YiduRetrofit {
     private final Interceptor INTERCEPTOR = new Interceptor() {
         @Override
         public Response intercept(Chain chain) throws IOException {
+            //同一参数
             HttpUrl httpUrl = chain.request()
                     .url()
                     .newBuilder()
@@ -42,9 +45,12 @@ public class YiduRetrofit {
                     .addQueryParameter("version", "5.6.5.6")
                     .addQueryParameter("format", "json")
                     .build();
+            //设置UserAgent
             Request request = chain.request()
                     .newBuilder()
                     .url(httpUrl)
+                    .addHeader("cuid", DeviceTool.getDeviceId(YiduApp.get()))
+                    .addHeader("User-Agent", "android_5.8.0.1;baiduyinyue")
                     .build();
             return chain.proceed(request);
         }

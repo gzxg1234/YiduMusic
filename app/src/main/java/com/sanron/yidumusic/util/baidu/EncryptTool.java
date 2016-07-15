@@ -14,7 +14,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public final class ApiEncryptTool {
+public final class EncryptTool {
 
     private static final String INPUT = "2012171402992850";
     private static final String IV = "2012061402992850";
