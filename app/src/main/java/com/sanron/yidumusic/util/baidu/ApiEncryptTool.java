@@ -1,4 +1,4 @@
-package com.sanron.yidumusic.data;
+package com.sanron.yidumusic.util.baidu;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -18,7 +18,7 @@ public final class ApiEncryptTool {
 
     private static final String INPUT = "2012171402992850";
     private static final String IV = "2012061402992850";
-    private static final char[] CHARS = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70};
+    private static final char[] CHARS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     public static String encrypt(String paramString) {
         MessageDigest messageDigest;
@@ -74,28 +74,26 @@ public final class ApiEncryptTool {
         static {
             chars = new char[64];
             int j = 0;
-            for (int i = 65; i <= 90; i++, j++) {
-                chars[j] = (char) i;
+            for (char i = 'A'; i <= 'Z'; i++, j++) {
+                chars[j] = i;
             }
-            for (int i = 97; i <= 122; i++, j++) {
-                chars[j] = (char) i;
+            for (char i = 'a'; i <= 'z'; i++, j++) {
+                chars[j] = i;
             }
-            for (int i = 48; i <= 57; i++, j++) {
-                chars[j] = (char) i;
+            for (char i = '0'; i <= '9'; i++, j++) {
+                chars[j] = i;
             }
-            chars[j] = 43;
-            j++;
+            chars[j++] = 43;
             chars[j] = 47;
 
             bytes = new byte[128];
 
-            for (int i = 0; i < 128; i++) {
+            for (byte i = 0; i < 128; i++) {
                 bytes[i] = -1;
             }
-            for (int i = 0; i < 64; i++) {
+            for (byte i = 0; i < 64; i++) {
                 bytes[chars[i]] = (byte) i;
             }
-
         }
 
         public static char[] getChars(byte[] bytes) {
