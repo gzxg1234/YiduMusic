@@ -6,3 +6,5 @@
 .DS_Store
 /build
 /captures
+将删除 src/main/java/com/sanron/yidumusic/musicplayer/
+将删除 src/main/java/com/sanron/yidumusic/ui/fragment/local_music/

@@ -13,7 +13,6 @@ import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.ui.base.BaseActivity;
 import com.sanron.yidumusic.ui.fragment.music_bank.MusicBankFragment;
 import com.sanron.yidumusic.util.StatusBarUtil;
-import com.sanron.yidumusic.util.android.IMEITool;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import butterknife.BindView;
@@ -28,7 +27,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println(IMEITool.getImei(this));
         if (Build.VERSION.SDK_INT > 19) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
