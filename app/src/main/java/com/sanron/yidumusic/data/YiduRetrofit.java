@@ -37,7 +37,7 @@ public class YiduRetrofit {
     private final Interceptor INTERCEPTOR = new Interceptor() {
         @Override
         public Response intercept(Chain chain) throws IOException {
-            //同一参数
+            //统一参数
             HttpUrl httpUrl = chain.request()
                     .url()
                     .newBuilder()

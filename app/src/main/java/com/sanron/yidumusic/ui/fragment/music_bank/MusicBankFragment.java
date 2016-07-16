@@ -8,6 +8,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.sanron.yidumusic.R;
@@ -30,7 +33,15 @@ public class MusicBankFragment extends BaseFragment {
     ViewPager mViewPager;
 
     private static final String[] TITLES = {
-            "推荐"
+            "推荐", "排行", "歌单", "电台", "MV"
+    };
+
+    private static final String[] FRAGMENTS = {
+            RecmdFragment.class.getName(),
+            BillFragment.class.getName(),
+            GedanFragment.class.getName(),
+            RadioFragment.class.getName(),
+            MVFragment.class.getName()
     };
 
     public static MusicBankFragment newInstance() {
@@ -50,7 +61,6 @@ public class MusicBankFragment extends BaseFragment {
         mTabLayout.setupWithViewPager(mViewPager);
     }
 
-
     private class LocalPagerAdapter extends FragmentPagerAdapter {
 
         public LocalPagerAdapter(FragmentManager fm) {
@@ -59,11 +69,7 @@ public class MusicBankFragment extends BaseFragment {
 
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return RecmdFragment.newInstance();
-            }
-            return null;
+            return Fragment.instantiate(getContext(), FRAGMENTS[position]);
         }
 
         @Override
@@ -75,5 +81,13 @@ public class MusicBankFragment extends BaseFragment {
         public CharSequence getPageTitle(int position) {
             return TITLES[position];
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.add(0, 0, 0, "搜索")
+                .setIcon(R.mipmap.ic_search_white_24dp)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
     }
 }

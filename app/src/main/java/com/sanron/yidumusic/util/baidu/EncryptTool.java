@@ -88,10 +88,10 @@ public final class EncryptTool {
 
             bytes = new byte[128];
 
-            for (byte i = 0; i < 128; i++) {
+            for (int i = 0; i < 128; i++) {
                 bytes[i] = -1;
             }
-            for (byte i = 0; i < 64; i++) {
+            for (int i = 0; i < 64; i++) {
                 bytes[chars[i]] = (byte) i;
             }
         }

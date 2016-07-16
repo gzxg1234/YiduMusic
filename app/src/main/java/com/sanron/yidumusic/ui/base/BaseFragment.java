@@ -27,7 +27,7 @@ public abstract class BaseFragment extends Fragment {
         if (layoutResId != 0) {
             View view = inflater.inflate(layoutResId, container, false);
             mUnbinder = ButterKnife.bind(this, view);
-            initView(view,savedInstanceState);
+            initView(view, savedInstanceState);
             return view;
         }
         return super.onCreateView(inflater, container, savedInstanceState);
@@ -35,12 +35,12 @@ public abstract class BaseFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         mUnbinder.unbind();
         if (mCompositeSubscription != null
-                && !mCompositeSubscription.hasSubscriptions()) {
+                && !mCompositeSubscription.isUnsubscribed()) {
             mCompositeSubscription.unsubscribe();
         }
+        super.onDestroyView();
     }
 
     protected void addSub(Subscription subscription) {

@@ -52,8 +52,8 @@ public class DeviceTool {
         }
     }
 
-    public static String getAndroidId(Context paramContext) {
-        String androidId = Settings.Secure.getString(paramContext.getContentResolver(), "android_id");
+    public static String getAndroidId(Context context) {
+        String androidId = Settings.Secure.getString(context.getContentResolver(), "android_id");
         if (TextUtils.isEmpty(androidId))
             androidId = "";
         return androidId;

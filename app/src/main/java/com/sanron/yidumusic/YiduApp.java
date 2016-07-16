@@ -12,6 +12,7 @@ public class YiduApp extends Application {
 
     private static YiduApp sInstance;
 
+
     @Override
     public void onCreate() {
         super.onCreate();

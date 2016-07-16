@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -25,21 +25,22 @@ import com.sanron.yidumusic.data.BaiduApiService;
 import com.sanron.yidumusic.data.YiduRetrofit;
 import com.sanron.yidumusic.data.model.Album;
 import com.sanron.yidumusic.data.model.FocusPic;
-import com.sanron.yidumusic.data.model.FocusPicData;
-import com.sanron.yidumusic.data.model.HotSongListData;
-import com.sanron.yidumusic.data.model.HotTagData;
-import com.sanron.yidumusic.data.model.RecmdAlbumData;
-import com.sanron.yidumusic.data.model.RecmdData;
-import com.sanron.yidumusic.data.model.SongList;
-import com.sanron.yidumusic.data.model.Tag;
-import com.sanron.yidumusic.rx.SchedulerTransformer;
+import com.sanron.yidumusic.data.model.Gedan;
+import com.sanron.yidumusic.data.model.Song;
+import com.sanron.yidumusic.data.model.response.FocusPicData;
+import com.sanron.yidumusic.data.model.response.HotGedanData;
+import com.sanron.yidumusic.data.model.response.RecmdAlbumData;
+import com.sanron.yidumusic.data.model.response.RecmdData;
+import com.sanron.yidumusic.data.model.response.RecmdSongData;
+import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
+import com.sanron.yidumusic.util.UITool;
+import com.sanron.yidumusic.widget.OffsetDecoration;
 import com.viewpagerindicator.PageIndicator;
 
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.BindViews;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.functions.Action1;
@@ -60,6 +61,8 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
     private static final int FOCUS_COUNT = 10;
     private static final int HOTTAG_COUNT = 3;
     private static final int HOTSONGLIST_COUNT = 6;
+    private static final int RECMD_ALBUM_COUNT = 6;
+    private static final int RECMD_SONG_COUNT = 5;
 
     public static RecmdFragment newInstance() {
         return new RecmdFragment();
@@ -67,7 +70,13 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
 
     @Override
     protected void onLazyLoad() {
-        loadData();
+        mRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mRefreshLayout.setRefreshing(true);
+                loadData();
+            }
+        });
     }
 
     public void loadData() {
@@ -75,10 +84,11 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
 
         //循环图
         Observable<List<FocusPic>> focus = apiService.getFocusPic(FOCUS_COUNT)
+                .compose(TransformerUtil.<FocusPicData>checkError())
                 .map(new Func1<FocusPicData, List<FocusPic>>() {
                     @Override
                     public List<FocusPic> call(FocusPicData focusPicData) {
-                        return focusPicData.pics;
+                        return focusPicData.focusPics;
                     }
                 })
                 .flatMap(new Func1<List<FocusPic>, Observable<FocusPic>>() {
@@ -90,51 +100,53 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 .filter(new Func1<FocusPic, Boolean>() {
                     @Override
                     public Boolean call(FocusPic focusPic) {
-                        return focusPic.type == FocusPic.TYPE_ALBUM || focusPic.type == FocusPic.TYPE_SONG_LIST;
+                        return focusPic.type == FocusPic.TYPE_ALBUM || focusPic.type == FocusPic.TYPE_SONGLIST;
                     }
                 }).toList();
 
-        //热门标签
-        Observable<List<Tag>> hotTag = apiService.getHotTag(HOTTAG_COUNT)
-                .map(new Func1<HotTagData, List<Tag>>() {
-                    @Override
-                    public List<Tag> call(HotTagData hotTagData) {
-                        return hotTagData.tags;
-                    }
-                });
-
         //热门歌单
-        Observable<List<SongList>> hotSongList = apiService.getHotSongList(HOTSONGLIST_COUNT)
-                .map(new Func1<HotSongListData, List<SongList>>() {
+        Observable<List<Gedan>> hotSongList = apiService.getHotSongList(HOTSONGLIST_COUNT)
+                .compose(TransformerUtil.<HotGedanData>checkError())
+                .map(new Func1<HotGedanData, List<Gedan>>() {
                     @Override
-                    public List<SongList> call(HotSongListData hotSongListData) {
-                        return hotSongListData.content.songLists;
+                    public List<Gedan> call(HotGedanData hotSongListData) {
+                        return hotSongListData.content.gedanList;
                     }
                 });
 
         //推荐专辑
-        final Observable<List<Album>> recmdAlbum = apiService.getRecmdAlbum(0, 6)
+        Observable<List<Album>> recmdAlbum = apiService.getRecmdAlbum(0, RECMD_ALBUM_COUNT)
+                .compose(TransformerUtil.<RecmdAlbumData>checkError())
                 .map(new Func1<RecmdAlbumData, List<Album>>() {
                     @Override
                     public List<Album> call(RecmdAlbumData recmdAlbumData) {
-                        return recmdAlbumData.plazeAlbumList.rm.albumList.albums;
+                        return recmdAlbumData.plazeAlbumList.RM.albumList.albums;
                     }
                 });
 
-        Observable
-                .zip(focus, hotTag, hotSongList, recmdAlbum,
-                        new Func4<List<FocusPic>, List<Tag>, List<SongList>, List<Album>, RecmdData>() {
-                            @Override
-                            public RecmdData call(List<FocusPic> focusPics, List<Tag> tags, List<SongList> songLists, List<Album> albums) {
-                                RecmdData recmdData = new RecmdData();
-                                recmdData.focusPics = focusPics;
-                                recmdData.hotTags = tags;
-                                recmdData.hotSongLists = songLists;
-                                recmdData.recmdAlbums = albums;
-                                return recmdData;
-                            }
-                        })
-                .compose(SchedulerTransformer.<RecmdData>io())
+        //推荐歌曲
+        Observable<List<Song>> recmdSong = apiService.getRecmdSong(0, RECMD_SONG_COUNT)
+                .compose(TransformerUtil.<RecmdSongData>checkError())
+                .map(new Func1<RecmdSongData, List<Song>>() {
+                    @Override
+                    public List<Song> call(RecmdSongData recmdSongData) {
+                        return recmdSongData.result.songs;
+                    }
+                });
+
+        addSub(Observable.zip(focus, hotSongList, recmdAlbum, recmdSong,
+                new Func4<List<FocusPic>, List<Gedan>, List<Album>, List<Song>, RecmdData>() {
+                    @Override
+                    public RecmdData call(List<FocusPic> focusPics, List<Gedan> gedens, List<Album> albums, List<Song> songs) {
+                        RecmdData recmdData = new RecmdData();
+                        recmdData.mFocusPicDatas = focusPics;
+                        recmdData.hotGedans = gedens;
+                        recmdData.recmdAlbums = albums;
+                        recmdData.recmdSongs = songs;
+                        return recmdData;
+                    }
+                })
+                .compose(TransformerUtil.<RecmdData>io())
                 .subscribe(new Action1<RecmdData>() {
                     @Override
                     public void call(RecmdData recmdData) {
@@ -144,9 +156,11 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
+                        throwable.printStackTrace();
                         mRefreshLayout.setRefreshing(false);
                     }
-                });
+                })
+        );
     }
 
     @Override
@@ -159,9 +173,11 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
     @Override
     protected void initView(View view, Bundle savedInstanceState) {
         super.initView(view, savedInstanceState);
-        mRefreshLayout.setOnRefreshListener(this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mRecmdAdapter);
+        mRecyclerView.addItemDecoration(new OffsetDecoration(0, UITool.dpToPx(getContext(), 16)));
+        mRefreshLayout.setOnRefreshListener(this);
+        mRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
     }
 
     @Override
@@ -181,8 +197,15 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
 
         private RecmdData mRecmdData;
         private static final int TYPE_FOCUS = 1;
-        private static final int TYPE_HOT_TAG = 2;
+        private static final int TYPE_ITEM_2 = 2;
         private static final int TYPE_GRID = 3;
+        private static final int TYPE_LIST = 4;
+
+        private static final int POS_FOCUS = 0;
+        private static final int POS_ITEM2 = 1;
+        private static final int POS_HOT_SONGLIST = 2;
+        private static final int POS_RECMD_ALBUM = 3;
+        private static final int POS_RECMD_SONG = 4;
 
         public void setData(RecmdData data) {
             mRecmdData = data;
@@ -196,13 +219,17 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                     View view = LayoutInflater.from(getContext()).inflate(R.layout.recmd_focus_item, parent, false);
                     return new FocusHolder(view);
                 }
-                case TYPE_HOT_TAG: {
-                    View view = LayoutInflater.from(getContext()).inflate(R.layout.recmd_hottag_item, parent, false);
-                    return new HotTagHolder(view);
+                case TYPE_ITEM_2: {
+                    View view = LayoutInflater.from(getContext()).inflate(R.layout.recmd_fenlei_singer_scene, parent, false);
+                    return new Item2Holder(view);
                 }
                 case TYPE_GRID: {
                     View view = LayoutInflater.from(getContext()).inflate(R.layout.recmd_grid, parent, false);
                     return new GridHolder(view);
+                }
+                case TYPE_LIST: {
+                    View view = LayoutInflater.from(getContext()).inflate(R.layout.recmd_list, parent, false);
+                    return new ListHolder(view);
                 }
             }
             return null;
@@ -211,60 +238,67 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             switch (position) {
-                case 0: {
+                case POS_FOCUS: {
                     if (mRecmdData == null) {
                         return;
                     }
-                    ((FocusHolder) holder).setData(mRecmdData.focusPics);
+                    ((FocusHolder) holder).setData(mRecmdData.mFocusPicDatas);
                 }
                 break;
-                case 1: {
-                    if (mRecmdData == null) {
-                        return;
-                    }
-                    ((HotTagHolder) holder).setData(mRecmdData.hotTags);
+                case POS_ITEM2: {
                 }
                 break;
-                case 2: {
+                case POS_HOT_SONGLIST: {
                     GridHolder gridHolder = (GridHolder) holder;
                     gridHolder.tvTitle.setText("热门歌单");
-                    Drawable drawable = getResources().getDrawable(R.drawable.ic_hot_songlist);
-                    DrawableCompat.setTint(drawable, getResources().getColor(R.color.colorAccent));
-                    gridHolder.ivIcon.setImageDrawable(drawable);
+                    gridHolder.ivIcon.setImageDrawable(tintDrawable(R.drawable.ic_hot_songlist));
                     gridHolder.gridView.setAdapter(new HotSongListAdapter(getContext(),
-                            mRecmdData == null ? null : mRecmdData.hotSongLists));
+                            mRecmdData == null ? null : mRecmdData.hotGedans));
                 }
                 break;
-                case 3: {
+                case POS_RECMD_ALBUM: {
                     GridHolder gridHolder = (GridHolder) holder;
                     gridHolder.tvTitle.setText("专辑推荐");
-                    Drawable drawable = getResources().getDrawable(R.drawable.ic_recmd_album);
-                    DrawableCompat.setTint(drawable, getResources().getColor(R.color.colorAccent));
-                    gridHolder.ivIcon.setImageDrawable(drawable);
+                    gridHolder.ivIcon.setImageDrawable(tintDrawable(R.drawable.ic_recmd_album));
                     gridHolder.gridView.setAdapter(new RecmdAlbumAdapter(getContext(),
                             mRecmdData == null ? null : mRecmdData.recmdAlbums));
+                }
+                break;
+                case POS_RECMD_SONG: {
+                    ListHolder listHolder = (ListHolder) holder;
+                    listHolder.tvTitle.setText("推荐歌曲");
+                    listHolder.ivIcon.setImageDrawable(tintDrawable(R.drawable.ic_category_recmd_music));
+                    listHolder.listView.setAdapter(new RecmdSongAdapter(getContext(),
+                            mRecmdData == null ? null : mRecmdData.recmdSongs));
                 }
                 break;
             }
         }
 
+        private Drawable tintDrawable(int res) {
+            return UITool.getTintDrawable(getContext(), res, getResources().getColor(R.color.colorAccent));
+        }
+
         @Override
         public int getItemViewType(int position) {
             switch (position) {
-                case 0:
+                case POS_FOCUS:
                     return TYPE_FOCUS;
-                case 1:
-                    return TYPE_HOT_TAG;
-                case 2:
-                case 3:
+                case POS_ITEM2:
+                    return TYPE_ITEM_2;
+                case POS_RECMD_ALBUM:
+                case POS_HOT_SONGLIST:
                     return TYPE_GRID;
+                case POS_RECMD_SONG: {
+                    return TYPE_LIST;
+                }
             }
             return super.getItemViewType(position);
         }
 
         @Override
         public int getItemCount() {
-            return 4;
+            return 5;
         }
 
         class FocusHolder extends RecyclerView.ViewHolder {
@@ -285,19 +319,17 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
             }
         }
 
-        class HotTagHolder extends RecyclerView.ViewHolder {
-            @BindViews({R.id.tv_tag1, R.id.tv_tag2, R.id.tv_tag3, R.id.tv_tag4})
-            List<TextView> tvTags;
+        class Item2Holder extends RecyclerView.ViewHolder {
+            @BindView(R.id.view_scene)
+            View scene;
+            @BindView(R.id.view_singer)
+            View singer;
+            @BindView(R.id.view_tag)
+            View tag;
 
-            public HotTagHolder(View itemView) {
+            public Item2Holder(View itemView) {
                 super(itemView);
                 ButterKnife.bind(this, itemView);
-            }
-
-            public void setData(List<Tag> tags) {
-                for (int i = 0; i < tags.size() && i < 3; i++) {
-                    tvTags.get(i).setText(tags.get(i).title);
-                }
             }
         }
 
@@ -308,6 +340,18 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
             @BindView(R.id.grid_view) GridView gridView;
 
             public GridHolder(View itemView) {
+                super(itemView);
+                ButterKnife.bind(this, itemView);
+            }
+        }
+
+        class ListHolder extends RecyclerView.ViewHolder {
+            @BindView(R.id.iv_category_icon) ImageView ivIcon;
+            @BindView(R.id.tv_title) TextView tvTitle;
+            @BindView(R.id.tv_more) TextView tvMore;
+            @BindView(R.id.list_view) ListView listView;
+
+            public ListHolder(View itemView) {
                 super(itemView);
                 ButterKnife.bind(this, itemView);
             }
@@ -341,14 +385,13 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.common_card, parent, false);
-            Holder holder = new Holder();
-            holder.imageView = ButterKnife.findById(convertView, R.id.iv_img);
-            holder.text1 = ButterKnife.findById(convertView, R.id.tv_text1);
-            holder.text2 = ButterKnife.findById(convertView, R.id.tv_text2);
-            onViewCreated(holder);
             if (mItems != null
                     && mItems.size() > position) {
                 final T t = mItems.get(position);
+                Holder holder = new Holder();
+                holder.imageView = ButterKnife.findById(convertView, R.id.iv_img);
+                holder.text1 = ButterKnife.findById(convertView, R.id.tv_text1);
+                holder.text2 = ButterKnife.findById(convertView, R.id.tv_text2);
                 onBindItem(t, holder);
             }
             return convertView;
@@ -358,9 +401,6 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
             ImageView imageView;
             TextView text1;
             TextView text2;
-        }
-
-        protected void onViewCreated(Holder holder) {
         }
 
         protected abstract void onBindItem(T t, Holder holder);
@@ -387,38 +427,81 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
 
         @Override
         public int getCount() {
-            return 6;
+            return RECMD_ALBUM_COUNT;
         }
     }
 
     /**
      * 热门歌单
      */
-    static class HotSongListAdapter extends CategoryAdapter<SongList> {
+    static class HotSongListAdapter extends CategoryAdapter<Gedan> {
 
-        public HotSongListAdapter(Context context, List<SongList> mItems) {
+        public HotSongListAdapter(Context context, List<Gedan> mItems) {
             super(context, mItems);
         }
 
         @Override
-        protected void onViewCreated(Holder holder) {
-            holder.text2.setVisibility(View.GONE);
-        }
-
-        @Override
-        protected void onBindItem(SongList songList, Holder holder) {
+        protected void onBindItem(Gedan songList, Holder holder) {
             Glide.with(getContext())
                     .load(songList.pic)
                     .into(holder.imageView);
             holder.text1.setText(songList.title);
+            holder.text2.setVisibility(View.GONE);
         }
 
         @Override
         public int getCount() {
-            return 6;
+            return HOTSONGLIST_COUNT;
         }
     }
 
+
+    /**
+     * 推荐歌曲
+     */
+    static class RecmdSongAdapter extends BaseAdapter {
+
+        private Context mContext;
+        private List<Song> mItems;
+
+        public RecmdSongAdapter(Context context, List<Song> songs) {
+            mContext = context;
+            mItems = songs;
+        }
+
+        @Override
+        public int getCount() {
+            return RECMD_SONG_COUNT;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mItems.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = LayoutInflater.from(mContext).inflate(R.layout.list_recmd_song, parent, false);
+            if (mItems != null
+                    && mItems.size() > position) {
+                ImageView ivImg = ButterKnife.findById(view, R.id.iv_img);
+                TextView tvTitle = ButterKnife.findById(view, R.id.tv_title);
+                TextView tvArtist = ButterKnife.findById(view, R.id.tv_artist);
+                Song song = mItems.get(position);
+                Glide.with(mContext)
+                        .load(song.picBig)
+                        .into(ivImg);
+                tvTitle.setText(song.title);
+                tvArtist.setText(song.author);
+            }
+            return view;
+        }
+    }
 
     /**
      * 顶部循环推荐适配器
@@ -449,7 +532,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
             }
             container.addView(imageView);
             Glide.with(mContext)
-                    .load(mFocusPics.get(position).picUrl)
+                    .load(mFocusPics.get(position).randpic)
                     .into(imageView);
             return imageView;
         }
