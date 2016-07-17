@@ -27,6 +27,12 @@ public abstract class LazyLoadFragment extends BaseFragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mInitedView = false;
+    }
+
     protected abstract void onLazyLoad();
 
     @Override

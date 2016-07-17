@@ -34,6 +34,7 @@ import com.sanron.yidumusic.data.model.response.RecmdData;
 import com.sanron.yidumusic.data.model.response.RecmdSongData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
+import com.sanron.yidumusic.util.ToastUtil;
 import com.sanron.yidumusic.util.UITool;
 import com.sanron.yidumusic.widget.OffsetDecoration;
 import com.viewpagerindicator.PageIndicator;
@@ -157,6 +158,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                     @Override
                     public void call(Throwable throwable) {
                         throwable.printStackTrace();
+                        ToastUtil.shortShow("获取数据失败");
                         mRefreshLayout.setRefreshing(false);
                     }
                 })
@@ -251,7 +253,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 case POS_HOT_SONGLIST: {
                     GridHolder gridHolder = (GridHolder) holder;
                     gridHolder.tvTitle.setText("热门歌单");
-                    gridHolder.ivIcon.setImageDrawable(tintDrawable(R.drawable.ic_hot_songlist));
+                    gridHolder.ivIcon.setImageDrawable(tintDrawable(R.mipmap.ic_hot_songlist));
                     gridHolder.gridView.setAdapter(new HotSongListAdapter(getContext(),
                             mRecmdData == null ? null : mRecmdData.hotGedans));
                 }
@@ -259,7 +261,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 case POS_RECMD_ALBUM: {
                     GridHolder gridHolder = (GridHolder) holder;
                     gridHolder.tvTitle.setText("专辑推荐");
-                    gridHolder.ivIcon.setImageDrawable(tintDrawable(R.drawable.ic_recmd_album));
+                    gridHolder.ivIcon.setImageDrawable(tintDrawable(R.mipmap.ic_recmd_album));
                     gridHolder.gridView.setAdapter(new RecmdAlbumAdapter(getContext(),
                             mRecmdData == null ? null : mRecmdData.recmdAlbums));
                 }
@@ -267,7 +269,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 case POS_RECMD_SONG: {
                     ListHolder listHolder = (ListHolder) holder;
                     listHolder.tvTitle.setText("推荐歌曲");
-                    listHolder.ivIcon.setImageDrawable(tintDrawable(R.drawable.ic_category_recmd_music));
+                    listHolder.ivIcon.setImageDrawable(tintDrawable(R.mipmap.ic_recmd_song));
                     listHolder.listView.setAdapter(new RecmdSongAdapter(getContext(),
                             mRecmdData == null ? null : mRecmdData.recmdSongs));
                 }

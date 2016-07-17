@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/ic"
+        android:layout_width="4dp"
+        android:layout_height="20dp"
+        android:background="@color/colorPrimary"/>
+
+    <TextView
+        android:id="@+id/tv_category"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@+id/ic"
+        android:singleLine="true"
+        android:textSize="16dp"
+        tools:text="忧伤"/>
+
+    <com.sanron.yidumusic.widget.NoScrollGridView
+        android:id="@+id/grid_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_category"
+        android:layout_marginTop="16dp"
+        android:horizontalSpacing="4dp"
+        android:numColumns="4"
+        android:verticalSpacing="4dp"/>
+</RelativeLayout>

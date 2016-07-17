@@ -1,6 +1,7 @@
 package com.sanron.yidumusic.ui.fragment.music_bank;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -51,6 +52,12 @@ public class MusicBankFragment extends BaseFragment {
     @Override
     protected int getLayout() {
         return R.layout.fragment_music_bank;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override

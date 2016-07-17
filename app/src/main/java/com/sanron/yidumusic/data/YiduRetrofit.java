@@ -42,7 +42,7 @@ public class YiduRetrofit {
                     .url()
                     .newBuilder()
                     .addQueryParameter("from", "android")
-                    .addQueryParameter("version", "5.6.5.6")
+                    .addQueryParameter("version", "5.8.0.1")
                     .addQueryParameter("format", "json")
                     .build();
             //设置UserAgent

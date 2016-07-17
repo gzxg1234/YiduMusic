@@ -21,7 +21,7 @@
             android:background="@drawable/bg_circle_"
             android:padding="10dp"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_fenlei"/>
+            android:src="@mipmap/ic_fenlei"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -46,7 +46,7 @@
             android:background="@drawable/bg_circle_"
             android:padding="10dp"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_singer"/>
+            android:src="@mipmap/ic_singer"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -71,7 +71,7 @@
             android:background="@drawable/bg_circle_"
             android:padding="10dp"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_scene"/>
+            android:src="@mipmap/ic_scene"/>
 
         <TextView
             android:layout_width="wrap_content"

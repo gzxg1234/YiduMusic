@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_text"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:background="@drawable/selector_tv_gedan_tag"
+    android:gravity="center"
+    android:text="全部"
+    android:textColor="@drawable/selector_tv_gedan_tag"
+    android:textSize="14dp"/>

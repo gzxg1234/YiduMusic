@@ -2,6 +2,9 @@ package com.sanron.yidumusic;
 
 import android.app.Application;
 
+import com.sanron.yidumusic.util.ToastUtil;
+import com.squareup.leakcanary.LeakCanary;
+
 /**************************************
  * FileName : com.sanron.yidumusic
  * Author : Administrator
@@ -17,6 +20,8 @@ public class YiduApp extends Application {
     public void onCreate() {
         super.onCreate();
         sInstance = this;
+        ToastUtil.init(this);
+        LeakCanary.install(this);
     }
 
     public static YiduApp get() {

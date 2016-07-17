@@ -21,6 +21,7 @@ import com.sanron.yidumusic.data.model.Song;
 import com.sanron.yidumusic.data.model.response.BillCategoryData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
+import com.sanron.yidumusic.util.ToastUtil;
 
 import java.util.List;
 
@@ -94,6 +95,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
                     @Override
                     public void call(Throwable throwable) {
                         throwable.printStackTrace();
+                        ToastUtil.shortShow("获取数据失败");
                         mRefreshLayout.setRefreshing(false);
                     }
                 })

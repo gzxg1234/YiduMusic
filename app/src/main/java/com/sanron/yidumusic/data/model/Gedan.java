@@ -19,14 +19,15 @@ public class Gedan {
     @JsonProperty("pic_w300") public String picW300;
 
     //收听人数
-    @JsonProperty("listenum") public String listenum;
+    @JsonProperty("listenum") public int listenum;
 
     //收藏数
-    @JsonProperty("collectnum") public String collectnum;
+    @JsonProperty("collectnum") public int collectnum;
 
     //歌单标签
     @JsonProperty("tag") public String tag;
 
     //描述
     @JsonProperty("desc") public String desc;
+
 }

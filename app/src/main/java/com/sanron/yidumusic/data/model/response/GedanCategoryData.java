@@ -7,8 +7,7 @@ import java.util.List;
 /**
  * Created by sanron on 16-7-16.
  */
-public class SongListCategoryData extends BaseData {
-
+public class GedanCategoryData extends BaseData {
 
     @JsonProperty("content") public List<Content> content;
 
