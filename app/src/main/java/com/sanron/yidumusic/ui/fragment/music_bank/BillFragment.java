@@ -16,10 +16,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.sanron.yidumusic.R;
-import com.sanron.yidumusic.data.YiduRetrofit;
-import com.sanron.yidumusic.data.model.Song;
-import com.sanron.yidumusic.data.model.response.BillCategoryData;
-import com.sanron.yidumusic.rx.TransformerUtil;
+import com.sanron.yidumusic.YiduApp;
+import com.sanron.yidumusic.data.net.model.Song;
+import com.sanron.yidumusic.data.net.model.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
 import com.sanron.yidumusic.util.ToastUtil;
 
@@ -42,6 +42,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
     SwipeRefreshLayout mRefreshLayout;
 
     private BillboardAdapter mBillboardAdapter;
+    private DataRepository mDataRepository;
 
     @Override
     protected void onLazyLoad() {
@@ -63,6 +64,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBillboardAdapter = new BillboardAdapter();
+        mDataRepository = YiduApp.get().getDataRepository();
     }
 
     @Override
@@ -75,10 +77,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
 
     @Override
     public void onRefresh() {
-        addSub(YiduRetrofit.get()
-                .getApiService()
-                .getBillCategory()
-                .compose(TransformerUtil.<BillCategoryData>apply())
+        addSub(mDataRepository.getBillCategory()
                 .map(new Func1<BillCategoryData, List<BillCategoryData.BillCategory>>() {
                     @Override
                     public List<BillCategoryData.BillCategory> call(BillCategoryData billCategoryData) {
@@ -95,7 +94,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
                     @Override
                     public void call(Throwable throwable) {
                         throwable.printStackTrace();
-                        ToastUtil.shortShow("获取数据失败");
+                        ToastUtil.$("获取数据失败");
                         mRefreshLayout.setRefreshing(false);
                     }
                 })

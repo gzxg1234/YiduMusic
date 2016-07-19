@@ -202,7 +202,7 @@ public class BMA {
         public static String songInfo(String songid) {
             StringBuffer sb = new StringBuffer(BASE);
             String str = "songid=" + songid + "&ts=" + System.currentTimeMillis();
-            String e = AESTools.encrpty(str);
+            String e = EncrptyTool.encrpty(str);
             sb.append("&method=").append("baidu.ting.song.getInfos")
                     .append("&").append(str)
                     .append("&e=").append(e);
@@ -218,7 +218,7 @@ public class BMA {
         public static String accompanyInfo(String songid) {
             StringBuffer sb = new StringBuffer(BASE);
             String str = "song_id=" + songid + "&ts=" + System.currentTimeMillis();
-            String e = AESTools.encrpty(str);
+            String e = EncrptyTool.encrpty(str);
             sb.append("&method=").append("baidu.ting.learn.down")
                     .append("&").append(str)
                     .append("&e=").append(e);
@@ -640,7 +640,7 @@ public class BMA {
             StringBuffer sb = new StringBuffer(BASE);
             String ts = Long.toString(System.currentTimeMillis());
             String query = word + "$$" + artist;
-            String e = AESTools.encrpty("query=" + query + "&ts=" + ts);
+            String e = EncrptyTool.encrpty("query=" + query + "&ts=" + ts);
             sb.append("&method=").append("baidu.ting.search.lrcpic")
                     .append("&query=").append(query)
                     .append("&ts=").append(ts)

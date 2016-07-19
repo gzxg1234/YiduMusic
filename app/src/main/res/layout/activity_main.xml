@@ -7,6 +7,8 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
+    <include layout="@layout/activity_main_content"/>
+
     <android.support.design.widget.NavigationView
         android:id="@+id/navigation_view"
         android:layout_width="match_parent"
@@ -14,8 +16,7 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/navigation_header"
         app:itemBackground="@android:color/transparent"
-        app:itemIconTint="@drawable/selector_color_left_menu_item"
-        app:itemTextColor="@drawable/selector_color_left_menu_item"
+        app:itemIconTint="@drawable/selector_navigation_item_color"
+        app:itemTextColor="@drawable/selector_navigation_item_color"
         app:menu="@menu/navigation_menu"/>
-    <include layout="@layout/activity_main_content"/>
 </android.support.v4.widget.DrawerLayout>

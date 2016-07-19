@@ -13,7 +13,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import com.sanron.yidumusic.R;
-import com.sanron.yidumusic.data.model.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
 import com.sanron.yidumusic.util.UITool;
 import com.sanron.yidumusic.widget.OffsetDecoration;
 

@@ -15,11 +15,15 @@ public class ToastUtil {
         sContext = context.getApplicationContext();
     }
 
-    public static void shortShow(String msg) {
+    public static void $(String msg) {
         show(msg, Toast.LENGTH_SHORT);
     }
 
-    public static void show(String msg, int length) {
+    public static void $$(String msg) {
+        show(msg, Toast.LENGTH_LONG);
+    }
+
+    private static void show(String msg, int length) {
         if (mToast != null) {
             mToast.cancel();
         }
@@ -27,7 +31,4 @@ public class ToastUtil {
         mToast.show();
     }
 
-    public static void longShow(String msg) {
-        show(msg, Toast.LENGTH_LONG);
-    }
 }

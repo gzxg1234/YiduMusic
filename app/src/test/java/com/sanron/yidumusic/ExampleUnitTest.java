@@ -1,6 +1,5 @@
 package com.sanron.yidumusic;
 
-import com.sanron.yidumusic.bdmusic.BMA;
 
 import org.junit.Test;
 
@@ -10,6 +9,5 @@ import org.junit.Test;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
-        System.out.println(BMA.Song.recommendSong(10));
     }
 }

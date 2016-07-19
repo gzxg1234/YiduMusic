@@ -1,7 +1,7 @@
 package com.sanron.yidumusic.rx;
 
-import com.sanron.yidumusic.data.ApiException;
-import com.sanron.yidumusic.data.model.response.BaseData;
+import com.sanron.yidumusic.data.net.ApiException;
+import com.sanron.yidumusic.data.net.model.response.BaseData;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -31,20 +31,21 @@ public class TransformerUtil {
             @Override
             public Observable<T> call(Observable<T> tObservable) {
                 return tObservable
-                        .map(new Func1<T, T>() {
+                        .flatMap(new Func1<T, Observable<T>>() {
                             @Override
-                            public T call(T t) {
+                            public Observable<T> call(T t) {
                                 if (t.errorCode != BaseData.CODE_SUCCES) {
-                                    throw new ApiException(t.errorCode);
+                                    return Observable.error(new ApiException(t.errorCode));
+                                } else {
+                                    return Observable.just(t);
                                 }
-                                return t;
                             }
                         });
             }
         };
     }
 
-    public static <T extends BaseData> Observable.Transformer<T, T> apply() {
+    public static <T extends BaseData> Observable.Transformer<T, T> net() {
         return new Observable.Transformer<T, T>() {
             @Override
             public Observable<T> call(Observable<T> tObservable) {

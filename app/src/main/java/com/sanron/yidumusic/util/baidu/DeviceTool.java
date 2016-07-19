@@ -6,6 +6,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.sanron.yidumusic.util.MD5Util;
+
 import java.util.UUID;
 
 /**************************************

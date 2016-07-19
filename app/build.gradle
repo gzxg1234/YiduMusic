@@ -13,6 +13,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -27,22 +28,25 @@ dependencies {
     compile project(':AndroidSlidingUpPanel')
     compile project(':ViewPagerIndicator')
     compile project(':LyricView')
-    def dependencies = rootProject.ext.dependencies;
-    compile dependencies['appcompat-v7']
-    compile dependencies['support-design']
-    compile dependencies['cardview-v7']
-    compile dependencies['palette-v7']
-    compile dependencies['material-menu-toolbar']
-    compile dependencies['okhttp']
-    compile dependencies['roundedimageview']
-    compile dependencies['butterknife']
-    compile dependencies['glide']
-    compile dependencies['rxjava']
-    compile dependencies['rxandroid']
-    compile dependencies['retrofit']
-    compile dependencies['adapter-rxjava']
-    compile dependencies['converter-jackson']
-    debugCompile dependencies['leakcanary']
-    releaseCompile dependencies['leakcanary-no-op']
-    apt dependencies['butterknife-compiler']
+    def libs = rootProject.ext.libs;
+    compile libs['appcompat-v7']
+    compile libs['support-design']
+    compile libs['cardview-v7']
+    compile libs['palette-v7']
+    compile libs['okhttp']
+    compile libs['roundedimageview']
+    compile libs['butterknife']
+    compile libs['glide']
+    compile libs['rxjava']
+    compile libs['rxandroid']
+    compile libs['retrofit']
+    compile libs['adapter-rxjava']
+    compile libs['converter-jackson']
+    compile libs['dbflow']
+    compile libs['dbflow-core']
+    apt libs['dbflow-processor']
+    debugCompile libs['leakcanary']
+    compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
+    releaseCompile libs['leakcanary-no-op']
+    apt libs['butterknife-compiler']
 }

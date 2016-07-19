@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#0097ef</color>
-    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimaryDark">#0087d6</color>
     <color name="colorAccent">#0097ef</color>
     <color name="colorPrimaryLight">#000000</color>
     <color name="textColorPrimary">#DD000000</color>
     <color name="textColorSecondary">#90000000</color>
     <color name="textColorPrimaryInverse">#FFFFFFFF</color>
     <color name="textColorSecondaryInverse">#B2FFFFFF</color>
-    <color name="colorListDivider">#D8D8D8</color>
+    <color name="dividerDark">#1E000000</color>
+    <color name="dividerLight">#1EFFFFFF</color>
     <color name="selectedBackground">#89000000</color>
 
     <color name="white">#FFFFFF</color>

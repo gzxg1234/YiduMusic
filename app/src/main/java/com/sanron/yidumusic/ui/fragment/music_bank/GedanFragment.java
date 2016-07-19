@@ -13,12 +13,13 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.sanron.yidumusic.R;
-import com.sanron.yidumusic.data.YiduRetrofit;
-import com.sanron.yidumusic.data.model.Gedan;
-import com.sanron.yidumusic.data.model.OfficicalGedan;
-import com.sanron.yidumusic.data.model.response.GedanCategoryData;
-import com.sanron.yidumusic.data.model.response.GedanListData;
-import com.sanron.yidumusic.data.model.response.OfficialGedanData;
+import com.sanron.yidumusic.YiduApp;
+import com.sanron.yidumusic.data.net.model.Gedan;
+import com.sanron.yidumusic.data.net.model.OfficicalGedan;
+import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.model.response.GedanListData;
+import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
 import com.sanron.yidumusic.ui.dialog.SelectGedanCategoryDialog;
@@ -52,6 +53,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
     @BindView(R.id.tv_current_tag)
     TextView mTvCurTag;
 
+    private DataRepository mDataRepository;
     private int mPage;
     private static final int PAGE_SIZE = 20;
     private GedanAdapter mGedanAdapter;
@@ -77,6 +79,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mGedanAdapter = new GedanAdapter();
+        mDataRepository = YiduApp.get().getDataRepository();
     }
 
     @Override
@@ -90,14 +93,14 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         mRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         mRefreshLayout.setOnRefreshListener(this);
         mGedanAdapter.setOnLoadMoreListener(this);
+        mGedanAdapter.setFirstLoadPic(true);
     }
 
     @OnClick(R.id.sticky_header)
     public void onHeaderClick() {
-        addSub(YiduRetrofit.get()
-                .getApiService()
-                .getSongListCategory()
-                .compose(TransformerUtil.<GedanCategoryData>apply())
+        addSub(mDataRepository
+                .getGedanCategory()
+                .compose(TransformerUtil.<GedanCategoryData>net())
                 .subscribe(new Action1<GedanCategoryData>() {
                     @Override
                     public void call(GedanCategoryData gedanCategoryData) {
@@ -106,7 +109,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        ToastUtil.shortShow("获取数据失败，请重试");
+                        ToastUtil.$("获取数据失败，请重试");
                     }
                 })
         );
@@ -153,10 +156,9 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         final int page = refresh ? 1 : mPage + 1;
         Observable<GedanData> observable;
         if ("全部".equals(mCurrentTag)) {
-            observable = YiduRetrofit.get()
-                    .getApiService()
+            observable = mDataRepository
                     .getGedanList(page, PAGE_SIZE)
-                    .compose(TransformerUtil.<GedanListData>apply())
+                    .compose(TransformerUtil.<GedanListData>net())
                     .map(new Func1<GedanListData, GedanData>() {
                         @Override
                         public GedanData call(GedanListData gedanListData) {
@@ -167,8 +169,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                         }
                     });
         } else if ("音乐专题".equals(mCurrentTag)) {
-            observable = YiduRetrofit.get()
-                    .getApiService()
+            observable = mDataRepository
                     .getOfficialGedan((page - 1) * PAGE_SIZE, PAGE_SIZE)
                     .compose(TransformerUtil.<OfficialGedanData>io())
                     .map(new Func1<OfficialGedanData, GedanData>() {
@@ -184,10 +185,9 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                         }
                     });
         } else {
-            observable = YiduRetrofit.get()
-                    .getApiService()
+            observable = mDataRepository
                     .getGedanListByTag(mCurrentTag, page, PAGE_SIZE)
-                    .compose(TransformerUtil.<GedanListData>apply())
+                    .compose(TransformerUtil.<GedanListData>net())
                     .map(new Func1<GedanListData, GedanData>() {
                         @Override
                         public GedanData call(GedanListData gedanListData) {
@@ -221,7 +221,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                         if (refresh) {
                             mGedanAdapter.setData(null);
                         }
-                        ToastUtil.shortShow("获取数据失败");
+                        ToastUtil.$("获取数据失败");
                         mGedanAdapter.onLoadComplete();
                         mRefreshLayout.setRefreshing(false);
                     }
@@ -283,6 +283,10 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
             mGedanList = data;
             mFirstLoadPic = true;
             notifyDataSetChanged();
+        }
+
+        public void setFirstLoadPic(boolean firstLoadPic) {
+            mFirstLoadPic = firstLoadPic;
         }
 
         public void addAll(List<? extends GedanModel> models) {
@@ -392,6 +396,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 if (data.type == GedanModel.TYPE_OFFICIAL) {
                     tvListenNum.setVisibility(View.INVISIBLE);
                 } else {
+                    tvListenNum.setVisibility(View.VISIBLE);
                     if (data.num > 100000) {
                         tvListenNum.setText(data.num / 10000 + "万");
                     } else {
