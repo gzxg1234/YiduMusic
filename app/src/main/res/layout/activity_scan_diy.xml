@@ -60,7 +60,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/dividerDark"/>
+        android:background="@color/divider"/>
 
     <ListView
         android:id="@+id/lv_file_explore"
@@ -69,12 +69,12 @@
         android:layout_weight="1"
         android:overScrollMode="never"
         android:scrollbarStyle="outsideOverlay"
-        tools:listitem="@layout/list_file_item"></ListView>
+        tools:listitem="@layout/list_file_item"/>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/dividerDark"/>
+        android:background="@color/divider"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

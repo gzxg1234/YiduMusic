@@ -11,5 +11,24 @@
         android:id="@+id/menu_sort_type"
         android:icon="@mipmap/ic_sort_white_24dp"
         android:title="排序方式"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/menu_sort_by_title"
+                android:icon="@mipmap/ic_sort_white_24dp"
+                android:title="按名称"/>
+            <item
+                android:id="@+id/menu_sort_by_add_time"
+                android:icon="@mipmap/ic_sort_white_24dp"
+                android:title="按添加时间"/>
+            <item
+                android:id="@+id/menu_sort_by_artist"
+                android:icon="@mipmap/ic_sort_white_24dp"
+                android:title="按歌手名"/>
+            <item
+                android:id="@+id/menu_sort_by_album"
+                android:icon="@mipmap/ic_sort_white_24dp"
+                android:title="按专辑名"/>
+        </menu>
+    </item>
 </menu>

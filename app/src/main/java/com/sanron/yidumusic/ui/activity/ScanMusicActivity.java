@@ -21,8 +21,6 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.stuxuhai.jpinyin.PinyinFormat;
-import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.data.db.YiduDB;
@@ -109,8 +107,6 @@ public class ScanMusicActivity extends BaseActivity implements View.OnClickListe
                 if (cursor.moveToFirst()) {
                     String displayName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
                     String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                    String titleKey = (title == null ?
-                            null : PinyinHelper.convertToPinyinString(title, "", PinyinFormat.WITHOUT_TONE));
                     String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
                     String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
                     String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
@@ -120,7 +116,6 @@ public class ScanMusicActivity extends BaseActivity implements View.OnClickListe
                     MusicInfo music = new MusicInfo();
                     music.setName(displayName);
                     music.setTitle(title);
-                    music.setTitleKey(titleKey);
                     music.setAlbum(album);
                     music.setArtist(artist);
                     music.setPath(path);

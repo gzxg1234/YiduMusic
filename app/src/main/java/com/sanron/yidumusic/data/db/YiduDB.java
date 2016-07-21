@@ -35,8 +35,8 @@ public class YiduDB {
             public Boolean call() throws Exception {
                 DatabaseWrapper database = FlowManager.getDatabase(YiduDB.class).getWritableDatabase();
                 database.beginTransaction();
+                DBObserver.get().beginTransaction();
                 try {
-                    database.beginTransaction();
                     for (MusicInfo musicInfo : musicInfos) {
                         //查找信息表是否已有歌曲信息
                         MusicInfo music = SQLite.select(MusicInfo_Table.id)
@@ -77,6 +77,7 @@ public class YiduDB {
                     return false;
                 } finally {
                     database.endTransaction();
+                    DBObserver.get().endTranscaction();
                 }
             }
         });

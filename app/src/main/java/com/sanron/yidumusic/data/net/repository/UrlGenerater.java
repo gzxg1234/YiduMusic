@@ -1,7 +1,5 @@
 package com.sanron.yidumusic.data.net.repository;
 
-import retrofit2.http.GET;
-
 /**
  * 生产缓存url,只在数据库缓存中使用
  * Created by sanron on 16-7-19.
@@ -56,12 +54,20 @@ public abstract class UrlGenerater {
     }
 
     //官方歌单
-    @GET("ting?method=baidu.ting.diy.getOfficialDiyList&ver=2&type=1")
     public static String getOfficialGedan(int offset, int limit) {
         return new StringBuilder(BASE)
                 .append("&method=baidu.ting.diy.search")
                 .append("&pn=").append(offset)
                 .append("&rn=").append(limit)
+                .toString();
+    }
+
+    //官方歌单
+    public static String getLrcpic(String word, String artist) {
+        return new StringBuilder(BASE)
+                .append("&method=baidu.ting.search.lrcpic")
+                .append("&word=").append(word)
+                .append("&artist=").append(artist)
                 .toString();
     }
 }

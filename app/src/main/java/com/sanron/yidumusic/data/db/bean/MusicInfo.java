@@ -16,14 +16,14 @@ public class MusicInfo extends Base {
     @Column
     private String title;
 
-    @Column
-    private String titleKey;
 
     @Column
     private String album;
 
+
     @Column
     private String artist;
+
 
     @Column
     private String path;
@@ -57,13 +57,6 @@ public class MusicInfo extends Base {
         this.title = title;
     }
 
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
-    }
 
     public String getAlbum() {
         return album;
@@ -122,17 +115,17 @@ public class MusicInfo extends Base {
     }
 
 
-    public static final String TABLE = "music_info";
-    public static final String COL_NAME = "name";
-    public static final String COL_TITLE = "title";
-    public static final String COL_TITLE_KEY = "title_key";
-    public static final String COL_ALBUM = "album";
-    public static final String COL_ARTIST = "artist";
-    public static final String COL_LAST_MODIFY = "last_modify";
-    public static final String COL_PATH = "path";
-    public static final String COL_DURATION = "duration";
-    public static final String COL_SONG_ID = "song_id";
-    public static final String COL_BITRATE = "bitrate";
+//    public static final String TABLE = "music_info";
+//    public static final String COL_NAME = "name";
+//    public static final String COL_TITLE = "title";
+//    public static final String COL_TITLE_KEY = "title_key";
+//    public static final String COL_ALBUM = "album";
+//    public static final String COL_ARTIST = "artist";
+//    public static final String COL_LAST_MODIFY = "last_modify";
+//    public static final String COL_PATH = "path";
+//    public static final String COL_DURATION = "duration";
+//    public static final String COL_SONG_ID = "song_id";
+//    public static final String COL_BITRATE = "bitrate";
 
 //
 //    public static final Func1<Cursor, MusicInfo> MAPER = new Func1<Cursor, MusicInfo>() {

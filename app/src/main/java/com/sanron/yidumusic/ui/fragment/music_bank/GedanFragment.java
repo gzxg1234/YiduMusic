@@ -5,13 +5,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.YiduApp;
 import com.sanron.yidumusic.data.net.model.Gedan;
@@ -21,6 +17,7 @@ import com.sanron.yidumusic.data.net.model.response.GedanListData;
 import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.rx.TransformerUtil;
+import com.sanron.yidumusic.ui.adapter.GedanAdapter;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
 import com.sanron.yidumusic.ui.dialog.SelectGedanCategoryDialog;
 import com.sanron.yidumusic.util.ToastUtil;
@@ -33,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.functions.Action1;
@@ -78,7 +74,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mGedanAdapter = new GedanAdapter();
+        mGedanAdapter = new GedanAdapter(getContext());
         mDataRepository = YiduApp.get().getDataRepository();
     }
 
@@ -93,7 +89,6 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         mRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         mRefreshLayout.setOnRefreshListener(this);
         mGedanAdapter.setOnLoadMoreListener(this);
-        mGedanAdapter.setFirstLoadPic(true);
     }
 
     @OnClick(R.id.sticky_header)
@@ -229,11 +224,11 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         );
     }
 
-    private List<GedanModel> tranformGedan(List<Gedan> gedenList) {
-        List<GedanModel> models = new ArrayList<>();
+    private List<GedanAdapter.GedanModel> tranformGedan(List<Gedan> gedenList) {
+        List<GedanAdapter.GedanModel> models = new ArrayList<>();
         for (Gedan gedan : gedenList) {
-            GedanModel model = new GedanModel();
-            model.type = GedanModel.TYPE_GEDAN;
+            GedanAdapter.GedanModel model = new GedanAdapter.GedanModel();
+            model.type = GedanAdapter.GedanModel.TYPE_GEDAN;
             model.pic = gedan.pic300;
             model.code = gedan.listid;
             model.text1 = gedan.title;
@@ -244,11 +239,11 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         return models;
     }
 
-    private List<GedanModel> tranformOfficialGedan(List<OfficicalGedan> gedenList) {
-        List<GedanModel> models = new ArrayList<>();
+    private List<GedanAdapter.GedanModel> tranformOfficialGedan(List<OfficicalGedan> gedenList) {
+        List<GedanAdapter.GedanModel> models = new ArrayList<>();
         for (OfficicalGedan gedan : gedenList) {
-            GedanModel model = new GedanModel();
-            model.type = GedanModel.TYPE_OFFICIAL;
+            GedanAdapter.GedanModel model = new GedanAdapter.GedanModel();
+            model.type = GedanAdapter.GedanModel.TYPE_OFFICIAL;
             model.pic = gedan.pic;
             model.code = gedan.code;
             model.text1 = gedan.name;
@@ -260,152 +255,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
 
     static class GedanData {
         boolean haveMore;
-        List<GedanModel> data;
+        List<GedanAdapter.GedanModel> data;
     }
-
-    static class GedanModel {
-        String pic;
-        String text1;
-        String text2;
-        int num;
-        String code;
-        int type;
-        static final int TYPE_GEDAN = 1;
-        static final int TYPE_OFFICIAL = 2;
-    }
-
-    class GedanAdapter extends PullAdapter<GedanAdapter.Holder> {
-
-        private List<GedanModel> mGedanList;
-        private boolean mFirstLoadPic = true;
-
-        public void setData(List<GedanModel> data) {
-            mGedanList = data;
-            mFirstLoadPic = true;
-            notifyDataSetChanged();
-        }
-
-        public void setFirstLoadPic(boolean firstLoadPic) {
-            mFirstLoadPic = firstLoadPic;
-        }
-
-        public void addAll(List<? extends GedanModel> models) {
-            if (models != null) {
-                if (mGedanList == null) {
-                    mGedanList = new ArrayList<>();
-                }
-                mGedanList.addAll(models);
-                mFirstLoadPic = true;
-                notifyDataSetChanged();
-            }
-        }
-
-        @Override
-        public Holder onCreateRealViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.list_gedan_item, parent, false);
-            return new Holder(view);
-        }
-
-        @Override
-        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-            super.onAttachedToRecyclerView(recyclerView);
-
-            //图片停止滚动时再加载
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        mFirstLoadPic = false;
-                        for (int i = 0; i < recyclerView.getChildCount(); i++) {
-                            RecyclerView.ViewHolder holder = recyclerView.findContainingViewHolder(
-                                    recyclerView.getChildAt(i));
-                            if (holder instanceof Holder) {
-                                GedanModel model = ((Holder) holder).data;
-                                if (model != null) {
-                                    Glide.with(getContext())
-                                            .load(model.pic)
-                                            .into(((Holder) holder).ivImg);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onBindRealViewHolder(Holder holder, int position) {
-            holder.setData(mGedanList.get(position));
-        }
-
-        @Override
-        public int getRealItemCount() {
-            return mGedanList == null ? 0 : mGedanList.size();
-        }
-
-        @Override
-        public RecyclerView.ViewHolder onCreateFooterView(ViewGroup parent) {
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.loading_footer_layout,
-                    parent, false);
-            return new FooterHolder(view);
-        }
-
-        @Override
-        public void onBindFooterViewHolder(RecyclerView.ViewHolder viewHolder, boolean hasMore) {
-            String label = hasMore ? "加载中" : "没有更多";
-            ((FooterHolder) viewHolder).tvLabel.setText(label);
-        }
-
-        class FooterHolder extends RecyclerView.ViewHolder {
-            @BindView(R.id.tv_text)
-            TextView tvLabel;
-
-            public FooterHolder(View itemView) {
-                super(itemView);
-                ButterKnife.bind(this, itemView);
-            }
-        }
-
-        class Holder extends RecyclerView.ViewHolder {
-            @BindView(R.id.iv_img)
-            ImageView ivImg;
-            @BindView(R.id.tv_text1)
-            TextView tvText1;
-            @BindView(R.id.tv_text2)
-            TextView tvText2;
-            @BindView(R.id.tv_listen_num)
-            TextView tvListenNum;
-            GedanModel data;
-
-            public Holder(View itemView) {
-                super(itemView);
-                ButterKnife.bind(this, itemView);
-            }
-
-            public void setData(GedanModel data) {
-                this.data = data;
-                Glide.clear(ivImg);
-                ivImg.setImageBitmap(null);
-                if (mFirstLoadPic) {
-                    Glide.with(getContext())
-                            .load(data.pic)
-                            .into(ivImg);
-                }
-                tvText1.setText(data.text1);
-                tvText2.setText(data.text2);
-                if (data.type == GedanModel.TYPE_OFFICIAL) {
-                    tvListenNum.setVisibility(View.INVISIBLE);
-                } else {
-                    tvListenNum.setVisibility(View.VISIBLE);
-                    if (data.num > 100000) {
-                        tvListenNum.setText(data.num / 10000 + "万");
-                    } else {
-                        tvListenNum.setText(String.valueOf(data.num));
-                    }
-                }
-            }
-        }
-    }
-
 
 }

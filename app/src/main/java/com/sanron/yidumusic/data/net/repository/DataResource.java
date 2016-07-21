@@ -4,6 +4,7 @@ import com.sanron.yidumusic.data.net.model.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.model.response.GedanListData;
 import com.sanron.yidumusic.data.net.model.response.HomeData;
+import com.sanron.yidumusic.data.net.model.response.LrcpicData;
 import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
 
 import rx.Observable;
@@ -31,4 +32,7 @@ public interface DataResource {
 
     //官方歌单
     Observable<OfficialGedanData> getOfficialGedan(int offset, int limit);
+
+
+    Observable<LrcpicData> getLrcpic(String word, String artist);
 }

@@ -1,6 +1,7 @@
 package com.sanron.yidumusic.data.db.bean;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.Index;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.sanron.yidumusic.data.db.YiduDB;
 
@@ -10,6 +11,7 @@ import com.sanron.yidumusic.data.db.YiduDB;
 @Table(name = "cache", database = YiduDB.class)
 public class Cache extends Base {
 
+    @Index
     @Column
     private String key;
     @Column

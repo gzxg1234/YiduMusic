@@ -5,10 +5,10 @@ repositories {
 }
 
 dependencies {
-    compile rootProject.ext.dependencies['support-v4']
-    compile rootProject.ext.dependencies['support-annotations']
-    compile rootProject.ext.dependencies['recyclerview-v7']
-    compile rootProject.ext.dependencies['nineoldandroids']
+    compile rootProject.ext.libs['support-v4']
+    compile rootProject.ext.libs['support-annotations']
+    compile rootProject.ext.libs['recyclerview-v7']
+    compile rootProject.ext.libs['nineoldandroids']
 }
 
 android {

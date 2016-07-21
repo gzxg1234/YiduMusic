@@ -11,10 +11,12 @@ import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.model.response.GedanListData;
 import com.sanron.yidumusic.data.net.model.response.HomeData;
 import com.sanron.yidumusic.data.net.model.response.HotGedanData;
+import com.sanron.yidumusic.data.net.model.response.LrcpicData;
 import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
 import com.sanron.yidumusic.data.net.model.response.RecmdAlbumData;
 import com.sanron.yidumusic.data.net.model.response.RecmdSongData;
 import com.sanron.yidumusic.rx.TransformerUtil;
+import com.sanron.yidumusic.util.baidu.EncryptTool;
 
 import java.util.List;
 
@@ -127,6 +129,14 @@ public class RemoteDataResource implements DataResource {
     @Override
     public Observable<OfficialGedanData> getOfficialGedan(int offset, int limit) {
         return mApiService.getOfficialGedan(offset, limit);
+    }
+
+    @Override
+    public Observable<LrcpicData> getLrcpic(String word, String artist) {
+        long ts = System.currentTimeMillis();
+        String query = word + "$$" + artist;
+        String e = EncryptTool.encrypt("query=" + query + "&ts=" + ts);
+        return mApiService.getLrcpic(query, e, ts);
     }
 
 }

@@ -1,7 +1,5 @@
-package com.sanron.yidumusic.bdmusic;
+package com.sanron.yidumusic.util.baidu;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -14,14 +12,14 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public final class EncrptyTool {
+public final class EncryptTool {
 
     private static final String INPUT = "2012171402992850";
     private static final String IV = "2012061402992850";
     private static final char[] CODES = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'A', 'B', 'C', 'D', 'E', 'F'};
 
-    public static String encrpty(String input) {
+    public static String encrypt(String input) {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             messageDigest.update(INPUT.getBytes());
@@ -39,9 +37,7 @@ public final class EncrptyTool {
                     .getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec,
                     new IvParameterSpec(IV.getBytes()));
-            return URLEncoder.encode(
-                    Base64Tool.encode(cipher.doFinal(input.getBytes())),
-                    "utf-8");
+            return Base64Tool.encode(cipher.doFinal(input.getBytes()));
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
@@ -53,8 +49,6 @@ public final class EncrptyTool {
         } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
         } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return "";

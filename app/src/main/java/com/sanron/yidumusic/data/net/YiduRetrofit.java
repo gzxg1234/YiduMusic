@@ -1,5 +1,7 @@
 package com.sanron.yidumusic.data.net;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanron.yidumusic.YiduApp;
@@ -61,7 +63,6 @@ public class YiduRetrofit {
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(INTERCEPTOR)
-                .addNetworkInterceptor(INTERCEPTOR)
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();

@@ -24,15 +24,18 @@ public class LyricView extends View {
      */
     private String mEmptyTip = "LyricView";
     private int mSentenceMargin;
-    private Paint mCurrentPaint;
-    private Paint mNormalPaint;
+    private Paint mPaint;
+    private int mNormalTextSize;
+    private int mCurrentTextSize;
+    private int mNormalTextColor;
+    private int mCurrentTextColor;
     private int mCenterX;
     private int mCenterY;
     private Rect mClipBounds;
     private Lyric mLyric;
     private int mCurrentSentenceIndex = 1;
 
-    private static final int DEFAULT_TEXT_SIZE = 14;//sp
+    private static final int DEFAULT_TEXT_SIZE = 14;//dp
     private static final int DEFAULT_NORMAL_TEXT_COLOR = 0x88FFFFFF;
     private static final int DEFAULT_CURRENT_TEXT_COLOR = 0xFFFFFFFF;
     private static final int DEFAULT_SENTENCE_MARGIN = 10;//dp
@@ -49,23 +52,20 @@ public class LyricView extends View {
         super(context, attrs, defStyleAttr);
 
         TypedArray ta = getResources().obtainAttributes(attrs, R.styleable.LyricView);
-        mCurrentPaint = new Paint();
-        mCurrentPaint.setAntiAlias(true);
-        mCurrentPaint.setTextSize(ta.getDimension(R.styleable.LyricView_textSize,
-                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, DEFAULT_TEXT_SIZE, getResources().getDisplayMetrics())));
-        mCurrentPaint.setColor(ta.getColor(R.styleable.LyricView_currentTextColor, DEFAULT_CURRENT_TEXT_COLOR));
-        mCurrentPaint.setTextAlign(Paint.Align.CENTER);
+        mCurrentTextSize = ta.getDimensionPixelSize(R.styleable.LyricView_textSize,
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, DEFAULT_TEXT_SIZE, getResources().getDisplayMetrics()));
+        mCurrentTextColor = ta.getColor(R.styleable.LyricView_currentTextColor, DEFAULT_CURRENT_TEXT_COLOR);
 
-        mNormalPaint = new Paint();
-        mNormalPaint.setAntiAlias(true);
-        mNormalPaint.setTextSize(ta.getDimension(R.styleable.LyricView_textSize,
-                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, DEFAULT_TEXT_SIZE, getResources().getDisplayMetrics())));
-        mNormalPaint.setColor(ta.getColor(R.styleable.LyricView_textColor, DEFAULT_NORMAL_TEXT_COLOR));
-        mNormalPaint.setTextAlign(Paint.Align.CENTER);
+        mNormalTextSize = ta.getDimensionPixelSize(R.styleable.LyricView_textSize,
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, DEFAULT_TEXT_SIZE, getResources().getDisplayMetrics()));
+        mNormalTextColor = ta.getColor(R.styleable.LyricView_textColor, DEFAULT_NORMAL_TEXT_COLOR);
 
         mSentenceMargin = (int) ta.getDimension(R.styleable.LyricView_sentenceMargin,
                 TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, DEFAULT_SENTENCE_MARGIN, getResources().getDisplayMetrics()));
 
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setTextAlign(Paint.Align.CENTER);
         ta.recycle();
     }
 
@@ -92,7 +92,7 @@ public class LyricView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         if (isEmpty()) {
-            drawSentence(mEmptyTip, canvas, mCurrentPaint, -1, true);
+            drawSentence(mEmptyTip, canvas, mPaint, -1, true);
             return;
         }
 
@@ -100,20 +100,24 @@ public class LyricView extends View {
         canvas.clipRect(mClipBounds);
         int curY = 0;
         //先画当前的歌词
-        int currentTotalHeight = 0;
+        int currentTotalHeight;
+        mPaint.setColor(mCurrentTextColor);
+        mPaint.setTextSize(mCurrentTextSize);
         if (mCurrentSentenceIndex > -1) {
             currentTotalHeight = drawSentence(mLyric.sentences.get(mCurrentSentenceIndex).content,
-                    canvas, mCurrentPaint, -1, true);
+                    canvas, mPaint, -1, true);
         } else {
-            Paint.FontMetricsInt fontMetricsInt = mCurrentPaint.getFontMetricsInt();
+            Paint.FontMetricsInt fontMetricsInt = mPaint.getFontMetricsInt();
             currentTotalHeight = fontMetricsInt.bottom - fontMetricsInt.top;
         }
 
+        mPaint.setColor(mNormalTextColor);
+        mPaint.setTextSize(mNormalTextSize);
         //当前歌词之前的歌词
         curY = mCenterY - currentTotalHeight / 2 - mSentenceMargin;
         for (int i = mCurrentSentenceIndex - 1; i >= 0; i--) {
             String sentence = mLyric.sentences.get(i).content;
-            int sentenceHeight = drawSentence(sentence, canvas, mNormalPaint, curY, false) + mSentenceMargin;
+            int sentenceHeight = drawSentence(sentence, canvas, mPaint, curY, false) + mSentenceMargin;
             if (sentenceHeight == -1) {
                 break;
             }
@@ -124,7 +128,7 @@ public class LyricView extends View {
         curY = mCenterY + currentTotalHeight / 2 + mSentenceMargin;
         for (int i = mCurrentSentenceIndex + 1; i < mLyric.sentences.size(); i++) {
             String sentence = mLyric.sentences.get(i).content;
-            int sentenceHeight = drawSentence(sentence, canvas, mNormalPaint, curY, true) + mSentenceMargin;
+            int sentenceHeight = drawSentence(sentence, canvas, mPaint, curY, true) + mSentenceMargin;
             if (sentenceHeight == -1) {
                 break;
             }

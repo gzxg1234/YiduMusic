@@ -25,6 +25,6 @@ public class MD5Util {
             return toHex(messageDigest.digest(), "", toUpperCase);
         } catch (NoSuchAlgorithmException e) {
         }
-        throw new RuntimeException(input.toString());
+        return "";
     }
 }

@@ -6,6 +6,7 @@ import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.model.response.GedanListData;
 import com.sanron.yidumusic.data.net.model.response.HotGedanData;
 import com.sanron.yidumusic.data.net.model.response.HotTagData;
+import com.sanron.yidumusic.data.net.model.response.LrcpicData;
 import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
 import com.sanron.yidumusic.data.net.model.response.RecmdAlbumData;
 import com.sanron.yidumusic.data.net.model.response.RecmdSongData;
@@ -94,4 +95,8 @@ public interface BaiduApiService {
     Observable<OfficialGedanData> getOfficialGedan(@Query("pn") int offset,
                                                    @Query("rn") int limit);
 
+    @GET("ting?method=baidu.ting.search.lrcpic")
+    Observable<LrcpicData> getLrcpic(@Query(value = "query") String query,
+                                     @Query(value = "e") String e,
+                                     @Query("ts") long ts);
 }

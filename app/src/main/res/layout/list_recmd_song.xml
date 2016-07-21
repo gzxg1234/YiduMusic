@@ -49,6 +49,6 @@
         android:layout_height="1px"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/iv_img"
-        android:background="@color/dividerDark"/>
+        android:background="@color/divider"/>
 
 </RelativeLayout>

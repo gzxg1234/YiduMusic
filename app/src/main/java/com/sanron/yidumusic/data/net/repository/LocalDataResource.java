@@ -8,6 +8,7 @@ import com.sanron.yidumusic.data.net.model.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.model.response.GedanListData;
 import com.sanron.yidumusic.data.net.model.response.HomeData;
+import com.sanron.yidumusic.data.net.model.response.LrcpicData;
 import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
 
 import java.io.IOException;
@@ -66,8 +67,14 @@ public class LocalDataResource implements DataResource {
         return Observable.create(new GetCacheOnSubscriber<>(url, OfficialGedanData.class));
     }
 
+    @Override
+    public Observable<LrcpicData> getLrcpic(String word, String artist) {
+        String url = UrlGenerater.getLrcpic(word, artist);
+        return Observable.create(new GetCacheOnSubscriber<>(url, LrcpicData.class));
+    }
 
-    public <T> void saveData(String url, T t, long maxAge) {
+
+    public <T> void putCache(String url, T t, long maxAge) {
         try {
             String json = objectMapper.writeValueAsString(t);
             mHttpCache.put(url, json, maxAge);

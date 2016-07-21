@@ -4,19 +4,18 @@ import com.sanron.yidumusic.data.net.model.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.model.response.GedanListData;
 import com.sanron.yidumusic.data.net.model.response.HomeData;
+import com.sanron.yidumusic.data.net.model.response.LrcpicData;
 import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 
 import rx.Observable;
 import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by sanron on 16-7-19.
  */
 public class DataRepository implements DataResource {
 
-    private static volatile DataRepository sInstance;
 
     private LocalDataResource mLocal;
     private RemoteDataResource mRemote;
@@ -35,11 +34,10 @@ public class DataRepository implements DataResource {
                 .getHomeData(foucsNum, hotGedanNum, recmdAlbumNum, recmdSongNum);
         Observable<HomeData> remoteData = mRemote
                 .getHomeData(foucsNum, hotGedanNum, recmdAlbumNum, recmdSongNum)
-                .observeOn(Schedulers.io())
                 .doOnNext(new Action1<HomeData>() {
                     @Override
                     public void call(HomeData homeData) {
-                        mLocal.saveData(
+                        mLocal.putCache(
                                 UrlGenerater.getHomeData(foucsNum, hotGedanNum, recmdAlbumNum, recmdSongNum),
                                 homeData,
                                 1000 * 30 * 60);
@@ -53,14 +51,15 @@ public class DataRepository implements DataResource {
     @Override
     public Observable<BillCategoryData> getBillCategory() {
         Observable<BillCategoryData> localData = mLocal
-                .getBillCategory();
+                .getBillCategory()
+                .compose(TransformerUtil.<BillCategoryData>checkError());
         Observable<BillCategoryData> remoteData = mRemote
                 .getBillCategory()
-                .observeOn(Schedulers.io())
+                .compose(TransformerUtil.<BillCategoryData>checkError())
                 .doOnNext(new Action1<BillCategoryData>() {
                     @Override
                     public void call(BillCategoryData data) {
-                        mLocal.saveData(
+                        mLocal.putCache(
                                 UrlGenerater.getBillCategory(),
                                 data,
                                 2 * 60 * 60 * 1000);
@@ -68,20 +67,21 @@ public class DataRepository implements DataResource {
                 });
         return Observable.concat(localData, remoteData)
                 .first()
-                .compose(TransformerUtil.<BillCategoryData>net());
+                .compose(TransformerUtil.<BillCategoryData>io());
     }
 
     @Override
     public Observable<GedanCategoryData> getGedanCategory() {
         Observable<GedanCategoryData> localData = mLocal
-                .getGedanCategory();
+                .getGedanCategory()
+                .compose(TransformerUtil.<GedanCategoryData>checkError());
         Observable<GedanCategoryData> remoteData = mRemote
                 .getGedanCategory()
-                .observeOn(Schedulers.io())
+                .compose(TransformerUtil.<GedanCategoryData>checkError())
                 .doOnNext(new Action1<GedanCategoryData>() {
                     @Override
                     public void call(GedanCategoryData data) {
-                        mLocal.saveData(
+                        mLocal.putCache(
                                 UrlGenerater.getGedanCategory(),
                                 data,
                                 24 * 60 * 60 * 1000);
@@ -89,20 +89,21 @@ public class DataRepository implements DataResource {
                 });
         return Observable.concat(localData, remoteData)
                 .first()
-                .compose(TransformerUtil.<GedanCategoryData>net());
+                .compose(TransformerUtil.<GedanCategoryData>io());
     }
 
     @Override
     public Observable<GedanListData> getGedanList(final int page, final int pageSize) {
         Observable<GedanListData> localData = mLocal
-                .getGedanList(page, pageSize);
+                .getGedanList(page, pageSize)
+                .compose(TransformerUtil.<GedanListData>checkError());
         Observable<GedanListData> remoteData = mRemote
                 .getGedanList(page, pageSize)
-                .observeOn(Schedulers.io())
+                .compose(TransformerUtil.<GedanListData>checkError())
                 .doOnNext(new Action1<GedanListData>() {
                     @Override
                     public void call(GedanListData data) {
-                        mLocal.saveData(
+                        mLocal.putCache(
                                 UrlGenerater.getGedanList(page, pageSize),
                                 data,
                                 24 * 60 * 60 * 1000);
@@ -110,21 +111,22 @@ public class DataRepository implements DataResource {
                 });
         return Observable.concat(localData, remoteData)
                 .first()
-                .compose(TransformerUtil.<GedanListData>net());
+                .compose(TransformerUtil.<GedanListData>io());
     }
 
     @Override
     public Observable<GedanListData> getGedanListByTag(final String tagName, final int page,
                                                        final int pageSize) {
         Observable<GedanListData> localData = mLocal
-                .getGedanListByTag(tagName, page, pageSize);
+                .getGedanListByTag(tagName, page, pageSize)
+                .compose(TransformerUtil.<GedanListData>checkError());
         Observable<GedanListData> remoteData = mRemote
                 .getGedanListByTag(tagName, page, pageSize)
-                .observeOn(Schedulers.io())
+                .compose(TransformerUtil.<GedanListData>checkError())
                 .doOnNext(new Action1<GedanListData>() {
                     @Override
                     public void call(GedanListData data) {
-                        mLocal.saveData(
+                        mLocal.putCache(
                                 UrlGenerater.getGedanListByTag(tagName, page, pageSize),
                                 data,
                                 12 * 60 * 60 * 1000);
@@ -132,7 +134,7 @@ public class DataRepository implements DataResource {
                 });
         return Observable.concat(localData, remoteData)
                 .first()
-                .compose(TransformerUtil.<GedanListData>net());
+                .compose(TransformerUtil.<GedanListData>io());
     }
 
     @Override
@@ -141,11 +143,10 @@ public class DataRepository implements DataResource {
                 .getOfficialGedan(offset, limit);
         Observable<OfficialGedanData> remoteData = mRemote
                 .getOfficialGedan(offset, limit)
-                .observeOn(Schedulers.io())
                 .doOnNext(new Action1<OfficialGedanData>() {
                     @Override
                     public void call(OfficialGedanData data) {
-                        mLocal.saveData(
+                        mLocal.putCache(
                                 UrlGenerater.getOfficialGedan(offset, limit),
                                 data,
                                 12 * 60 * 60 * 1000);
@@ -154,6 +155,28 @@ public class DataRepository implements DataResource {
         return Observable.concat(localData, remoteData)
                 .first()
                 .compose(TransformerUtil.<OfficialGedanData>io());
+    }
+
+    @Override
+    public Observable<LrcpicData> getLrcpic(final String word, final String artist) {
+        Observable<LrcpicData> localData = mLocal
+                .getLrcpic(word, artist)
+                .compose(TransformerUtil.<LrcpicData>checkError());
+        Observable<LrcpicData> remoteData = mRemote
+                .getLrcpic(word, artist)
+                .doOnNext(new Action1<LrcpicData>() {
+                    @Override
+                    public void call(LrcpicData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getLrcpic(word, artist),
+                                data,
+                                24 * 60 * 60 * 1000);
+                    }
+                })
+                .compose(TransformerUtil.<LrcpicData>checkError());
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<LrcpicData>io());
     }
 
 }

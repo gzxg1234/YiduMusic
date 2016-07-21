@@ -18,6 +18,7 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.ui.base.BaseActivity;
 import com.sanron.yidumusic.ui.base.ViewPageFragment;
+import com.sanron.yidumusic.ui.fragment.NowPlayingFragment;
 import com.sanron.yidumusic.ui.fragment.music_bank.MusicBankFragment;
 import com.sanron.yidumusic.ui.fragment.my_music.MyMusicFragment;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -30,6 +31,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @BindView(R.id.drawer_layout) DrawerLayout mDrawerLayout;
     @BindView(R.id.linear_layout) LinearLayout mLinearLayout;
 
+    private NowPlayingFragment mNowPlayingFragment;
     private int mCurrentPage = -1;
     private static final String[] PAGES = new String[]{
             "my_music", "music_bank"
@@ -40,9 +42,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     };
 
     @Override
+    protected int getLayout() {
+        return R.layout.activity_main;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         initView();
 
         int page = 0;
@@ -50,12 +56,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             page = savedInstanceState.getInt("CurrentPage", 0);
         }
         switchFragment(page);
+        mNowPlayingFragment = (NowPlayingFragment) getSupportFragmentManager().findFragmentByTag(NowPlayingFragment.class.getName());
+        if (mNowPlayingFragment == null) {
+            mNowPlayingFragment = new NowPlayingFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.player_fragment_container, mNowPlayingFragment, NowPlayingFragment.class.getName())
+                    .commit();
+        }
     }
 
-    @Override
-    protected int getLayout() {
-        return R.layout.activity_main;
-    }
 
     private void initView() {
         setupStatusTintView();
