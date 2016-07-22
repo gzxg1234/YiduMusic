@@ -43,6 +43,10 @@ public abstract class BaseFragment extends Fragment {
         super.onDestroyView();
     }
 
+    protected BaseActivity getBaseActivity() {
+        return (BaseActivity) getActivity();
+    }
+
     protected void addSub(Subscription subscription) {
         if (mCompositeSubscription == null
                 || mCompositeSubscription.isUnsubscribed()) {

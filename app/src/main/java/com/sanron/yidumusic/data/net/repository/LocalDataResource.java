@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanron.yidumusic.data.db.HttpCache;
-import com.sanron.yidumusic.data.net.model.response.BillCategoryData;
-import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
-import com.sanron.yidumusic.data.net.model.response.GedanListData;
-import com.sanron.yidumusic.data.net.model.response.HomeData;
-import com.sanron.yidumusic.data.net.model.response.LrcpicData;
-import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanListData;
+import com.sanron.yidumusic.data.net.bean.response.HomeData;
+import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
 
 import java.io.IOException;
 

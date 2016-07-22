@@ -3,9 +3,12 @@ package com.sanron.yidumusic.ui.adapter;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,8 +19,9 @@ import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.config.LocalMusicConfig;
 import com.sanron.yidumusic.data.db.bean.LocalMusic;
 import com.sanron.yidumusic.data.db.bean.MusicInfo;
-import com.sanron.yidumusic.data.net.model.response.LrcpicData;
+import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
+import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.widget.Indexable;
 
 import java.util.List;
@@ -25,7 +29,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Subscription;
-import rx.functions.Action1;
 
 /**
  * Created by sanron on 16-7-20.
@@ -36,6 +39,13 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
     private Context mContext;
     private List<LocalMusic> mData;
     private DataRepository mDataRepository;
+    private SparseArray<Boolean> mCheckStates;
+    private RecyclerView mRecyclerView;
+    private boolean mIsMultiMode;
+    private int mSortType;
+
+    private OnItemClickListener mOnItemClickListener;
+    private MultiModeCallback mMultiModeCallback;
 
     public LocalMusicAdapter(Context context, DataRepository dataRepository) {
         mContext = context;
@@ -45,6 +55,51 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
     public void setData(List<LocalMusic> data) {
         mData = data;
         notifyDataSetChanged();
+    }
+
+    public boolean isMultiMode() {
+        return mIsMultiMode;
+    }
+
+    public void setMultiMode(boolean multiMode) {
+        if (mIsMultiMode == multiMode) {
+            return;
+        }
+        mIsMultiMode = multiMode;
+        if (mIsMultiMode) {
+            if (mCheckStates == null) {
+                mCheckStates = new SparseArray<>();
+            }
+            if (mMultiModeCallback != null) {
+                mMultiModeCallback.onStart();
+            }
+            notifyItemCheckViewChange(true);
+        } else {
+            mCheckStates.clear();
+            notifyItemCheckViewChange(false);
+        }
+    }
+
+    public void setMultiModeCallback(MultiModeCallback multiModeCallback) {
+        mMultiModeCallback = multiModeCallback;
+    }
+
+    public void setItemChecked(int position, boolean checked) {
+        if (mIsMultiMode && mCheckStates.get(position, false) != checked) {
+            mCheckStates.put(position, checked);
+            if (mMultiModeCallback != null) {
+                mMultiModeCallback.onItemChecked(position, checked);
+            }
+
+            MusicInfoHolder holder = (MusicInfoHolder) mRecyclerView.findViewHolderForAdapterPosition(position);
+            if (holder != null) {
+                holder.cbCheck.setChecked(checked);
+            }
+        }
+    }
+
+    public boolean isItemChecked(int position) {
+        return mCheckStates.get(position, false);
     }
 
     @Override
@@ -57,7 +112,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-
+        mRecyclerView = recyclerView;
         //图片停止滚动时再加载
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -71,15 +126,14 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
         });
     }
 
-
     @Override
-    public void onBindViewHolder(final MusicInfoHolder holder, int position) {
+    public void onBindViewHolder(final MusicInfoHolder holder, final int position) {
         MusicInfo musicInfo = mData.get(position).getMusicInfo();
         String artist = musicInfo.getArtist();
         String album = musicInfo.getAlbum();
         String sArtist = "";
         StringBuilder albuminfo = new StringBuilder();
-        if (TextUtils.isEmpty(artist) || "<unknown>".equals(artist)) {
+        if (TextUtils.isEmpty(artist) || MusicInfo.UNKNOWN.equals(artist)) {
             albuminfo.append("未知");
         } else {
             albuminfo.append(artist);
@@ -99,9 +153,9 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
             holder.subscription.unsubscribe();
         }
         holder.subscription = mDataRepository.getLrcpic(musicInfo.getTitle(), sArtist)
-                .subscribe(new Action1<LrcpicData>() {
+                .subscribe(new SubscriberAdapter<LrcpicData>() {
                     @Override
-                    public void call(LrcpicData lrcpicData) {
+                    public void onNext(LrcpicData lrcpicData) {
                         Glide.with(mContext)
                                 .load(lrcpicData.songinfo.picRadio)
                                 .placeholder(R.mipmap.default_song_pic)
@@ -110,11 +164,72 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
                                 .into(holder.ivImg);
                     }
                 });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mIsMultiMode) {
+                    setItemChecked(position, !isItemChecked(position));
+                } else if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(holder.itemView, position);
+                }
+            }
+        });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                setMultiMode(true);
+                setItemChecked(position, true);
+                return true;
+            }
+        });
+        //多选模式下
+        if (mIsMultiMode) {
+            holder.cbCheck.setVisibility(View.VISIBLE);
+            holder.ivOperator.setVisibility(View.GONE);
+
+            holder.cbCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    mCheckStates.put(position, isChecked);
+                }
+            });
+            holder.cbCheck.setChecked(mCheckStates.get(position, false));
+        } else {
+            holder.cbCheck.setVisibility(View.GONE);
+            holder.ivOperator.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void notifyItemCheckViewChange(boolean inMultiChoice) {
+        for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
+            View child = mRecyclerView.getChildAt(i);
+            MusicInfoHolder holder = (MusicInfoHolder) mRecyclerView.getChildViewHolder(child);
+            if (holder == null) {
+                continue;
+            }
+            holder.cbCheck.setChecked(mCheckStates.get(holder.getAdapterPosition(), false));
+            holder.cbCheck.setVisibility(inMultiChoice ? View.VISIBLE : View.GONE);
+            holder.ivOperator.setVisibility(!inMultiChoice ? View.VISIBLE : View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
         return mData == null ? 0 : mData.size();
+    }
+
+    public int getCheckedItemCount() {
+        if (mCheckStates == null) {
+            return 0;
+        }
+        int count = 0;
+        for (int i = 0; i < mCheckStates.size(); i++) {
+            if (mCheckStates.valueAt(i)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     @Override
@@ -149,11 +264,8 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
         }
     }
 
-    private int mSortType;
-
     public void setSortType(int sortType) {
         mSortType = sortType;
-        notifyDataSetChanged();
     }
 
     @Override
@@ -161,20 +273,32 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
         return getItemCount();
     }
 
-    static class MusicInfoHolder extends RecyclerView.ViewHolder {
+    public static class MusicInfoHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.iv_img)
-        ImageView ivImg;
+        public ImageView ivImg;
         @BindView(R.id.tv_title)
-        TextView tvTitle;
+        public TextView tvTitle;
         @BindView(R.id.tv_artist)
-        TextView tvArtist;
+        public TextView tvArtist;
         @BindView(R.id.iv_operator)
-        ImageView ivOperator;
+        public ImageView ivOperator;
+        @BindView(R.id.cb_check)
+        public CheckBox cbCheck;
         Subscription subscription;
 
         public MusicInfoHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    public interface MultiModeCallback {
+        void onItemChecked(int position, boolean checked);
+
+        void onStart();
     }
 }

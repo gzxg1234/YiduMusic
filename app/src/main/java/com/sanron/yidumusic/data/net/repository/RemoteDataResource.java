@@ -1,20 +1,20 @@
 package com.sanron.yidumusic.data.net.repository;
 
 import com.sanron.yidumusic.data.net.BaiduApiService;
-import com.sanron.yidumusic.data.net.model.Album;
-import com.sanron.yidumusic.data.net.model.FocusPic;
-import com.sanron.yidumusic.data.net.model.Gedan;
-import com.sanron.yidumusic.data.net.model.Song;
-import com.sanron.yidumusic.data.net.model.response.BillCategoryData;
-import com.sanron.yidumusic.data.net.model.response.FocusPicData;
-import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
-import com.sanron.yidumusic.data.net.model.response.GedanListData;
-import com.sanron.yidumusic.data.net.model.response.HomeData;
-import com.sanron.yidumusic.data.net.model.response.HotGedanData;
-import com.sanron.yidumusic.data.net.model.response.LrcpicData;
-import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
-import com.sanron.yidumusic.data.net.model.response.RecmdAlbumData;
-import com.sanron.yidumusic.data.net.model.response.RecmdSongData;
+import com.sanron.yidumusic.data.net.bean.Album;
+import com.sanron.yidumusic.data.net.bean.FocusPic;
+import com.sanron.yidumusic.data.net.bean.Gedan;
+import com.sanron.yidumusic.data.net.bean.Song;
+import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.FocusPicData;
+import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanListData;
+import com.sanron.yidumusic.data.net.bean.response.HomeData;
+import com.sanron.yidumusic.data.net.bean.response.HotGedanData;
+import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.RecmdAlbumData;
+import com.sanron.yidumusic.data.net.bean.response.RecmdSongData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.util.baidu.EncryptTool;
 

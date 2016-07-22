@@ -10,17 +10,17 @@ import android.widget.TextView;
 
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.YiduApp;
-import com.sanron.yidumusic.data.net.model.Gedan;
-import com.sanron.yidumusic.data.net.model.OfficicalGedan;
-import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
-import com.sanron.yidumusic.data.net.model.response.GedanListData;
-import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.Gedan;
+import com.sanron.yidumusic.data.net.bean.OfficicalGedan;
+import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanListData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
+import com.sanron.yidumusic.rx.ToastSubscriber;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.ui.adapter.GedanAdapter;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
 import com.sanron.yidumusic.ui.dialog.SelectGedanCategoryDialog;
-import com.sanron.yidumusic.util.ToastUtil;
 import com.sanron.yidumusic.util.UITool;
 import com.sanron.yidumusic.widget.OffsetDecoration;
 import com.sanron.yidumusic.widget.PullAdapter;
@@ -32,7 +32,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import rx.Observable;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 /**
@@ -78,6 +77,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         mDataRepository = YiduApp.get().getDataRepository();
     }
 
+
     @Override
     protected void initView(View view, Bundle savedInstanceState) {
         super.initView(view, savedInstanceState);
@@ -89,6 +89,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         mRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         mRefreshLayout.setOnRefreshListener(this);
         mGedanAdapter.setOnLoadMoreListener(this);
+        mTvCurTag.setText(mCurrentTag);
     }
 
     @OnClick(R.id.sticky_header)
@@ -96,15 +97,10 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         addSub(mDataRepository
                 .getGedanCategory()
                 .compose(TransformerUtil.<GedanCategoryData>net())
-                .subscribe(new Action1<GedanCategoryData>() {
+                .subscribe(new ToastSubscriber<GedanCategoryData>(getContext()) {
                     @Override
-                    public void call(GedanCategoryData gedanCategoryData) {
+                    public void onNext(GedanCategoryData gedanCategoryData) {
                         showGedanCategoryDlg(gedanCategoryData);
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        ToastUtil.$("获取数据失败，请重试");
                     }
                 })
         );
@@ -196,9 +192,9 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         }
 
         addSub(observable
-                .subscribe(new Action1<GedanData>() {
+                .subscribe(new ToastSubscriber<GedanData>(getContext()) {
                     @Override
-                    public void call(GedanData gedanData) {
+                    public void onNext(GedanData gedanData) {
                         mRefreshLayout.setRefreshing(false);
                         mGedanAdapter.onLoadComplete();
                         mGedanAdapter.setHasMore(gedanData.haveMore);
@@ -209,14 +205,13 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                         }
                         mPage = page;
                     }
-                }, new Action1<Throwable>() {
+
                     @Override
-                    public void call(Throwable throwable) {
-                        throwable.printStackTrace();
+                    public void onError(Throwable e) {
+                        super.onError(e);
                         if (refresh) {
                             mGedanAdapter.setData(null);
                         }
-                        ToastUtil.$("获取数据失败");
                         mGedanAdapter.onLoadComplete();
                         mRefreshLayout.setRefreshing(false);
                     }

@@ -1,15 +1,15 @@
 package com.sanron.yidumusic.data.net;
 
-import com.sanron.yidumusic.data.net.model.response.BillCategoryData;
-import com.sanron.yidumusic.data.net.model.response.FocusPicData;
-import com.sanron.yidumusic.data.net.model.response.GedanCategoryData;
-import com.sanron.yidumusic.data.net.model.response.GedanListData;
-import com.sanron.yidumusic.data.net.model.response.HotGedanData;
-import com.sanron.yidumusic.data.net.model.response.HotTagData;
-import com.sanron.yidumusic.data.net.model.response.LrcpicData;
-import com.sanron.yidumusic.data.net.model.response.OfficialGedanData;
-import com.sanron.yidumusic.data.net.model.response.RecmdAlbumData;
-import com.sanron.yidumusic.data.net.model.response.RecmdSongData;
+import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.FocusPicData;
+import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanListData;
+import com.sanron.yidumusic.data.net.bean.response.HotGedanData;
+import com.sanron.yidumusic.data.net.bean.response.HotTagData;
+import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.RecmdAlbumData;
+import com.sanron.yidumusic.data.net.bean.response.RecmdSongData;
 
 import retrofit2.http.GET;
 import retrofit2.http.Query;

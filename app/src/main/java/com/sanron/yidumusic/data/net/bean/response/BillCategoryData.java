@@ -1,7 +1,7 @@
-package com.sanron.yidumusic.data.net.model.response;
+package com.sanron.yidumusic.data.net.bean.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sanron.yidumusic.data.net.model.Song;
+import com.sanron.yidumusic.data.net.bean.Song;
 
 import java.util.List;
 

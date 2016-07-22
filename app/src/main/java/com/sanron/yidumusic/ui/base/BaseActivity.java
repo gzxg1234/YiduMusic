@@ -6,6 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.sanron.yidumusic.AppManager;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import butterknife.ButterKnife;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -15,6 +18,18 @@ import rx.subscriptions.CompositeSubscription;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
+    private Set<BackPressHandler> mBackPressHandlers;
+
+    public void addBackPressHandler(BackPressHandler backPressHandler) {
+        if (mBackPressHandlers == null) {
+            mBackPressHandlers = new HashSet<>();
+        }
+        if (mBackPressHandlers.contains(backPressHandler)) {
+            return;
+        }
+        mBackPressHandlers.add(backPressHandler);
+    }
+
     private CompositeSubscription mCompositeSubscription;
 
     protected void addSub(Subscription subscription) {
@@ -23,6 +38,19 @@ public abstract class BaseActivity extends AppCompatActivity {
             mCompositeSubscription = new CompositeSubscription();
             mCompositeSubscription.add(subscription);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mBackPressHandlers != null) {
+            for (BackPressHandler backPressHandler : mBackPressHandlers) {
+                if (backPressHandler.onBackPress()) {
+                    return;
+                }
+            }
+        }
+        super.onBackPressed();
+
     }
 
     @Override
@@ -44,4 +72,5 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
         super.onDestroy();
     }
+
 }

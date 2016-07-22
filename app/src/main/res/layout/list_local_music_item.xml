@@ -16,8 +16,8 @@
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/iv_img"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_centerVertical="true"
         app:riv_oval="true"
         />
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/textColorPrimary"
-            android:textSize="15dp"
+            android:textSize="14dp"
             tools:text="还是会寂寞"/>
 
         <TextView
@@ -45,17 +45,31 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textColor="@color/textColorSecondary"
-            android:textSize="13dp"
+            android:textSize="12dp"
             tools:text="陈绮贞 - 精选"/>
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/iv_operator"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+    <RelativeLayout
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:padding="16dp"
-        android:scaleType="fitXY"
-        android:src="@mipmap/ic_more_vert_90_black_24dp"/>
+        android:layout_centerVertical="true">
+
+        <CheckBox
+            android:id="@+id/cb_check"
+            android:layout_width="36dp"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_alignParentRight="true"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/iv_operator"
+            android:layout_width="36dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_more_vert_90_black_24dp"/>
+    </RelativeLayout>
 </RelativeLayout>

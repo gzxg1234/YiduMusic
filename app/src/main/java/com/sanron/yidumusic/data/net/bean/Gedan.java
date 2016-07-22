@@ -1,4 +1,4 @@
-package com.sanron.yidumusic.data.net.model;
+package com.sanron.yidumusic.data.net.bean;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

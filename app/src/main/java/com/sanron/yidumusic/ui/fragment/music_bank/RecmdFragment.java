@@ -22,14 +22,14 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.YiduApp;
-import com.sanron.yidumusic.data.net.model.Album;
-import com.sanron.yidumusic.data.net.model.FocusPic;
-import com.sanron.yidumusic.data.net.model.Gedan;
-import com.sanron.yidumusic.data.net.model.Song;
-import com.sanron.yidumusic.data.net.model.response.HomeData;
+import com.sanron.yidumusic.data.net.bean.Album;
+import com.sanron.yidumusic.data.net.bean.FocusPic;
+import com.sanron.yidumusic.data.net.bean.Gedan;
+import com.sanron.yidumusic.data.net.bean.Song;
+import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
+import com.sanron.yidumusic.rx.ToastSubscriber;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
-import com.sanron.yidumusic.util.ToastUtil;
 import com.sanron.yidumusic.util.UITool;
 import com.sanron.yidumusic.widget.OffsetDecoration;
 import com.viewpagerindicator.PageIndicator;
@@ -38,7 +38,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.functions.Action1;
 
 /**
  * Created by Administrator on 2016/3/10.
@@ -71,17 +70,16 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
 
     public void loadData() {
         addSub(mDataRepository.getHomeData(FOCUS_NUM, HOTSONGLIST_NUM, RECMD_ALBUM_NUM, RECMD_SONG_NUM)
-                .subscribe(new Action1<HomeData>() {
+                .subscribe(new ToastSubscriber<HomeData>(getContext()) {
                     @Override
-                    public void call(HomeData homeData) {
-                        mRecmdAdapter.setData(homeData);
+                    public void onError(Throwable e) {
+                        super.onError(e);
                         mRefreshLayout.setRefreshing(false);
                     }
-                }, new Action1<Throwable>() {
+
                     @Override
-                    public void call(Throwable throwable) {
-                        throwable.printStackTrace();
-                        ToastUtil.$("获取数据失败");
+                    public void onNext(HomeData homeData) {
+                        mRecmdAdapter.setData(homeData);
                         mRefreshLayout.setRefreshing(false);
                     }
                 })

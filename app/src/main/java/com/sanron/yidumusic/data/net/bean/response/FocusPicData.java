@@ -1,7 +1,7 @@
-package com.sanron.yidumusic.data.net.model.response;
+package com.sanron.yidumusic.data.net.bean.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sanron.yidumusic.data.net.model.FocusPic;
+import com.sanron.yidumusic.data.net.bean.FocusPic;
 
 import java.util.List;
 

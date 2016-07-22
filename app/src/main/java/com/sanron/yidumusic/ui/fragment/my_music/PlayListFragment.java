@@ -1,5 +1,6 @@
 package com.sanron.yidumusic.ui.fragment.my_music;
 
+import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.ui.base.BaseFragment;
 
 /**
@@ -10,7 +11,7 @@ public class PlayListFragment extends BaseFragment {
 
     @Override
     protected int getLayout() {
-        return 0;
+        return R.layout.refresh_with_recycler;
     }
 
 

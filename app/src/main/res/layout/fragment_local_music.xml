@@ -7,20 +7,93 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <RelativeLayout
+        android:id="@+id/normal_bar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp">
+
+        <ImageView
+            android:id="@+id/iv"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/ic_play_arrow_black_24dp"/>
+
+        <TextView
+            android:id="@+id/tv_play_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/iv"
+            android:text="播放全部(0)"
+            android:textSize="14dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignParentBottom="true"
+            android:background="@color/divider"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/multi_bar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:visibility="invisible">
+
+        <TextView
+            android:id="@+id/tv_checked_count"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:minWidth="56dp"
+            android:text="已选择100项"
+            android:textSize="14dp"/>
+
+        <CheckBox
+            android:id="@+id/cb_check_all"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:minWidth="56dp"
+            android:text="全选"
+            android:textSize="14dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignParentBottom="true"
+            android:background="@color/divider"/>
+    </RelativeLayout>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_below="@+id/normal_bar"/>
 
     <com.sanron.yidumusic.widget.IndexBar
         android:id="@+id/index_bar"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
+        android:layout_below="@+id/normal_bar"
         android:layout_centerVertical="true"
         android:layout_marginRight="4dp"
-        android:paddingLeft="2dp"
-        android:paddingRight="2dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
         android:visibility="invisible"
         app:backgroundColor="@color/colorPrimary"
         tools:visibility="visible"/>
@@ -34,6 +107,8 @@
         android:gravity="center"
         android:textColor="@color/white"
         android:textSize="50dp"
+        android:visibility="invisible"
         tools:text="A"
+        tools:visibility="visible"
         />
 </RelativeLayout>

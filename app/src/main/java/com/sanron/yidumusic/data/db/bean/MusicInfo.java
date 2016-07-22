@@ -16,14 +16,11 @@ public class MusicInfo extends Base {
     @Column
     private String title;
 
-
     @Column
     private String album;
 
-
     @Column
     private String artist;
-
 
     @Column
     private String path;
@@ -40,6 +37,7 @@ public class MusicInfo extends Base {
     @Column
     private int bitrate;
 
+    public static final String UNKNOWN = "<unknown>";
 
     public String getName() {
         return name;

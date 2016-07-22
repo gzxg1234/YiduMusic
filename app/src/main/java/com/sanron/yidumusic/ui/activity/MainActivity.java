@@ -110,8 +110,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private void setupStatusTintView() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            SystemBarTintManager.SystemBarConfig sbc = new SystemBarTintManager(this).getConfig();
-            int statusBarHeight = sbc.getPixelInsetTop(false);
+            SystemBarTintManager systemBarTintManager = new SystemBarTintManager(this);
+            int statusBarHeight = systemBarTintManager.getConfig().getPixelInsetTop(false);
             View tintView = new View(this);
             tintView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     statusBarHeight));
@@ -119,7 +119,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             mLinearLayout.addView(tintView, 0);
         }
     }
-
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -136,6 +135,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         mDrawerLayout.closeDrawer(Gravity.LEFT);
         invalidateOptionsMenu();
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+            mDrawerLayout.closeDrawer(Gravity.LEFT);
+        } else if (mSlidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+            mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override

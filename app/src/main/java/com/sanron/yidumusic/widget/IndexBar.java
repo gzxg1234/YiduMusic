@@ -157,6 +157,10 @@ public class IndexBar extends View {
         }
     }
 
+    public boolean isAttach() {
+        return mRecyclerView != null;
+    }
+
     public void attach(RecyclerView recyclerView) {
         valiteRecyclerView(recyclerView);
         mRecyclerView = recyclerView;

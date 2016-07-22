@@ -17,18 +17,17 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.YiduApp;
-import com.sanron.yidumusic.data.net.model.Song;
-import com.sanron.yidumusic.data.net.model.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.bean.Song;
+import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
+import com.sanron.yidumusic.rx.ToastSubscriber;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
-import com.sanron.yidumusic.util.ToastUtil;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 /**
@@ -84,17 +83,16 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
                         return billCategoryData.content;
                     }
                 })
-                .subscribe(new Action1<List<BillCategoryData.BillCategory>>() {
+                .subscribe(new ToastSubscriber<List<BillCategoryData.BillCategory>>(getContext()) {
                     @Override
-                    public void call(List<BillCategoryData.BillCategory> billCategories) {
+                    public void onNext(List<BillCategoryData.BillCategory> billCategories) {
                         mBillboardAdapter.setData(billCategories);
                         mRefreshLayout.setRefreshing(false);
                     }
-                }, new Action1<Throwable>() {
+
                     @Override
-                    public void call(Throwable throwable) {
-                        throwable.printStackTrace();
-                        ToastUtil.$("获取数据失败");
+                    public void onError(Throwable e) {
+                        super.onError(e);
                         mRefreshLayout.setRefreshing(false);
                     }
                 })

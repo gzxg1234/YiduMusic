@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">一度音乐</string>
     <string name="more">更多</string>
+
+    <!-- MyMusicFragment-->
+    <string name="my_music_title">我的音乐</string>
+
+    <!-- LocalMusicFragment-->
+    <string name="play_all">播放全部(%1$d)</string>
 </resources>

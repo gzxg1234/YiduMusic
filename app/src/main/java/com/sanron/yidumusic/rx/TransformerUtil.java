@@ -1,7 +1,7 @@
 package com.sanron.yidumusic.rx;
 
 import com.sanron.yidumusic.data.net.ApiException;
-import com.sanron.yidumusic.data.net.model.response.BaseData;
+import com.sanron.yidumusic.data.net.bean.response.BaseData;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
