@@ -13,7 +13,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.sanron.yidumusic.R;
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.playback.PlayUtil;
 import com.sanron.yidumusic.playback.Player;
 

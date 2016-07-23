@@ -17,8 +17,8 @@ import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.config.LocalMusicConfig;
-import com.sanron.yidumusic.data.db.bean.LocalMusic;
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
+import com.sanron.yidumusic.data.db.model.LocalMusic;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.rx.SubscriberAdapter;
@@ -34,7 +34,7 @@ import rx.Subscription;
  * Created by sanron on 16-7-20.
  */
 
-public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.MusicInfoHolder> implements Indexable {
+public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.ItemHolder> implements Indexable {
 
     private Context mContext;
     private List<LocalMusic> mData;
@@ -91,7 +91,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
                 mMultiModeCallback.onItemChecked(position, checked);
             }
 
-            MusicInfoHolder holder = (MusicInfoHolder) mRecyclerView.findViewHolderForAdapterPosition(position);
+            ItemHolder holder = (ItemHolder) mRecyclerView.findViewHolderForAdapterPosition(position);
             if (holder != null) {
                 holder.cbCheck.setChecked(checked);
             }
@@ -103,10 +103,10 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
     }
 
     @Override
-    public MusicInfoHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.list_local_music_item, parent, false);
-        return new MusicInfoHolder(view);
+        return new ItemHolder(view);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
     }
 
     @Override
-    public void onBindViewHolder(final MusicInfoHolder holder, final int position) {
+    public void onBindViewHolder(final ItemHolder holder, final int position) {
         MusicInfo musicInfo = mData.get(position).getMusicInfo();
         String artist = musicInfo.getArtist();
         String album = musicInfo.getAlbum();
@@ -204,7 +204,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
     private void notifyItemCheckViewChange(boolean inMultiChoice) {
         for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
             View child = mRecyclerView.getChildAt(i);
-            MusicInfoHolder holder = (MusicInfoHolder) mRecyclerView.getChildViewHolder(child);
+            ItemHolder holder = (ItemHolder) mRecyclerView.getChildViewHolder(child);
             if (holder == null) {
                 continue;
             }
@@ -273,20 +273,20 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Mu
         return getItemCount();
     }
 
-    public static class MusicInfoHolder extends RecyclerView.ViewHolder {
+    public static class ItemHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.iv_img)
         public ImageView ivImg;
         @BindView(R.id.tv_title)
         public TextView tvTitle;
         @BindView(R.id.tv_artist)
         public TextView tvArtist;
-        @BindView(R.id.iv_operator)
+        @BindView(R.id.iv_action)
         public ImageView ivOperator;
         @BindView(R.id.cb_check)
         public CheckBox cbCheck;
         Subscription subscription;
 
-        public MusicInfoHolder(View itemView) {
+        public ItemHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

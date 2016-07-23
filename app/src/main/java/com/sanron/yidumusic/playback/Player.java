@@ -1,6 +1,6 @@
 package com.sanron.yidumusic.playback;
 
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
 
 import java.util.List;
 

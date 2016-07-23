@@ -1,8 +1,8 @@
 package com.sanron.yidumusic.data.db;
 
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.sanron.yidumusic.data.db.bean.Cache;
-import com.sanron.yidumusic.data.db.bean.Cache_Table;
+import com.sanron.yidumusic.data.db.model.Cache;
+import com.sanron.yidumusic.data.db.model.Cache_Table;
 import com.sanron.yidumusic.util.MD5Util;
 
 public class HttpCache {

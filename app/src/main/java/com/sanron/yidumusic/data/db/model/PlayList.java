@@ -1,28 +1,27 @@
-package com.sanron.yidumusic.data.db.bean;
+package com.sanron.yidumusic.data.db.model;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.sanron.yidumusic.data.db.YiduDB;
+
+import java.util.List;
 
 /**
  * 播放列表
  * Created by Administrator on 2015/12/21.
  */
-@Table(name = "play_list", database = YiduDB.class)
+@Table(
+        name = "play_list",
+        database = YiduDB.class
+)
 public class PlayList extends Base {
 
-    public static final int TYPE_USER = 1;
-    public static final int TYPE_FAVORITE = 2;
+    public static final int TYPE_FAVORITE = 1;
+    public static final int TYPE_USER = 2;
     public static final int TYPE_ALBUM = 3;
     public static final int TYPE_GEDAN = 4;
     public static final int TYPE_OFFICIAL_GEDAN = 5;
-
-    public static final String TABLE = "play_list";
-    public static final String COL_NAME = "name";
-    public static final String COL_TYPE = "type";
-    public static final String COL_ADD_TIME = "add_time";
-    public static final String COL_ICON = "icon";
-    public static final String COL_CODE = "code";
 
     @Column
     private String name;

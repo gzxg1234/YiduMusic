@@ -28,8 +28,8 @@ import com.sanron.yidumusic.YiduApp;
 import com.sanron.yidumusic.config.LocalMusicConfig;
 import com.sanron.yidumusic.data.db.DBObserver;
 import com.sanron.yidumusic.data.db.YiduDB;
-import com.sanron.yidumusic.data.db.bean.LocalMusic;
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
+import com.sanron.yidumusic.data.db.model.LocalMusic;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.rx.TransformerUtil;
@@ -341,7 +341,7 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
                     @Override
                     public void onNext(List<LocalMusic> localMusics) {
                         mLocalMusicAdapter.setData(localMusics);
-                        mTvCheckedCount.setText(getString(R.string.play_all, localMusics.size()));
+                        mPlayAll.setText(getString(R.string.play_all, localMusics.size()));
                     }
                 })
         );

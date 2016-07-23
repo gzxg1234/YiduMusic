@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
 
 import java.util.HashMap;
 import java.util.List;

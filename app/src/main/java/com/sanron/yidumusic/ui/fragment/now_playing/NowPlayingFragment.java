@@ -1,4 +1,4 @@
-package com.sanron.yidumusic.ui.fragment;
+package com.sanron.yidumusic.ui.fragment.now_playing;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -33,7 +33,7 @@ import android.widget.ViewSwitcher;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sanron.lyricview.view.LyricView;
 import com.sanron.yidumusic.R;
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.playback.PlayUtil;
 import com.sanron.yidumusic.playback.Player;
 import com.sanron.yidumusic.ui.base.BaseFragment;

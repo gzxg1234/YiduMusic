@@ -24,7 +24,7 @@ import android.widget.TextView;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.data.db.YiduDB;
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.ui.base.BaseActivity;
 import com.sanron.yidumusic.util.AudioTool;
 import com.sanron.yidumusic.util.ToastUtil;

@@ -30,7 +30,6 @@ public class LocalDataResource implements DataResource {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-
     @Override
     public Observable<HomeData> getHomeData(int foucsNum, int hotGedanNum, int recmdAlbumNum, int recmdSongNum) {
         String url = UrlGenerater.getHomeData(foucsNum, hotGedanNum, recmdAlbumNum, recmdSongNum);

@@ -6,9 +6,9 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.sanron.yidumusic.data.db.bean.LocalMusic;
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
-import com.sanron.yidumusic.data.db.bean.PlayList;
+import com.sanron.yidumusic.data.db.model.LocalMusic;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
+import com.sanron.yidumusic.data.db.model.PlayList;
 
 import rx.Observable;
 import rx.functions.Func1;

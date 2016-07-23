@@ -19,9 +19,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class GedanAdapter extends PullAdapter<GedanAdapter.Holder> {
+public class GedanAdapter extends PullAdapter<GedanAdapter.ItemHolder> {
 
-    private List<GedanModel> mGedanList;
+    private List<GedanModel> mItems;
     private Context mContext;
 
     public GedanAdapter(Context context) {
@@ -29,25 +29,25 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.Holder> {
     }
 
     public void setData(List<GedanModel> data) {
-        mGedanList = data;
+        mItems = data;
         notifyDataSetChanged();
     }
 
 
     public void addAll(List<? extends GedanModel> models) {
         if (models != null) {
-            if (mGedanList == null) {
-                mGedanList = new ArrayList<>();
+            if (mItems == null) {
+                mItems = new ArrayList<>();
             }
-            mGedanList.addAll(models);
+            mItems.addAll(models);
             notifyDataSetChanged();
         }
     }
 
     @Override
-    public Holder onCreateRealViewHolder(ViewGroup parent, int viewType) {
+    public ItemHolder onCreateRealViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.list_gedan_item, parent, false);
-        return new Holder(view);
+        return new ItemHolder(view);
     }
 
     @Override
@@ -68,13 +68,29 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.Holder> {
     }
 
     @Override
-    public void onBindRealViewHolder(Holder holder, int position) {
-        holder.setData(mGedanList.get(position));
+    public void onBindRealViewHolder(ItemHolder holder, int position) {
+        GedanModel data = mItems.get(position);
+        holder.tvText1.setText(data.text1);
+        holder.tvText2.setText(data.text2);
+        if (data.type == GedanModel.TYPE_OFFICIAL) {
+            holder.tvListenNum.setVisibility(View.INVISIBLE);
+        } else {
+            holder.tvListenNum.setVisibility(View.VISIBLE);
+            if (data.num > 100000) {
+                holder.tvListenNum.setText(data.num / 10000 + "万");
+            } else {
+                holder.tvListenNum.setText(String.valueOf(data.num));
+            }
+        }
+        holder.ivImg.setImageBitmap(null);
+        Glide.with(mContext)
+                .load(data.pic)
+                .into(holder.ivImg);
     }
 
     @Override
     public int getRealItemCount() {
-        return mGedanList == null ? 0 : mGedanList.size();
+        return mItems == null ? 0 : mItems.size();
     }
 
     @Override
@@ -100,40 +116,19 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.Holder> {
         }
     }
 
-    class Holder extends RecyclerView.ViewHolder {
+    public static class ItemHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.iv_img)
-        ImageView ivImg;
+        public ImageView ivImg;
         @BindView(R.id.tv_text1)
-        TextView tvText1;
+        public TextView tvText1;
         @BindView(R.id.tv_text2)
-        TextView tvText2;
+        public TextView tvText2;
         @BindView(R.id.tv_listen_num)
-        TextView tvListenNum;
-        GedanModel data;
+        public TextView tvListenNum;
 
-        public Holder(View itemView) {
+        public ItemHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-        }
-
-        public void setData(GedanModel data) {
-            this.data = data;
-            tvText1.setText(data.text1);
-            tvText2.setText(data.text2);
-            if (data.type == GedanModel.TYPE_OFFICIAL) {
-                tvListenNum.setVisibility(View.INVISIBLE);
-            } else {
-                tvListenNum.setVisibility(View.VISIBLE);
-                if (data.num > 100000) {
-                    tvListenNum.setText(data.num / 10000 + "万");
-                } else {
-                    tvListenNum.setText(String.valueOf(data.num));
-                }
-            }
-            ivImg.setImageBitmap(null);
-            Glide.with(mContext)
-                    .load(data.pic)
-                    .into(ivImg);
         }
     }
 

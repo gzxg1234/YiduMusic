@@ -17,7 +17,7 @@ import android.widget.RemoteViews;
 import com.sanron.yidumusic.AppManager;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.YiduApp;
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
 
 
 /**

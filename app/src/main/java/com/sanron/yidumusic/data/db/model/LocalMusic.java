@@ -1,4 +1,4 @@
-package com.sanron.yidumusic.data.db.bean;
+package com.sanron.yidumusic.data.db.model;
 
 
 import com.raizlabs.android.dbflow.annotation.Column;
@@ -10,7 +10,10 @@ import com.sanron.yidumusic.data.db.YiduDB;
  * Created by sanron on 16-7-18.
  */
 
-@Table(name = "local_music", database = YiduDB.class)
+@Table(
+        name = "local_music",
+        database = YiduDB.class
+)
 public class LocalMusic extends Base {
 
     @Column

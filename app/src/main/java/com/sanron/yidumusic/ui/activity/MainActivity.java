@@ -18,7 +18,7 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.ui.base.BaseActivity;
 import com.sanron.yidumusic.ui.base.ViewPageFragment;
-import com.sanron.yidumusic.ui.fragment.NowPlayingFragment;
+import com.sanron.yidumusic.ui.fragment.now_playing.NowPlayingFragment;
 import com.sanron.yidumusic.ui.fragment.music_bank.MusicBankFragment;
 import com.sanron.yidumusic.ui.fragment.my_music.MyMusicFragment;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;

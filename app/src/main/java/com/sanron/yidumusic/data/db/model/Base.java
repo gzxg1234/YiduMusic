@@ -1,4 +1,4 @@
-package com.sanron.yidumusic.data.db.bean;
+package com.sanron.yidumusic.data.db.model;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.structure.BaseModel;

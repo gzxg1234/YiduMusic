@@ -1,4 +1,4 @@
-package com.sanron.yidumusic.data.db.bean;
+package com.sanron.yidumusic.data.db.model;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.Index;
@@ -8,7 +8,10 @@ import com.sanron.yidumusic.data.db.YiduDB;
 /**
  * Created by sanron on 16-7-19.
  */
-@Table(name = "cache", database = YiduDB.class)
+@Table(
+        name = "cache",
+        database = YiduDB.class
+)
 public class Cache extends Base {
 
     @Index

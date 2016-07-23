@@ -4,10 +4,12 @@ import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
-import com.sanron.yidumusic.data.db.bean.LocalMusic;
-import com.sanron.yidumusic.data.db.bean.LocalMusic_Table;
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
-import com.sanron.yidumusic.data.db.bean.MusicInfo_Table;
+import com.sanron.yidumusic.data.db.model.LocalMusic;
+import com.sanron.yidumusic.data.db.model.LocalMusic_Table;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
+import com.sanron.yidumusic.data.db.model.MusicInfo_Table;
+import com.sanron.yidumusic.data.db.model.PlayList;
+import com.sanron.yidumusic.data.db.model.PlayList_Table;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -91,6 +93,18 @@ public class YiduDB {
                         .from(LocalMusic.class)
                         .where(LocalMusic_Table.isDeleted.eq(false))
                         .orderBy(LocalMusic_Table.addTime, false)
+                        .queryList();
+            }
+        });
+    }
+
+    public static Observable<List<PlayList>> getPlayList() {
+        return createObservable(new Callable<List<PlayList>>() {
+            @Override
+            public List<PlayList> call() throws Exception {
+                return SQLite.select()
+                        .from(PlayList.class)
+                        .orderBy(PlayList_Table.type, true)
                         .queryList();
             }
         });

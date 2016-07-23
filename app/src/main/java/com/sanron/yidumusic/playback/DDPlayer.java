@@ -13,7 +13,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.sanron.yidumusic.data.db.bean.MusicInfo;
+import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.util.ToastUtil;
 
 import java.io.File;
