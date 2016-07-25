@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -31,6 +33,8 @@ import com.sanron.yidumusic.data.db.YiduDB;
 import com.sanron.yidumusic.data.db.model.LocalMusic;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
+import com.sanron.yidumusic.playback.PlayTrack;
+import com.sanron.yidumusic.playback.PlayUtil;
 import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.ui.activity.ScanMusicActivity;
@@ -39,6 +43,7 @@ import com.sanron.yidumusic.ui.base.BackPressHandler;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
 import com.sanron.yidumusic.widget.IndexBar;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -55,7 +60,7 @@ import rx.functions.Func1;
 /**
  * Created by Administrator on 2015/12/21.
  */
-public class LocalMusicFragment extends LazyLoadFragment implements BackPressHandler {
+public class LocalMusicFragment extends LazyLoadFragment implements BackPressHandler, LocalMusicAdapter.OnItemClickListener, LocalMusicAdapter.OnItemActionClickListener {
 
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
@@ -185,6 +190,8 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
                 setMultiBarVisiable(true);
             }
         });
+        mLocalMusicAdapter.setOnItemClickListener(this);
+        mLocalMusicAdapter.setOnItemActionClickListener(this);
     }
 
 
@@ -377,6 +384,30 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
         super.setUserVisibleHint(isVisibleToUser);
         if (!isVisibleToUser) {
             endMultiMode();
+        }
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        List<PlayTrack> playTracks = new ArrayList<>();
+        for (LocalMusic localMusic : mLocalMusicAdapter.getData()) {
+            playTracks.add(LocalMusic.MAPPER.toPlayTrack(localMusic));
+        }
+        PlayUtil.clearQueue();
+        PlayUtil.enqueue(playTracks);
+        PlayUtil.play(position);
+    }
+
+    @Override
+    public void onItemActionClick(View view, int position) {
+        BottomSheetDialog dialog = new BottomSheetDialog(getContext());
+    }
+
+    class ActionDialog extends BottomSheetDialog {
+
+        public ActionDialog(@NonNull Context context) {
+            super(context);
+
         }
     }
 

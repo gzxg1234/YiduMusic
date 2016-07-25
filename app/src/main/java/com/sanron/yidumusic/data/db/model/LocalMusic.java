@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.sanron.yidumusic.data.db.YiduDB;
+import com.sanron.yidumusic.playback.PlayTrack;
 
 /**
  * Created by sanron on 16-7-18.
@@ -63,4 +64,21 @@ public class LocalMusic extends Base {
     public static final String COL_LAST_MODIFY = "last_modify";
     public static final String COL_IS_DELETED = "is_deleted";
 
+
+    public static abstract class MAPPER {
+        public static PlayTrack toPlayTrack(LocalMusic localMusic) {
+            MusicInfo musicInfo = localMusic.getMusicInfo();
+            PlayTrack playTrack = new PlayTrack();
+            playTrack.setName(musicInfo.getName());
+            playTrack.setAlbum(musicInfo.getAlbum());
+            playTrack.setArtist(musicInfo.getArtist());
+            playTrack.setDuration(musicInfo.getDuration());
+            playTrack.setLocalId(musicInfo.getId());
+            playTrack.setBitrate(musicInfo.getBitrate());
+            playTrack.setTitle(musicInfo.getTitle());
+            playTrack.setPath(musicInfo.getPath());
+            playTrack.setSourceType(PlayTrack.SOURCE_LOCAL);
+            return playTrack;
+        }
+    }
 }

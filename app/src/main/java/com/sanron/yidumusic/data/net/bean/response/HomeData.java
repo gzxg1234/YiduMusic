@@ -3,7 +3,7 @@ package com.sanron.yidumusic.data.net.bean.response;
 import com.sanron.yidumusic.data.net.bean.Album;
 import com.sanron.yidumusic.data.net.bean.FocusPic;
 import com.sanron.yidumusic.data.net.bean.Gedan;
-import com.sanron.yidumusic.data.net.bean.Song;
+import com.sanron.yidumusic.data.net.bean.SongInfo;
 
 import java.util.List;
 
@@ -14,5 +14,5 @@ public class HomeData {
     public List<FocusPic> mFocusPicDatas;
     public List<Gedan> hotGedans;
     public List<Album> recmdAlbums;
-    public List<Song> recmdSongs;
+    public List<SongInfo> mRecmdSongInfos;
 }

@@ -6,6 +6,7 @@ import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
 import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 
 import rx.Observable;
@@ -177,6 +178,28 @@ public class DataRepository implements DataResource {
         return Observable.concat(localData, remoteData)
                 .first()
                 .compose(TransformerUtil.<LrcpicData>io());
+    }
+
+    @Override
+    public Observable<SongInfoData> getSongInfo(final long songid) {
+        Observable<SongInfoData> localData = mLocal
+                .getSongInfo(songid)
+                .compose(TransformerUtil.<SongInfoData>checkError());
+        Observable<SongInfoData> remoteData = mRemote
+                .getSongInfo(songid)
+                .doOnNext(new Action1<SongInfoData>() {
+                    @Override
+                    public void call(SongInfoData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getSongInfo(songid),
+                                data,
+                                60 * 60 * 1000);
+                    }
+                })
+                .compose(TransformerUtil.<SongInfoData>checkError());
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<SongInfoData>io());
     }
 
 }

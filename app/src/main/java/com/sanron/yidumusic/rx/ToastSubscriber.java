@@ -3,12 +3,10 @@ package com.sanron.yidumusic.rx;
 import android.content.Context;
 import android.widget.Toast;
 
-import rx.Subscriber;
-
 /**
  * Created by sanron on 16-7-22.
  */
-public class ToastSubscriber<T> extends Subscriber<T> {
+public class ToastSubscriber<T> extends SubscriberAdapter<T> {
 
     private Context mContext;
 
@@ -18,18 +16,8 @@ public class ToastSubscriber<T> extends Subscriber<T> {
     }
 
     @Override
-    public void onCompleted() {
-
-    }
-
-    @Override
     public void onError(Throwable e) {
-        e.printStackTrace();
+//        e.printStackTrace();
         Toast.makeText(mContext, "获取数据失败", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onNext(T t) {
-
     }
 }

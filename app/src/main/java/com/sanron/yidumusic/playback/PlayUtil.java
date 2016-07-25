@@ -6,8 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.sanron.yidumusic.data.db.model.MusicInfo;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +17,14 @@ import java.util.Map;
 public class PlayUtil {
     private static Player sPlayer;
     private static Map<Context, ServiceBinder> sBinders = new HashMap<>();
+    private static List<OnPlayerReadyListener> sOnPlayBindListeners = new ArrayList<>();
+
+    public interface OnPlayerReadyListener {
+        void onReady(Player player);
+    }
 
     public static boolean bindService(Context context, ServiceConnection callback) {
-        Intent intent = new Intent(context, DDPlayService.class);
+        Intent intent = new Intent(context, PlayService.class);
         context.startService(intent);
         ServiceBinder binder = new ServiceBinder(callback);
         boolean isSuccess = context.bindService(intent,
@@ -36,9 +40,27 @@ public class PlayUtil {
         if (binder != null) {
             context.unbindService(binder);
         }
-        if (sBinders.size() == 0) {
-            sPlayer = null;
+    }
+
+    public static void stopService(Context context) {
+        Intent intent = new Intent(context, PlayService.class);
+        context.stopService(intent);
+        for (Map.Entry<Context, ServiceBinder> entry : sBinders.entrySet()) {
+            context.unbindService(entry.getValue());
         }
+        sBinders.clear();
+        sPlayer = null;
+    }
+
+    public static void addOnPlayerBindListener(OnPlayerReadyListener onPlayerReadyListener) {
+        if (sPlayer != null) {
+            onPlayerReadyListener.onReady(sPlayer);
+        }
+        sOnPlayBindListeners.add(onPlayerReadyListener);
+    }
+
+    public static void removeOnPlayerBindListener(OnPlayerReadyListener onPlayerReadyListener) {
+        sOnPlayBindListeners.remove(onPlayerReadyListener);
     }
 
     public static class ServiceBinder implements ServiceConnection {
@@ -52,6 +74,9 @@ public class PlayUtil {
         public void onServiceConnected(ComponentName name, IBinder service) {
             if (sPlayer == null) {
                 sPlayer = (Player) service;
+                for (OnPlayerReadyListener listener : sOnPlayBindListeners) {
+                    listener.onReady(sPlayer);
+                }
             }
             if (callback != null) {
                 callback.onServiceConnected(name, service);
@@ -75,14 +100,14 @@ public class PlayUtil {
     }
 
 
-    public static List<MusicInfo> getQueue() {
+    public static List<PlayTrack> getQueue() {
         if (sPlayer != null) {
             return sPlayer.getQueue();
         }
         return null;
     }
 
-    public static void enqueue(List<MusicInfo> musics) {
+    public static void enqueue(List<PlayTrack> musics) {
         if (sPlayer != null) {
             sPlayer.enqueue(musics);
         }
@@ -113,9 +138,9 @@ public class PlayUtil {
         return -1;
     }
 
-    public static MusicInfo getCurrentMusic() {
+    public static PlayTrack getCurrentMusic() {
         if (sPlayer != null) {
-            return sPlayer.getCurrentMusic();
+            return sPlayer.getCurrentTrack();
         }
         return null;
     }
@@ -221,6 +246,5 @@ public class PlayUtil {
             sPlayer.seekTo(position);
         }
     }
-
 
 }

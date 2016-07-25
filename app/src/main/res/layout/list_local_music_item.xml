@@ -60,8 +60,9 @@
             android:id="@+id/cb_check"
             android:layout_width="36dp"
             android:layout_height="match_parent"
-            android:layout_centerInParent="true"
             android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:duplicateParentState="false"
             android:visibility="gone"/>
 
         <ImageView
@@ -70,6 +71,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:duplicateParentState="false"
             android:scaleType="centerInside"
             android:src="@mipmap/ic_more_vert_90_black_24dp"/>
     </RelativeLayout>

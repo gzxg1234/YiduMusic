@@ -96,7 +96,6 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
     public void onHeaderClick() {
         addSub(mDataRepository
                 .getGedanCategory()
-                .compose(TransformerUtil.<GedanCategoryData>net())
                 .subscribe(new ToastSubscriber<GedanCategoryData>(getContext()) {
                     @Override
                     public void onNext(GedanCategoryData gedanCategoryData) {
@@ -195,8 +194,6 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 .subscribe(new ToastSubscriber<GedanData>(getContext()) {
                     @Override
                     public void onNext(GedanData gedanData) {
-                        mRefreshLayout.setRefreshing(false);
-                        mGedanAdapter.onLoadComplete();
                         mGedanAdapter.setHasMore(gedanData.haveMore);
                         if (refresh) {
                             mGedanAdapter.setData(gedanData.data);
@@ -207,13 +204,18 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                     }
 
                     @Override
+                    public void onCompleted() {
+                        super.onCompleted();
+                        mGedanAdapter.onLoadComplete();
+                        mRefreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
                     public void onError(Throwable e) {
                         super.onError(e);
                         if (refresh) {
                             mGedanAdapter.setData(null);
                         }
-                        mGedanAdapter.onLoadComplete();
-                        mRefreshLayout.setRefreshing(false);
                     }
                 })
         );

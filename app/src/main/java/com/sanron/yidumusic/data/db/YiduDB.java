@@ -105,6 +105,7 @@ public class YiduDB {
                 return SQLite.select()
                         .from(PlayList.class)
                         .orderBy(PlayList_Table.type, true)
+                        .orderBy(PlayList_Table.addTime, false)
                         .queryList();
             }
         });

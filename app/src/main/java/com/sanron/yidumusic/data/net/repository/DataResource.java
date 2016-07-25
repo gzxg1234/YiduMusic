@@ -6,6 +6,7 @@ import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
 import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 
 import rx.Observable;
 
@@ -35,4 +36,7 @@ public interface DataResource {
 
 
     Observable<LrcpicData> getLrcpic(String word, String artist);
+
+
+    Observable<SongInfoData> getSongInfo(long songid);
 }

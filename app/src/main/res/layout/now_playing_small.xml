@@ -64,16 +64,16 @@
                 tools:text="Justin Bieber"/>
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/s_ibtn_play_pause"
+        <ImageView
+            android:id="@+id/s_iv_toggle_play"
             android:layout_width="46dp"
             android:layout_height="46dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:scaleType="centerInside"
             android:src="@mipmap/ic_play_arrow_blue_24dp"/>
 
-        <ImageButton
-            android:id="@+id/s_ibtn_next"
+        <ImageView
+            android:id="@+id/s_iv_next"
             android:layout_width="46dp"
             android:layout_height="46dp"
             android:background="?attr/selectableItemBackgroundBorderless"

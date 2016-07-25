@@ -1,5 +1,6 @@
 package com.sanron.yidumusic.ui.fragment.music_bank;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,7 +18,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.YiduApp;
-import com.sanron.yidumusic.data.net.bean.Song;
+import com.sanron.yidumusic.data.net.bean.SongInfo;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.rx.ToastSubscriber;
@@ -28,7 +29,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
-import rx.functions.Func1;
 
 /**
  * Created by sanron on 16-7-16.
@@ -62,7 +62,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBillboardAdapter = new BillboardAdapter();
+        mBillboardAdapter = new BillboardAdapter(getContext(), null);
         mDataRepository = YiduApp.get().getDataRepository();
     }
 
@@ -77,58 +77,71 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
     @Override
     public void onRefresh() {
         addSub(mDataRepository.getBillCategory()
-                .map(new Func1<BillCategoryData, List<BillCategoryData.BillCategory>>() {
+                .subscribe(new ToastSubscriber<BillCategoryData>(getContext()) {
                     @Override
-                    public List<BillCategoryData.BillCategory> call(BillCategoryData billCategoryData) {
-                        return billCategoryData.content;
-                    }
-                })
-                .subscribe(new ToastSubscriber<List<BillCategoryData.BillCategory>>(getContext()) {
-                    @Override
-                    public void onNext(List<BillCategoryData.BillCategory> billCategories) {
-                        mBillboardAdapter.setData(billCategories);
+                    public void onNext(BillCategoryData billCategoryData) {
+                        mBillboardAdapter.setData(billCategoryData.content);
                         mRefreshLayout.setRefreshing(false);
                     }
 
                     @Override
-                    public void onError(Throwable e) {
-                        super.onError(e);
+                    public void onCompleted() {
                         mRefreshLayout.setRefreshing(false);
                     }
                 })
         );
     }
 
-    class BillboardAdapter extends RecyclerView.Adapter<BillboardAdapter.Holder> {
+    static class BillboardAdapter extends RecyclerView.Adapter<BillboardAdapter.ItemHolder> {
 
-        private List<BillCategoryData.BillCategory> mBillCategories;
+        private Context mContext;
+        private List<BillCategoryData.BillCategory> mItems;
+
+        public BillboardAdapter(Context context, List<BillCategoryData.BillCategory> items) {
+            mItems = items;
+            mContext = context;
+        }
+
         private final int[] TOP_TEXT_COLORS = new int[]{
                 0xFFF50000, 0xFFF77722, 0xFFFFC505
         };
 
         public void setData(List<BillCategoryData.BillCategory> data) {
-            mBillCategories = data;
+            mItems = data;
             notifyDataSetChanged();
         }
 
         @Override
-        public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.list_billboard_item, parent, false);
-            return new Holder(view);
+        public ItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(mContext).inflate(R.layout.list_billboard_item, parent, false);
+            return new ItemHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(Holder holder, int position) {
-            BillCategoryData.BillCategory billCategory = mBillCategories.get(position);
-            holder.setData(billCategory);
+        public void onBindViewHolder(ItemHolder itemHolder, int position) {
+            BillCategoryData.BillCategory data = mItems.get(position);
+            Glide.with(mContext)
+                    .load(data.picS192)
+                    .into(itemHolder.ivImg);
+            itemHolder.tvTitle.setText(data.name);
+            for (int i = 0; i < itemHolder.tvTops.size() && i < data.top3.size(); i++) {
+                SongInfo songInfo = data.top3.get(i);
+                SpannableStringBuilder ssb = new SpannableStringBuilder(String.valueOf(i + 1));
+                ssb.setSpan(new ForegroundColorSpan(TOP_TEXT_COLORS[i]), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ssb.append(" ")
+                        .append(songInfo.title)
+                        .append(" - ")
+                        .append(songInfo.author);
+                itemHolder.tvTops.get(i).setText(ssb);
+            }
         }
 
         @Override
         public int getItemCount() {
-            return mBillCategories == null ? 0 : mBillCategories.size();
+            return mItems == null ? 0 : mItems.size();
         }
 
-        class Holder extends RecyclerView.ViewHolder {
+        static class ItemHolder extends RecyclerView.ViewHolder {
             @BindView(R.id.tv_billcategory)
             TextView tvTitle;
             @BindView(R.id.iv_img)
@@ -136,26 +149,9 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
             @BindViews({R.id.tv_top1, R.id.tv_top2, R.id.tv_top3})
             List<TextView> tvTops;
 
-            public Holder(View itemView) {
+            public ItemHolder(View itemView) {
                 super(itemView);
                 ButterKnife.bind(this, itemView);
-            }
-
-            public void setData(BillCategoryData.BillCategory data) {
-                Glide.with(getContext())
-                        .load(data.picS192)
-                        .into(ivImg);
-                tvTitle.setText(data.name);
-                for (int i = 0; i < tvTops.size() && i < data.top3.size(); i++) {
-                    Song song = data.top3.get(i);
-                    SpannableStringBuilder ssb = new SpannableStringBuilder(String.valueOf(i + 1));
-                    ssb.setSpan(new ForegroundColorSpan(TOP_TEXT_COLORS[i]), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    ssb.append(" ")
-                            .append(song.title)
-                            .append(" - ")
-                            .append(song.author);
-                    tvTops.get(i).setText(ssb);
-                }
             }
         }
     }

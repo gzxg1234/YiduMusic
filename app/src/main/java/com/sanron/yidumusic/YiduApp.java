@@ -14,7 +14,7 @@ import com.sanron.yidumusic.data.net.YiduRetrofit;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.data.net.repository.LocalDataResource;
 import com.sanron.yidumusic.data.net.repository.RemoteDataResource;
-import com.sanron.yidumusic.playback.DDPlayService;
+import com.sanron.yidumusic.playback.PlayService;
 import com.sanron.yidumusic.util.ToastUtil;
 import com.squareup.leakcanary.LeakCanary;
 
@@ -39,7 +39,7 @@ public class YiduApp extends Application {
 
     public void closeApp() {
         AppManager.instance().finishAllActivity();
-        stopService(new Intent(this, DDPlayService.class));
+        stopService(new Intent(this, PlayService.class));
     }
 
     @Override

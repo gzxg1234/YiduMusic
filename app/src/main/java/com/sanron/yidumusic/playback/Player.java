@@ -1,7 +1,5 @@
 package com.sanron.yidumusic.playback;
 
-import com.sanron.yidumusic.data.db.model.MusicInfo;
-
 import java.util.List;
 
 /**
@@ -20,9 +18,9 @@ public interface Player {
     int STATE_PAUSE = 5;//暂停
     int STATE_ERROR = 6;//错误
 
-    List<MusicInfo> getQueue();
+    List<PlayTrack> getQueue();
 
-    void enqueue(List<MusicInfo> musics);
+    void enqueue(List<? extends PlayTrack> musics);
 
     void dequeue(int position);
 
@@ -32,7 +30,7 @@ public interface Player {
 
     int getCurrentPosition();
 
-    MusicInfo getCurrentMusic();
+    PlayTrack getCurrentTrack();
 
     void togglePlayPause();
 

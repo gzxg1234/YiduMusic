@@ -1,7 +1,7 @@
 package com.sanron.yidumusic.data.net.bean.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sanron.yidumusic.data.net.bean.Song;
+import com.sanron.yidumusic.data.net.bean.SongInfo;
 
 import java.util.List;
 
@@ -16,6 +16,6 @@ public class RecmdSongData extends BaseData {
         @JsonProperty("total") public int total;
         @JsonProperty("havemore") public int havemore;
         @JsonProperty("date") public long date;
-        @JsonProperty("list") public List<Song> songs;
+        @JsonProperty("list") public List<SongInfo> mSongInfos;
     }
 }

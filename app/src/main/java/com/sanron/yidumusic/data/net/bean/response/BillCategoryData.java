@@ -1,7 +1,7 @@
 package com.sanron.yidumusic.data.net.bean.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sanron.yidumusic.data.net.bean.Song;
+import com.sanron.yidumusic.data.net.bean.SongInfo;
 
 import java.util.List;
 
@@ -22,6 +22,6 @@ public class BillCategoryData extends BaseData {
         @JsonProperty("pic_s444") public String picS444;
         @JsonProperty("pic_s260") public String picS260;
         @JsonProperty("pic_s210") public String picS210;
-        @JsonProperty("content") public List<Song> top3;
+        @JsonProperty("content") public List<SongInfo> top3;
     }
 }

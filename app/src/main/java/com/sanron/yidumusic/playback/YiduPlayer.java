@@ -13,7 +13,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.sanron.yidumusic.data.db.model.MusicInfo;
+import com.sanron.yidumusic.YiduApp;
+import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 import com.sanron.yidumusic.util.ToastUtil;
 
 import java.io.File;
@@ -22,22 +23,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import okhttp3.Call;
+import rx.functions.Action1;
 
-public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, AudioManager.OnAudioFocusChangeListener {
+public class YiduPlayer extends Binder implements Player, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, AudioManager.OnAudioFocusChangeListener {
 
 
-    public static final String TAG = DDPlayer.class.getSimpleName();
+    public static final String TAG = YiduPlayer.class.getSimpleName();
 
     private Context mContext;
-    private List<MusicInfo> mQueue;
+    private List<PlayTrack> mQueue;
     private int mMode = MODE_IN_TURN;
     private int mCurrentPosition;
     private int mState = STATE_IDLE;
     private boolean mPlayWhenReady = true;
     private boolean initPrepare = false;
     private boolean mLossFocusWhenPlaying;
-    private Call mFileLinkCall;
     private List<OnCompletedListener> mOnCompletedListeners;
     private List<OnBufferListener> mOnBufferListeners;
     private List<OnPlayStateChangeListener> mOnPlayStateChangeListeners;
@@ -76,7 +76,7 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
     };
 
 
-    public DDPlayer(Context context) {
+    public YiduPlayer(Context context) {
         mContext = context;
         mOnBufferListeners = new ArrayList<>();
         mOnCompletedListeners = new ArrayList<>();
@@ -87,21 +87,6 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DDMusic");
     }
-//
-//    /**
-//     * 加载播放器上次状态
-//     */
-//    public void loadLastState() {
-//        PlayQueueState playQueueState = PlayerHelper.loadPlayQueueState(mContext);
-//        if (playQueueState != null) {
-//            mQueue = playQueueState.getQueue();
-//            mCurrentPosition = playQueueState.getPosition();
-//            if (mQueue != null && !mQueue.isEmpty()) {
-//                initPrepare = true;
-//                play(mCurrentPosition);
-//            }
-//        }
-//    }
 
     private void initMediaPlayer() {
         mMediaPlayer = new MediaPlayer();
@@ -114,7 +99,7 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
     }
 
     @Override
-    public List<MusicInfo> getQueue() {
+    public List<PlayTrack> getQueue() {
         return new ArrayList<>(mQueue);
     }
 
@@ -122,10 +107,8 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
      * 加入播放队列
      */
     @Override
-    public void enqueue(List<MusicInfo> musics) {
+    public void enqueue(List<? extends PlayTrack> musics) {
         mQueue.addAll(musics);
-//        PlayerHelper.savePlayQueueState(mContext, mQueue, mCurrentPosition);
-//        Log.d(TAG, "enqueue " + musics.size() + " songs");
     }
 
     /**
@@ -147,7 +130,6 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
             }
             play(mCurrentPosition);
         }
-//        PlayerHelper.savePlayQueueState(mContext, mQueue, mCurrentPosition);
     }
 
     @Override
@@ -160,7 +142,6 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
         mCurrentPosition = -1;
         mMediaPlayer.reset();
         changeState(STATE_IDLE);
-//        PlayerHelper.savePlayQueueState(mContext, mQueue, mCurrentPosition);
     }
 
     /**
@@ -174,16 +155,13 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
 
         readyToPlay();
         mCurrentPosition = position;
-        MusicInfo music = mQueue.get(mCurrentPosition);
+        PlayTrack playTrack = mQueue.get(mCurrentPosition);
         changeState(STATE_PREPARING);
-        if (TextUtils.isEmpty(music.getPath())) {
-            playWebMusic(music.getSongId());
+        if (playTrack.getSourceType() == PlayTrack.SOURCE_LOCAL) {
+            playLocalMusic(playTrack.getPath());
         } else {
-            playLocalMusic(music.getPath());
+            playWebMusic(playTrack.getSongId());
         }
-
-//        AppDB.get(mContext).addRecentPlay(music, System.currentTimeMillis());
-//        PlayerHelper.savePlayQueueState(mContext, mQueue, mCurrentPosition);
     }
 
     private void readyToPlay() {
@@ -192,9 +170,6 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
             initMediaPlayer();
         } else {
             mMediaPlayer.stop();
-        }
-        if (mFileLinkCall != null) {
-            mFileLinkCall.cancel();
         }
         mHandler.removeMessages(WHAT_PLAY_ERROR);
         sendBufferingEnd();
@@ -242,25 +217,23 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
         }
     }
 
-    private void playWebMusic(final String songid) {
+    private void playWebMusic(final long songid) {
         sendBufferingStart();
-//        mFileLinkCall = MusicApi.songLink(songid, new JsonCallback<SongUrlInfo>() {
-//
-//            @Override
-//            public void onFailure(Exception e) {
-//                sendPlayError("网络请求失败");
-//            }
-//
-//            @Override
-//            public void onSuccess(SongUrlInfo data) {
-//                SongUrlInfo.SongUrl.Url url = PlayerHelper.selectFileUrl(mContext, data);
-//                if (url == null) {
-//                    sendPlayError("此歌曲暂无网络资源");
-//                } else {
-//                    prepare(Uri.parse(url.fileLink));
-//                }
-//            }
-//        });
+        YiduApp.get()
+                .getDataRepository()
+                .getSongInfo(songid)
+                .subscribe(new Action1<SongInfoData>() {
+                    @Override
+                    public void call(SongInfoData songInfoData) {
+                        SongInfoData.Songurl.Url url = PlayHelper.selectFileUrl(mContext,
+                                songInfoData, PlayHelper.SELECT_AUTO);
+                        if (url == null) {
+                            sendPlayError("此歌曲暂无网络资源");
+                        } else {
+                            prepare(Uri.parse(url.fileLink));
+                        }
+                    }
+                });
     }
 
     public int getCurrentPosition() {
@@ -268,7 +241,7 @@ public class DDPlayer extends Binder implements Player, MediaPlayer.OnCompletion
     }
 
     @Override
-    public MusicInfo getCurrentMusic() {
+    public PlayTrack getCurrentTrack() {
         if (mCurrentPosition == -1) {
             return null;
         }

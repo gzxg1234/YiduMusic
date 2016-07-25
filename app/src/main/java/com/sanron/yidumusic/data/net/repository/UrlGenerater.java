@@ -19,22 +19,18 @@ public abstract class UrlGenerater {
                 .toString();
     }
 
-
-    //排行榜
     public static String getBillCategory() {
         return new StringBuilder(BASE)
                 .append("&method=baidu.ting.billboard.billCategory&kflag=1")
                 .toString();
     }
 
-    //歌单分类
     public static String getGedanCategory() {
         return new StringBuilder(BASE)
                 .append("&method=getGedanCategory")
                 .toString();
     }
 
-    //歌单列表
     public static String getGedanList(int page, int pageSize) {
         return new StringBuilder(BASE)
                 .append("&method=baidu.ting.diy.gedan")
@@ -43,7 +39,6 @@ public abstract class UrlGenerater {
                 .toString();
     }
 
-    //标签歌单
     public static String getGedanListByTag(String tagName, int page, int pageSize) {
         return new StringBuilder(BASE)
                 .append("&method=baidu.ting.diy.search")
@@ -53,7 +48,6 @@ public abstract class UrlGenerater {
                 .toString();
     }
 
-    //官方歌单
     public static String getOfficialGedan(int offset, int limit) {
         return new StringBuilder(BASE)
                 .append("&method=baidu.ting.diy.search")
@@ -62,12 +56,18 @@ public abstract class UrlGenerater {
                 .toString();
     }
 
-    //官方歌单
     public static String getLrcpic(String word, String artist) {
         return new StringBuilder(BASE)
                 .append("&method=baidu.ting.search.lrcpic")
                 .append("&word=").append(word)
                 .append("&artist=").append(artist)
+                .toString();
+    }
+
+    public static String getSongInfo(long songid){
+        return new StringBuilder(BASE)
+                .append("&method=baidu.ting.song.getInfos")
+                .append("&songid=").append(songid)
                 .toString();
     }
 }

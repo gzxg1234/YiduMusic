@@ -1,6 +1,5 @@
 package com.sanron.yidumusic.playback;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -17,22 +16,20 @@ import android.widget.RemoteViews;
 import com.sanron.yidumusic.AppManager;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.YiduApp;
-import com.sanron.yidumusic.data.db.model.MusicInfo;
-
 
 /**
  * Created by sanron on 16-5-18.
  */
-public class PlayNotificationManager extends BroadcastReceiver {
+public class YiduNotificationManager extends BroadcastReceiver {
 
-    private DDPlayService mService;
-    private DDPlayer mDDPlayer;
+    private PlayService mService;
+    private YiduPlayer mDDPlayer;
     private NotificationManagerCompat mNotificationManager;
     private NotificationCompat.Builder mNotificationBuilder;
     private Bitmap mImage;
     public static final int FOREGROUND_ID = 0x666;
 
-    public static final String NOTIFY_ACTION = "com.sanron.music.PLAYBACK";
+    public static final String NOTIFY_ACTION = "com.sanron.yidumusic.PLAYBACK";
     public static final String EXTRA_CMD = "CMD";
     public static final String CMD_BACK_APP = "back_app";
     public static final String CMD_PREVIOUS = "previous";
@@ -41,22 +38,18 @@ public class PlayNotificationManager extends BroadcastReceiver {
     public static final String CMD_LYRIC = "lyric";
     public static final String CMD_CLOSE = "close_app";
 
-    public PlayNotificationManager(DDPlayService service) {
+    public YiduNotificationManager(PlayService service) {
         mService = service;
-        mDDPlayer = mService.getDDPlayer();
+        mDDPlayer = mService.getYiduPlayer();
         mNotificationManager = NotificationManagerCompat.from(service);
 
         mNotificationBuilder = new NotificationCompat.Builder(service);
         mNotificationBuilder.setTicker("");
         mNotificationBuilder.setSmallIcon(R.mipmap.default_song_pic);
-        setNotificationPriority(mNotificationBuilder);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mNotificationBuilder.setPriority(Notification.PRIORITY_MAX);
+        }
     }
-
-    @TargetApi(16)
-    public void setNotificationPriority(NotificationCompat.Builder notificationBuilder) {
-        mNotificationBuilder.setPriority(Notification.PRIORITY_MAX);
-    }
-
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -170,13 +163,13 @@ public class PlayNotificationManager extends BroadcastReceiver {
         }
 
         if (mDDPlayer.getCurrentPosition() != -1) {
-            MusicInfo music = mDDPlayer.getCurrentMusic();
-            String artist = music.getArtist();
+            PlayTrack playTrack = mDDPlayer.getCurrentTrack();
+            String artist = playTrack.getArtist();
             artist = artist.equals("<unknown>") ? "未知歌手" : artist;
-            String musicInfo = music.getTitle() + "-" + artist;
+            String musicInfo = playTrack.getTitle() + "-" + artist;
 
             bigContentView.setTextViewText(R.id.tv_music_info, musicInfo);
-            contentView.setTextViewText(R.id.tv_title, music.getTitle());
+            contentView.setTextViewText(R.id.tv_title, playTrack.getTitle());
             contentView.setTextViewText(R.id.tv_artist, artist);
 
             if (mImage != null) {

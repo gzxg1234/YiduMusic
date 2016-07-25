@@ -4,7 +4,7 @@ import com.sanron.yidumusic.data.net.BaiduApiService;
 import com.sanron.yidumusic.data.net.bean.Album;
 import com.sanron.yidumusic.data.net.bean.FocusPic;
 import com.sanron.yidumusic.data.net.bean.Gedan;
-import com.sanron.yidumusic.data.net.bean.Song;
+import com.sanron.yidumusic.data.net.bean.SongInfo;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.FocusPicData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
@@ -15,6 +15,7 @@ import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
 import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdAlbumData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdSongData;
+import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.util.baidu.EncryptTool;
 
@@ -82,25 +83,25 @@ public class RemoteDataResource implements DataResource {
                 });
 
         //推荐歌曲
-        Observable<List<Song>> recmdSong = mApiService.getRecmdSong(0, recmdSongNum)
+        Observable<List<SongInfo>> recmdSong = mApiService.getRecmdSong(0, recmdSongNum)
                 .compose(TransformerUtil.<RecmdSongData>checkError())
-                .map(new Func1<RecmdSongData, List<Song>>() {
+                .map(new Func1<RecmdSongData, List<SongInfo>>() {
                     @Override
-                    public List<Song> call(RecmdSongData recmdSongData) {
-                        return recmdSongData.result.songs;
+                    public List<SongInfo> call(RecmdSongData recmdSongData) {
+                        return recmdSongData.result.mSongInfos;
                     }
                 });
 
         //压缩
         return Observable.zip(focus, hotSongList, recmdAlbum, recmdSong,
-                new Func4<List<FocusPic>, List<Gedan>, List<Album>, List<Song>, HomeData>() {
+                new Func4<List<FocusPic>, List<Gedan>, List<Album>, List<SongInfo>, HomeData>() {
                     @Override
-                    public HomeData call(List<FocusPic> focusPics, List<Gedan> gedens, List<Album> albums, List<Song> songs) {
+                    public HomeData call(List<FocusPic> focusPics, List<Gedan> gedens, List<Album> albums, List<SongInfo> songInfos) {
                         HomeData homeData = new HomeData();
                         homeData.mFocusPicDatas = focusPics;
                         homeData.hotGedans = gedens;
                         homeData.recmdAlbums = albums;
-                        homeData.recmdSongs = songs;
+                        homeData.mRecmdSongInfos = songInfos;
                         return homeData;
                     }
                 });
@@ -137,6 +138,14 @@ public class RemoteDataResource implements DataResource {
         String query = word + "$$" + artist;
         String e = EncryptTool.encrypt("query=" + query + "&ts=" + ts);
         return mApiService.getLrcpic(query, e, ts);
+    }
+
+    @Override
+    public Observable<SongInfoData> getSongInfo(long songid) {
+        long ts = System.currentTimeMillis();
+        String str = "songid=" + songid + "&ts=" + ts;
+        String e = EncryptTool.encrypt(str);
+        return mApiService.getSongInfo(songid, e, ts);
     }
 
 }

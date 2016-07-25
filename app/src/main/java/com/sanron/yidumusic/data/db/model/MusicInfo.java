@@ -32,7 +32,7 @@ public class MusicInfo extends Base {
     private int duration;
 
     @Column
-    private String songId;
+    private long songId;
 
     @Column
     private int bitrate;
@@ -96,11 +96,11 @@ public class MusicInfo extends Base {
         this.duration = duration;
     }
 
-    public String getSongId() {
+    public long getSongId() {
         return songId;
     }
 
-    public void setSongId(String songId) {
+    public void setSongId(long songId) {
         this.songId = songId;
     }
 

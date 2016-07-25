@@ -26,6 +26,8 @@
 
         <activity android:name=".ui.activity.ScanMusicActivity"/>
         <activity android:name=".ui.activity.ScanDiyActivity"/>
+
+        <service android:name=".playback.PlayService"/>
     </application>
 
 </manifest>

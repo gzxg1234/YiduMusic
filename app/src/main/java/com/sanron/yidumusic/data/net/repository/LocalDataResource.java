@@ -10,6 +10,7 @@ import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
 import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 
 import java.io.IOException;
 
@@ -70,6 +71,12 @@ public class LocalDataResource implements DataResource {
     public Observable<LrcpicData> getLrcpic(String word, String artist) {
         String url = UrlGenerater.getLrcpic(word, artist);
         return Observable.create(new GetCacheOnSubscriber<>(url, LrcpicData.class));
+    }
+
+    @Override
+    public Observable<SongInfoData> getSongInfo(long songid) {
+        String url = UrlGenerater.getSongInfo(songid);
+        return Observable.create(new GetCacheOnSubscriber<>(url, SongInfoData.class));
     }
 
 

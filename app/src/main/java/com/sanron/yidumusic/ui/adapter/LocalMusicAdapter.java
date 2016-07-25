@@ -44,6 +44,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
     private boolean mIsMultiMode;
     private int mSortType;
 
+    private OnItemActionClickListener mOnItemActionClickListener;
     private OnItemClickListener mOnItemClickListener;
     private MultiModeCallback mMultiModeCallback;
 
@@ -56,6 +57,15 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
         mData = data;
         notifyDataSetChanged();
     }
+
+    public LocalMusic getItem(int position) {
+        return mData.get(position);
+    }
+
+    public List<LocalMusic> getData() {
+        return mData;
+    }
+
 
     public boolean isMultiMode() {
         return mIsMultiMode;
@@ -165,6 +175,27 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
                     }
                 });
 
+        //多选模式下
+        if (mIsMultiMode) {
+            holder.cbCheck.setVisibility(View.VISIBLE);
+            holder.ivAction.setVisibility(View.GONE);
+
+            holder.cbCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    mCheckStates.put(position, isChecked);
+                    if (mMultiModeCallback != null) {
+                        mMultiModeCallback.onItemChecked(position, isChecked);
+                    }
+                }
+            });
+            holder.cbCheck.setChecked(mCheckStates.get(position, false));
+        } else {
+            holder.cbCheck.setVisibility(View.GONE);
+            holder.ivAction.setVisibility(View.VISIBLE);
+        }
+
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,23 +214,16 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
                 return true;
             }
         });
-        //多选模式下
-        if (mIsMultiMode) {
-            holder.cbCheck.setVisibility(View.VISIBLE);
-            holder.ivOperator.setVisibility(View.GONE);
-
-            holder.cbCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    mCheckStates.put(position, isChecked);
+        holder.ivAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemActionClickListener != null) {
+                    mOnItemActionClickListener.onItemActionClick(v, position);
                 }
-            });
-            holder.cbCheck.setChecked(mCheckStates.get(position, false));
-        } else {
-            holder.cbCheck.setVisibility(View.GONE);
-            holder.ivOperator.setVisibility(View.VISIBLE);
-        }
+            }
+        });
     }
+
 
     private void notifyItemCheckViewChange(boolean inMultiChoice) {
         for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
@@ -210,7 +234,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
             }
             holder.cbCheck.setChecked(mCheckStates.get(holder.getAdapterPosition(), false));
             holder.cbCheck.setVisibility(inMultiChoice ? View.VISIBLE : View.GONE);
-            holder.ivOperator.setVisibility(!inMultiChoice ? View.VISIBLE : View.GONE);
+            holder.ivAction.setVisibility(!inMultiChoice ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -273,6 +297,15 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
         return getItemCount();
     }
 
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
+    }
+
+    public void setOnItemActionClickListener(OnItemActionClickListener onItemActionClickListener) {
+        mOnItemActionClickListener = onItemActionClickListener;
+    }
+
     public static class ItemHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.iv_img)
         public ImageView ivImg;
@@ -281,7 +314,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
         @BindView(R.id.tv_artist)
         public TextView tvArtist;
         @BindView(R.id.iv_action)
-        public ImageView ivOperator;
+        public ImageView ivAction;
         @BindView(R.id.cb_check)
         public CheckBox cbCheck;
         Subscription subscription;
@@ -294,6 +327,10 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
 
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
+    }
+
+    public interface OnItemActionClickListener {
+        void onItemActionClick(View view, int position);
     }
 
     public interface MultiModeCallback {

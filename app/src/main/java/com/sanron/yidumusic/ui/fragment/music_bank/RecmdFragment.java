@@ -25,7 +25,7 @@ import com.sanron.yidumusic.YiduApp;
 import com.sanron.yidumusic.data.net.bean.Album;
 import com.sanron.yidumusic.data.net.bean.FocusPic;
 import com.sanron.yidumusic.data.net.bean.Gedan;
-import com.sanron.yidumusic.data.net.bean.Song;
+import com.sanron.yidumusic.data.net.bean.SongInfo;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.rx.ToastSubscriber;
@@ -72,15 +72,14 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
         addSub(mDataRepository.getHomeData(FOCUS_NUM, HOTSONGLIST_NUM, RECMD_ALBUM_NUM, RECMD_SONG_NUM)
                 .subscribe(new ToastSubscriber<HomeData>(getContext()) {
                     @Override
-                    public void onError(Throwable e) {
-                        super.onError(e);
+                    public void onCompleted() {
+                        super.onCompleted();
                         mRefreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onNext(HomeData homeData) {
                         mRecmdAdapter.setData(homeData);
-                        mRefreshLayout.setRefreshing(false);
                     }
                 })
         );
@@ -193,7 +192,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                     listHolder.tvTitle.setText("推荐歌曲");
                     listHolder.ivIcon.setImageDrawable(tintDrawable(R.mipmap.ic_recmd_song));
                     listHolder.listView.setAdapter(new RecmdSongAdapter(getContext(),
-                            mHomeData == null ? null : mHomeData.recmdSongs));
+                            mHomeData == null ? null : mHomeData.mRecmdSongInfos));
                 }
                 break;
             }
@@ -345,6 +344,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
             Glide.with(getContext())
                     .load(album.picRadio)
                     .into(holder.imageView);
+            holder.text1.setMaxLines(1);
             holder.text1.setText(album.title);
             holder.text2.setText(album.author);
         }
@@ -386,11 +386,11 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
     static class RecmdSongAdapter extends BaseAdapter {
 
         private Context mContext;
-        private List<Song> mItems;
+        private List<SongInfo> mItems;
 
-        public RecmdSongAdapter(Context context, List<Song> songs) {
+        public RecmdSongAdapter(Context context, List<SongInfo> songInfos) {
             mContext = context;
-            mItems = songs;
+            mItems = songInfos;
         }
 
         @Override
@@ -416,12 +416,12 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 ImageView ivImg = ButterKnife.findById(view, R.id.iv_img);
                 TextView tvTitle = ButterKnife.findById(view, R.id.tv_title);
                 TextView tvArtist = ButterKnife.findById(view, R.id.tv_artist);
-                Song song = mItems.get(position);
+                SongInfo songInfo = mItems.get(position);
                 Glide.with(mContext)
-                        .load(song.picBig)
+                        .load(songInfo.picBig)
                         .into(ivImg);
-                tvTitle.setText(song.title);
-                tvArtist.setText(song.author);
+                tvTitle.setText(songInfo.title);
+                tvArtist.setText(songInfo.author);
             }
             return view;
         }

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
+import com.sanron.yidumusic.playback.PlayTrack;
 import com.sanron.yidumusic.playback.PlayUtil;
 import com.sanron.yidumusic.playback.Player;
 
@@ -35,7 +37,7 @@ public class ShowPlayQueueWindow extends ScrimPopupWindow implements Player.OnPl
     @BindView(R.id.lv_queue_music)
     RecyclerView mLvQueue;
 
-    private List<MusicInfo> mQueue;
+    private List<PlayTrack> mQueue;
     private Context mContext;
     private QueueItemAdapter mAdapter;
 
@@ -47,7 +49,7 @@ public class ShowPlayQueueWindow extends ScrimPopupWindow implements Player.OnPl
         setTouchable(true);
         setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
-        setHeight(screenHeight / 2);
+        setHeight(screenHeight * 2 / 3);
         setAnimationStyle(R.style.MyWindowAnim);
         mContentView = LayoutInflater.from(activity).inflate(R.layout.window_queue_music, null);
         setContentView(mContentView);
@@ -112,13 +114,13 @@ public class ShowPlayQueueWindow extends ScrimPopupWindow implements Player.OnPl
             return new QueueItemHolder(view);
         }
 
-        public MusicInfo getItem(int position) {
+        public PlayTrack getItem(int position) {
             return mQueue.get(position);
         }
 
         @Override
         public void onBindViewHolder(final QueueItemHolder holder, final int position) {
-            MusicInfo music = getItem(position);
+            PlayTrack music = getItem(position);
 
             if (position == PlayUtil.getCurrentIndex()) {
                 holder.tvArtist.setTextColor(PLAY_TEXT_COLOR);
@@ -132,7 +134,7 @@ public class ShowPlayQueueWindow extends ScrimPopupWindow implements Player.OnPl
 
             holder.tvTitle.setText(music.getTitle());
             String artist = music.getArtist();
-            artist = artist == null || artist.equals("<unknown>") ? "未知歌手" : artist;
+            artist = TextUtils.isEmpty(artist) || MusicInfo.UNKNOWN.equals(artist) ? "未知歌手" : artist;
             holder.tvArtist.setText(artist);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

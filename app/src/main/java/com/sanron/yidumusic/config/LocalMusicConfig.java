@@ -10,7 +10,6 @@ public class LocalMusicConfig {
 
     private SharedPreferences mSharedPreferences;
 
-
     public static final String SORT_TYPE = "sort_type";
     public static final int SORT_BY_TITLE = 0;
     public static final int SORT_BY_ADD_TIME = 1;

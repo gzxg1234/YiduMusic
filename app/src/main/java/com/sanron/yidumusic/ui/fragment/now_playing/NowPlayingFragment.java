@@ -9,19 +9,17 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -30,86 +28,78 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
+import com.sanron.lyricview.model.Lyric;
 import com.sanron.lyricview.view.LyricView;
 import com.sanron.yidumusic.R;
+import com.sanron.yidumusic.YiduApp;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
+import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
+import com.sanron.yidumusic.data.net.rxhttpclient.RxHttpClient;
+import com.sanron.yidumusic.data.net.rxhttpclient.mapper.StringMapper;
+import com.sanron.yidumusic.playback.PlayTrack;
 import com.sanron.yidumusic.playback.PlayUtil;
 import com.sanron.yidumusic.playback.Player;
+import com.sanron.yidumusic.rx.SubscriberAdapter;
+import com.sanron.yidumusic.rx.TransformerUtil;
+import com.sanron.yidumusic.ui.activity.MainActivity;
 import com.sanron.yidumusic.ui.base.BaseFragment;
 import com.sanron.yidumusic.ui.dialog.ShowPlayQueueWindow;
 import com.sanron.yidumusic.util.FastBlur;
 import com.sanron.yidumusic.util.ToastUtil;
 import com.viewpagerindicator.PageIndicator;
 
-import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 /**
  * 播放界面
  * Created by Administrator on 2016/3/5.
  */
 public class NowPlayingFragment extends BaseFragment implements View.OnClickListener,
-        Player.OnPlayStateChangeListener, Player.OnBufferListener, SeekBar.OnSeekBarChangeListener{
+        Player.OnPlayStateChangeListener, Player.OnBufferListener, SeekBar.OnSeekBarChangeListener, PlayUtil.OnPlayerReadyListener {
 
-    @BindView(R.id.small_player)
-    ViewGroup mSmallPlayer;
-    @BindView(R.id.s_play_progress)
-    ProgressBar mSplayProgress;
-    @BindView(R.id.s_iv_song_pic)
-    ImageView mSivSongPicture;
-    @BindView(R.id.s_tv_title)
-    TextView mStvTitle;
-    @BindView(R.id.s_tv_artist)
-    TextView mStvArtist;
-    @BindView(R.id.s_ibtn_play_pause)
-    ImageButton mSibtnTogglePlay;
-    @BindView(R.id.s_ibtn_next)
-    ImageButton mSibtnNext;
+    @BindView(R.id.small_player) ViewGroup mSmallPlayer;
+    @BindView(R.id.s_play_progress) ProgressBar mSplayProgress;
+    @BindView(R.id.s_iv_song_pic) ImageView mSivSongPicture;
+    @BindView(R.id.s_tv_title) TextView mStvTitle;
+    @BindView(R.id.s_tv_artist) TextView mStvArtist;
+    @BindView(R.id.s_iv_toggle_play) ImageView mSivTogglePlay;
+    @BindView(R.id.s_iv_next) ImageView mSivNext;
 
-    @BindView(R.id.big_player)
-    ViewGroup mBigPlayer;
-    @BindView(R.id.top_bar)
-    ViewGroup mTopBar;
-    @BindView(R.id.tv_music_title)
-    TextView mTvTitle;
-    @BindView(R.id.tv_music_artist)
-    TextView mTvArtist;
-    @BindView(R.id.seek_play_progress)
-    SeekBar mPlayProgress;
-    @BindView(R.id.tv_music_progress)
-    TextView mTvPlayPosition;
-    @BindView(R.id.tv_music_duration)
-    TextView mTvDuration;
-    @BindView(R.id.view_back)
-    View mViewBack;
-    @BindView(R.id.iv_play_mode)
-    ImageView mIvChangeMode;
-    @BindView(R.id.iv_previous)
-    ImageView mIvPrevious;
-    @BindView(R.id.fab_toggle_play)
-    FloatingActionButton mFabTogglePlay;
-    @BindView(R.id.iv_next)
-    ImageView mIvNext;
-    @BindView(R.id.iv_play_queue)
-    ImageView mIvPlayQueue;
+    @BindView(R.id.big_player) ViewGroup mBigPlayer;
+    @BindView(R.id.top_bar) ViewGroup mTopBar;
+    @BindView(R.id.tv_music_title) TextView mTvTitle;
+    @BindView(R.id.tv_music_artist) TextView mTvArtist;
+    @BindView(R.id.seek_play_progress) SeekBar mPlayProgress;
+    @BindView(R.id.tv_music_progress) TextView mTvPlayPosition;
+    @BindView(R.id.tv_music_duration) TextView mTvDuration;
+    @BindView(R.id.view_back) View mViewBack;
+    @BindView(R.id.iv_play_mode) ImageView mIvChangeMode;
+    @BindView(R.id.iv_previous) ImageView mIvPrevious;
+    @BindView(R.id.fab_toggle_play) FloatingActionButton mFabTogglePlay;
+    @BindView(R.id.iv_next) ImageView mIvNext;
+    @BindView(R.id.iv_play_queue) ImageView mIvPlayQueue;
 
-    @BindView(R.id.tv_buffering_hint)
-    TextView mBufferingHint;
-    @BindView(R.id.viewpager)
-    ViewPager mViewPager;
-    @BindView(R.id.page_indicator)
-    PageIndicator mPageIndicator;
-    @BindView(R.id.vs_blur_background)
-    ViewSwitcher mViewSwitcher;
+    @BindView(R.id.tv_buffering_hint) TextView mBufferingHint;
+    @BindView(R.id.viewpager) ViewPager mViewPager;
+    @BindView(R.id.page_indicator) PageIndicator mPageIndicator;
+    @BindView(R.id.vs_blur_background) ViewSwitcher mViewSwitcher;
 
     ShowPlayQueueWindow mShowPlayQueueWindow;
 
@@ -125,54 +115,17 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
     LyricView mLyricView;
     View mLyricSetting;
 
+    private boolean mIsExpanded;
     private boolean mIsFavorite;
     private List<View> mPagerViews;
-    /**
-     * 提示播放模式
-     */
     private Toast mToast;
+    private Subscription mSetDefaultImg;
+    private Subscription mUpdateProgress;
+    private Subscription mLrcPicSubscription;
+    private Subscription mLyricSubscription;
+    private Subscription mBlurSubscription;
+    private Target mSongImgTarget;
 
-    private Timer mTimer = new Timer();
-    private TimerTask mUpdateProgressTask = new UpdateProgressTask();
-    private TimerTask mUpdateLyricTask = new UpdateLyricTask();
-
-    private UIHandler mHandler = new UIHandler(this);
-
-    public static final int WHAT_RESET_SONG_PICTURE = 1;
-    public static final int WHAT_UPDATE_PROGRESS = 2;
-    public static final int WHAT_UPDATE_LYRIC = 3;
-
-    private static class UIHandler extends Handler {
-        private WeakReference<NowPlayingFragment> mReference;
-
-        public UIHandler(NowPlayingFragment nowPlayingFragment) {
-            mReference = new WeakReference<>(nowPlayingFragment);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            NowPlayingFragment nowPlayingFragment = mReference.get();
-            if (nowPlayingFragment == null) {
-                return;
-            }
-            switch (msg.what) {
-                case WHAT_RESET_SONG_PICTURE: {
-                    nowPlayingFragment.setSongPicture(null);
-                }
-                break;
-
-                case WHAT_UPDATE_PROGRESS: {
-                    nowPlayingFragment.setPlayProgress(msg.arg1);
-                }
-                break;
-
-                case WHAT_UPDATE_LYRIC: {
-                    nowPlayingFragment.mLyricView.setCurrentTime(msg.arg1);
-                }
-                break;
-            }
-        }
-    }
 
     @Override
     protected int getLayout() {
@@ -180,24 +133,19 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    protected void initView(View view, Bundle savedInstanceState) {
+        super.initView(view, savedInstanceState);
 
-        mPlayProgress.setOnSeekBarChangeListener(this);
-        mSibtnTogglePlay.setOnClickListener(this);
-        mSibtnNext.setOnClickListener(this);
-        mIvChangeMode.setOnClickListener(this);
-        mIvPrevious.setOnClickListener(this);
-        mFabTogglePlay.setOnClickListener(this);
-        mIvNext.setOnClickListener(this);
-        mIvPlayQueue.setOnClickListener(this);
-        mViewBack.setOnClickListener(this);
+        setListeners();
 
+        //设置间距
         SystemBarTintManager.SystemBarConfig sbc = new SystemBarTintManager(getActivity()).getConfig();
-        mTopBar.setPadding(0,sbc.getPixelInsetTop(false),0,0);
+        mTopBar.setPadding(0, sbc.getPixelInsetTop(false), 0, 0);
+
         setupViewPager();
+
+        //设置颜色滤镜，调暗色调
         for (int i = 0; i < mViewSwitcher.getChildCount(); i++) {
-            //设置颜色滤镜，调暗色调
             ((ImageView) mViewSwitcher.getChildAt(i)).setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         }
 
@@ -205,6 +153,20 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
             mSmallPlayer.setVisibility(savedInstanceState.getInt("smallPlayerVisibility", View.VISIBLE));
             mBigPlayer.setVisibility(savedInstanceState.getInt("bigPlayerVisibility", View.VISIBLE));
         }
+
+        PlayUtil.addOnPlayerBindListener(this);
+    }
+
+    private void setListeners() {
+        mPlayProgress.setOnSeekBarChangeListener(this);
+        mSivTogglePlay.setOnClickListener(this);
+        mSivNext.setOnClickListener(this);
+        mIvChangeMode.setOnClickListener(this);
+        mIvPrevious.setOnClickListener(this);
+        mFabTogglePlay.setOnClickListener(this);
+        mIvNext.setOnClickListener(this);
+        mIvPlayQueue.setOnClickListener(this);
+        mViewBack.setOnClickListener(this);
     }
 
     private void setupViewPager() {
@@ -231,23 +193,25 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
         mViewPager.setAdapter(new LocalPagerAdapter());
         mPageIndicator.setViewPager(mViewPager, 1);
     }
-//
-//    @Override
-//    public void onPlayerReady() {
-//        setupPlayState();
-//    }
 
-    /**
-     * 设置监听和设置界面状态
-     */
-    private void setupPlayState() {
+    @Override
+    public void onReady(Player player) {
         PlayUtil.addPlayStateChangeListener(this);
         PlayUtil.addOnBufferListener(this);
 
-        MusicInfo music = PlayUtil.getCurrentMusic();
+        //设置UI
+        final PlayTrack music = PlayUtil.getCurrentMusic();
         if (music != null) {
             setTitleText(music.getTitle());
             setArtistText(music.getArtist());
+            mIvSongPicture.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    mIvSongPicture.getViewTreeObserver().removeOnPreDrawListener(this);
+                    loadLrcPic(music);
+                    return true;
+                }
+            });
         }
 
         setPlayProgress(PlayUtil.getProgress());
@@ -259,7 +223,6 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
         }
 
         setModeIcon(PlayUtil.getPlayMode());
-//        onLrcPicChange();
     }
 
     @Override
@@ -273,6 +236,7 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
                 setSongDuration(0);
                 setPlayProgress(0);
                 setIsPlaying(false);
+                stopUpdateProgress();
             }
             break;
 
@@ -287,96 +251,149 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
             break;
 
             case Player.STATE_PREPARING: {
-                MusicInfo music = PlayUtil.getCurrentMusic();
+                PlayTrack music = PlayUtil.getCurrentMusic();
                 if (music == null) {
                     return;
                 }
                 //3秒后设置默认图片
-                mHandler.removeMessages(WHAT_RESET_SONG_PICTURE);
-                mHandler.sendEmptyMessageDelayed(WHAT_RESET_SONG_PICTURE, 3000);
+                setDefaultImgDelay();
                 setTitleText(music.getTitle());
                 setArtistText(music.getArtist());
                 setSongDuration(0);
                 setPlayProgress(0);
                 mLyricView.setLyric(null);
                 setIsPlaying(false);
-
+                loadLrcPic(music);
             }
             break;
 
             case Player.STATE_PREPARED: {
-                MusicInfo music = PlayUtil.getCurrentMusic();
+                PlayTrack music = PlayUtil.getCurrentMusic();
                 if (music == null) {
                     return;
                 }
                 setSongDuration(PlayUtil.getDuration());
                 setPlayProgress(PlayUtil.getProgress());
-//                if (music.getType() == Music.TYPE_LOCAL) {
-//                    mPlayProgress.setSecondaryProgress(PlayUtil.getDuration());
-//                } else if (music.getType() == Music.TYPE_WEB) {
-//                    mPlayProgress.setSecondaryProgress(0);
-//                }
+                if (music.getSourceType() == PlayTrack.SOURCE_LOCAL) {
+                    mPlayProgress.setSecondaryProgress(PlayUtil.getDuration());
+                } else if (music.getSourceType() == PlayTrack.SOURCE_WEB) {
+                    mPlayProgress.setSecondaryProgress(0);
+                }
             }
             break;
         }
     }
 
+    private void setDefaultImgDelay() {
+        //3秒后设置默认图片
+        removeSetDefaultImg();
+        mSetDefaultImg = Observable.timer(3000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SubscriberAdapter<Long>() {
+                    @Override
+                    public void onNext(Long aLong) {
+                        setSongPicture(null);
+                    }
+                });
+    }
+
+    private void removeSetDefaultImg() {
+        if (mSetDefaultImg != null
+                && !mSetDefaultImg.isUnsubscribed()) {
+            mSetDefaultImg.unsubscribe();
+        }
+    }
+
     private void setIsPlaying(boolean playing) {
         if (playing) {
-            startUpdateTask();
-            mSibtnTogglePlay.setImageResource(R.mipmap.ic_pause_black_36dp);
+            startUpdateProgress();
+            mSivTogglePlay.setImageResource(R.mipmap.ic_pause_blue_24dp);
             mFabTogglePlay.setImageResource(R.mipmap.ic_pause_white_24dp);
         } else {
-            stopUpdateTask();
-            mSibtnTogglePlay.setImageResource(R.mipmap.ic_play_arrow_black_36dp);
+            startUpdateProgress();
+            mSivTogglePlay.setImageResource(R.mipmap.ic_play_arrow_blue_24dp);
             mFabTogglePlay.setImageResource(R.mipmap.ic_play_arrow_white_24dp);
         }
     }
-//
-//    @Override
-//    public void onLrcPicChange() {
-//        if (mNonViewAware != null) {
-//            ImageLoader.getInstance().cancelDisplayTask(mNonViewAware);
-//        }
-//        String songPicture = LrcPicProvider.get().getSongPictureLink();
-//        if (!TextUtils.isEmpty(songPicture)) {
-//            mNonViewAware = new NonViewAware(
-//                    new ImageSize(mIvSongPicture.getWidth(), mIvSongPicture.getHeight()),
-//                    ViewScaleType.CROP);
-//            ImageLoader
-//                    .getInstance()
-//                    .displayImage(songPicture, mNonViewAware, new SimpleImageLoadingListener() {
-//                        @Override
-//                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-//                            mHandler.removeMessages(WHAT_RESET_SONG_PICTURE);
-//                            setSongPicture(loadedImage);
-//                        }
-//                    });
-//
-//        }
-//
-//        String lyricLink = LrcPicProvider.get().getLyricLink();
-//        if (!TextUtils.isEmpty(lyricLink)) {
-//            Request request = new Request.Builder().url(lyricLink).get().build();
-//            AppHttpClient.get(request, new StringCallback() {
-//                @Override
-//                public void onSuccess(String s) {
-//                    mLyricView.setLyric(Lyric.read(s));
-//                }
-//
-//                @Override
-//                public void onFailure(Exception e) {
-//
-//                }
-//            });
-//        }
-//    }
+
+    private void loadLrcPic(final PlayTrack track) {
+        if (mLrcPicSubscription != null
+                && !mLrcPicSubscription.isUnsubscribed()) {
+            mLrcPicSubscription.unsubscribe();
+        }
+        String artist = track.getArtist();
+        artist = MusicInfo.UNKNOWN.equals(artist) ? "" : artist;
+        mLrcPicSubscription = YiduApp.get()
+                .getDataRepository()
+                .getLrcpic(track.getTitle(), artist)
+                .subscribe(new SubscriberAdapter<LrcpicData>() {
+                    @Override
+                    public void onNext(LrcpicData lrcpicData) {
+                        //加载歌词
+                        if (!TextUtils.isEmpty(lrcpicData.songinfo.lrclink)) {
+                            loadSongLyric(lrcpicData.songinfo.lrclink);
+                        }
+                        //加载图片
+                        if (!TextUtils.isEmpty(lrcpicData.songinfo.picS500)) {
+                            loadSongImg(lrcpicData.songinfo.picS500);
+                        }
+                    }
+                });
+    }
+
+
+    private void loadSongLyric(String lrcLink) {
+        if (mLyricSubscription != null
+                && !mLyricSubscription.isUnsubscribed()) {
+            mLyricSubscription.unsubscribe();
+        }
+        mLyricSubscription = RxHttpClient.get()
+                .newRequest()
+                .url(lrcLink)
+                .execute()
+                .flatMap(new StringMapper())
+                .map(new Func1<String, Lyric>() {
+                    @Override
+                    public Lyric call(String s) {
+                        return Lyric.read(s);
+                    }
+                })
+                .compose(TransformerUtil.<Lyric>io())
+                .subscribe(new SubscriberAdapter<Lyric>() {
+                    @Override
+                    public void onNext(Lyric s) {
+                        mLyricView.setLyric(s);
+                    }
+                });
+    }
+
+    private void loadSongImg(String url) {
+        if (mSongImgTarget != null) {
+            Glide.clear(mSongImgTarget);
+        }
+        mSongImgTarget = Glide.with(getContext())
+                .load(url)
+                .asBitmap()
+                .listener(new RequestListener<String, Bitmap>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        setSongPicture(resource);
+                        return false;
+                    }
+                })
+                .into(mIvSongPicture.getWidth(), mIvSongPicture.getHeight());
+    }
 
     @Override
     public void onBufferingUpdate(int bufferedPosition) {
-//        if (bufferedPosition > mPlayProgress.getSecondaryProgress()) {
-        mPlayProgress.setSecondaryProgress(bufferedPosition);
-//        }
+        if (bufferedPosition > mPlayProgress.getSecondaryProgress()) {
+            mPlayProgress.setSecondaryProgress(bufferedPosition);
+        }
     }
 
     @Override
@@ -389,39 +406,54 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
         mBufferingHint.setVisibility(View.INVISIBLE);
     }
 
-    public void setSongPicture(Bitmap img) {
+    public void setSongPicture(final Bitmap img) {
 
         if (img == null) {
             mSivSongPicture.setImageResource(R.mipmap.default_song_pic);
             mIvSongPicture.setImageResource(R.mipmap.default_song_pic);
             setBlurBackground(null);
         } else {
+            removeSetDefaultImg();
             mSivSongPicture.setImageBitmap(img);
             mIvSongPicture.setImageBitmap(img);
-            new AsyncTask<Bitmap, Void, Bitmap>() {
-
-                @Override
-                protected Bitmap doInBackground(Bitmap... params) {
-                    //预先降低图片质量，减少内存占用
-                    Bitmap src = params[0];
-                    Bitmap resizeBmp = Bitmap.createBitmap(src.getWidth() / 2, src.getHeight() / 2,
-                            Bitmap.Config.RGB_565);
-                    Canvas canvas = new Canvas(resizeBmp);
-                    canvas.drawBitmap(src,
-                            new Rect(0, 0, src.getWidth(), src.getHeight()),
-                            new Rect(0, 0, resizeBmp.getWidth(), resizeBmp.getHeight()),
-                            new Paint());
-                    return FastBlur.doBlur(resizeBmp, 40, true);
-                }
-
-                @Override
-                protected void onPostExecute(Bitmap bitmap) {
-                    setBlurBackground(bitmap);
-                }
-            }.execute(img);
+            if (mBlurSubscription != null
+                    && !mBlurSubscription.isUnsubscribed()) {
+                mBlurSubscription.unsubscribe();
+            }
+            mBlurSubscription = Observable.create(
+                    new Observable.OnSubscribe<Bitmap>() {
+                        @Override
+                        public void call(Subscriber<? super Bitmap> subscriber) {
+                            //预先降低图片质量，模糊处理更快
+                            Bitmap resizeBmp = Bitmap.createBitmap(img.getWidth() / 2, img.getHeight() / 2,
+                                    Bitmap.Config.RGB_565);
+                            Canvas canvas = new Canvas(resizeBmp);
+                            canvas.drawBitmap(img,
+                                    new Rect(0, 0, img.getWidth(), img.getHeight()),
+                                    new Rect(0, 0, resizeBmp.getWidth(), resizeBmp.getHeight()),
+                                    new Paint());
+                            if (!subscriber.isUnsubscribed()) {
+                                subscriber.onNext(resizeBmp);
+                            }
+                        }
+                    })
+                    .map(new Func1<Bitmap, Bitmap>() {
+                        @Override
+                        public Bitmap call(Bitmap bitmap) {
+                            return FastBlur.doBlur(bitmap, 40, false);
+                        }
+                    })
+                    .compose(TransformerUtil.<Bitmap>io())
+                    .subscribe(new SubscriberAdapter<Bitmap>() {
+                        @Override
+                        public void onNext(Bitmap bitmap) {
+                            setBlurBackground(bitmap);
+                        }
+                    });
         }
     }
 
+    //设置模糊背景
     private void setBlurBackground(Bitmap bitmap) {
         Drawable drawable;
         if (bitmap == null) {
@@ -440,16 +472,15 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
-        stopUpdateTask();
-        PlayUtil.removePlayStateChangeListener(this);
-        PlayUtil.removeBufferListener(this);
-//        LrcPicProvider.get().removeOnLrcPicChangeCallback(this);
         if (mShowPlayQueueWindow != null && mShowPlayQueueWindow.isShowing()) {
             mShowPlayQueueWindow.dismiss();
         }
+        stopUpdateProgress();
+        PlayUtil.removePlayStateChangeListener(this);
+        PlayUtil.removeBufferListener(this);
+        PlayUtil.removeOnPlayerBindListener(this);
+        super.onDestroyView();
     }
-
 
     private void setTitleText(String title) {
         mStvTitle.setText(title);
@@ -457,8 +488,8 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
     }
 
     private void setArtistText(String artist) {
-        if (artist == null
-                || artist.equals("<unknown>")) {
+        if (TextUtils.isEmpty(artist)
+                || MusicInfo.UNKNOWN.equals(artist)) {
             artist = "未知歌手";
         }
         mStvArtist.setText(artist);
@@ -537,10 +568,10 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
             }
             break;
 
-            case R.id.s_ibtn_play_pause:
+            case R.id.s_iv_toggle_play:
             case R.id.fab_toggle_play: {
                 if (PlayUtil.getState() == Player.STATE_IDLE) {
-                    List<MusicInfo> queue = PlayUtil.getQueue();
+                    List<PlayTrack> queue = PlayUtil.getQueue();
                     if (queue != null
                             && queue.size() > 0) {
                         PlayUtil.play(0);
@@ -553,7 +584,7 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
             }
             break;
 
-            case R.id.s_ibtn_next:
+            case R.id.s_iv_next:
             case R.id.iv_next: {
                 PlayUtil.next();
             }
@@ -566,12 +597,12 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
             break;
 
             case R.id.view_back: {
-//                getMainActivity().collapseSlidingPanel();
+                getMainActivity().collapsePanel();
             }
             break;
 
             case R.id.iv_favorite: {
-//                Music music = PlayUtil.getCurrentMusic();
+//                Music music = PlayUtil.getCurrentTrack();
 //                if (music == null) {
 //                    return;
 //                }
@@ -588,7 +619,7 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
 //                        }
 //                    });
 //                } else {
-//                    AppDB.get(getContext()).addMusicToFavorite(PlayUtil.getCurrentMusic(),
+//                    AppDB.get(getContext()).addMusicToFavorite(PlayUtil.getCurrentTrack(),
 //                            new ResultCallback<Boolean>() {
 //                                @Override
 //                                public void onResult(Boolean result) {
@@ -604,6 +635,11 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+
+    private MainActivity getMainActivity() {
+        return (MainActivity) getActivity();
+    }
+
     public void setIsFavorite(boolean favorite) {
         mIsFavorite = favorite;
         if (favorite) {
@@ -614,8 +650,9 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
     }
 
     //主界面底部的小控制面板可见性
-    public void setSmallControllerVisibility(int visibility) {
-        mSmallPlayer.setVisibility(visibility);
+    public void setExpanded(boolean expanded) {
+        mSmallPlayer.setVisibility(expanded ? View.INVISIBLE : View.VISIBLE);
+        mIsExpanded = expanded;
     }
 
     @Override
@@ -625,88 +662,50 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
         outState.putInt("bigPlayerVisibility", mBigPlayer.getVisibility());
     }
 
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
     }
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-        stopUpdateTask();
+        stopUpdateProgress();
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         if (PlayUtil.isPlaying()) {
-            startUpdateTask();
+            startUpdateProgress();
         }
         PlayUtil.seekTo(seekBar.getProgress());
-//        if (seekBar.getProgress() <= seekBar.getSecondaryProgress()) {
-//            PlayUtil.seekTo(seekBar.getProgress());
-//            mLyricView.setCurrentTime(seekBar.getProgress());
-//        } else {
-//            seekBar.setProgress(PlayUtil.getProgress());
-//        }
-    }
-
-    private void startUpdateLyric() {
-        if (mUpdateLyricTask != null) {
-            mUpdateLyricTask.cancel();
-            mUpdateLyricTask = new UpdateLyricTask();
-        }
-        mTimer.schedule(mUpdateLyricTask, 0, 500);
-    }
-
-    private void stopUpdateLyric() {
-        if (mUpdateLyricTask != null) {
-            mUpdateLyricTask.cancel();
+        if (seekBar.getProgress() <= seekBar.getSecondaryProgress()) {
+            PlayUtil.seekTo(seekBar.getProgress());
+            mLyricView.setCurrentTime(seekBar.getProgress());
+        } else {
+            seekBar.setProgress(PlayUtil.getProgress());
         }
     }
 
     private void startUpdateProgress() {
-        if (mUpdateProgressTask != null) {
-            mUpdateProgressTask.cancel();
-            mUpdateProgressTask = new UpdateProgressTask();
-        }
-        mTimer.schedule(mUpdateProgressTask, 0, 100);
+        stopUpdateProgress();
+        mUpdateProgress = Observable.interval(500, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        int progress = PlayUtil.getProgress();
+                        setPlayProgress(progress);
+                        mLyricView.setCurrentTime(progress);
+                    }
+                });
     }
 
-    private void stopUpdatkProgress() {
-        if (mUpdateProgressTask != null) {
-            mUpdateProgressTask.cancel();
-        }
-    }
-
-    private void startUpdateTask() {
-        startUpdateProgress();
-        startUpdateLyric();
-    }
-
-    private void stopUpdateTask() {
-        stopUpdateLyric();
-        stopUpdatkProgress();
-    }
-
-
-    private class UpdateLyricTask extends TimerTask {
-        @Override
-        public void run() {
-            Message message = Message.obtain();
-            message.what = WHAT_UPDATE_LYRIC;
-            message.arg1 = PlayUtil.getProgress();
-            mHandler.sendMessage(message);
+    private void stopUpdateProgress() {
+        if (mUpdateProgress != null
+                && !mUpdateProgress.isUnsubscribed()) {
+            mUpdateProgress.unsubscribe();
         }
     }
-
-    private class UpdateProgressTask extends TimerTask {
-        @Override
-        public void run() {
-            Message message = Message.obtain();
-            message.what = WHAT_UPDATE_PROGRESS;
-            message.arg1 = PlayUtil.getProgress();
-            mHandler.sendMessage(message);
-        }
-    }
-
 
     private class LocalPagerAdapter extends PagerAdapter {
 

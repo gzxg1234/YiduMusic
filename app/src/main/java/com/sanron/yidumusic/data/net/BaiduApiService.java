@@ -10,6 +10,7 @@ import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
 import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdAlbumData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdSongData;
+import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -96,7 +97,12 @@ public interface BaiduApiService {
                                                    @Query("rn") int limit);
 
     @GET("ting?method=baidu.ting.search.lrcpic")
-    Observable<LrcpicData> getLrcpic(@Query(value = "query") String query,
-                                     @Query(value = "e") String e,
+    Observable<LrcpicData> getLrcpic(@Query("query") String query,
+                                     @Query("e") String e,
                                      @Query("ts") long ts);
+
+    @GET("ting?method=baidu.ting.song.getInfos")
+    Observable<SongInfoData> getSongInfo(@Query("songid") long songid,
+                                         @Query("e") String e,
+                                         @Query("ts") long ts);
 }

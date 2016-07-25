@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Created by sanron on 16-7-16.
  */
-public class Song {
+public class SongInfo {
+
 
     //歌曲名
     @JsonProperty("title") public String title;
@@ -111,4 +112,6 @@ public class Song {
     @JsonProperty("copy_type") public String copyType;
     @JsonProperty("songwriting") public String songwriting;
     @JsonProperty("is_charge") public String isCharge;
+
+
 }

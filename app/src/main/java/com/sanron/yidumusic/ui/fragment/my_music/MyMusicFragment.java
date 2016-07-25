@@ -3,7 +3,6 @@ package com.sanron.yidumusic.ui.fragment.my_music;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.ui.base.ViewPageFragment;
 
 /**
@@ -23,9 +22,7 @@ public class MyMusicFragment extends ViewPageFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(getString(R.string.my_music_title));
         setTitles(TITLES);
         setFragments(FRAGMENTS);
     }
-
 }

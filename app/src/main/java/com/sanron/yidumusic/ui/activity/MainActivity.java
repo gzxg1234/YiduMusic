@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,24 +18,27 @@ import android.widget.LinearLayout;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.ui.base.BaseActivity;
-import com.sanron.yidumusic.ui.base.ViewPageFragment;
-import com.sanron.yidumusic.ui.fragment.now_playing.NowPlayingFragment;
 import com.sanron.yidumusic.ui.fragment.music_bank.MusicBankFragment;
 import com.sanron.yidumusic.ui.fragment.my_music.MyMusicFragment;
+import com.sanron.yidumusic.ui.fragment.now_playing.NowPlayingFragment;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import butterknife.BindView;
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, ViewPageFragment.NavigationClickCallback {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     @BindView(R.id.sliding_panel) SlidingUpPanelLayout mSlidingUpPanelLayout;
     @BindView(R.id.navigation_view) NavigationView mNavigationView;
     @BindView(R.id.drawer_layout) DrawerLayout mDrawerLayout;
     @BindView(R.id.linear_layout) LinearLayout mLinearLayout;
+    @BindView(R.id.tool_bar) Toolbar mToolbar;
 
     private NowPlayingFragment mNowPlayingFragment;
     private int mCurrentPage = -1;
     private static final String[] PAGES = new String[]{
             "my_music", "music_bank"
+    };
+    private static final String[] TITLES = new String[]{
+            "我的音乐", "音乐库"
     };
     private static final String[] FRAGMENTS = new String[]{
             MyMusicFragment.class.getName(),
@@ -69,6 +73,33 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private void initView() {
         setupStatusTintView();
         mNavigationView.setNavigationItemSelectedListener(this);
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDrawerLayout.openDrawer(Gravity.LEFT);
+            }
+        });
+        mSlidingUpPanelLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                if (previousState == SlidingUpPanelLayout.PanelState.COLLAPSED
+                        && newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
+                    mNowPlayingFragment.setExpanded(true);
+                } else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    mNowPlayingFragment.setExpanded(false);
+                    mSlidingUpPanelLayout.setSlideViewClickable(true);
+                    mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                } else if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                    mSlidingUpPanelLayout.setSlideViewClickable(false);
+                    mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                }
+            }
+        });
     }
 
     private void switchFragment(int p) {
@@ -89,7 +120,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }
         }
 
-
         toFragment = fm.findFragmentByTag(PAGES[p]);
         if (toFragment == null) {
             toFragment = Fragment.instantiate(this, FRAGMENTS[p]);
@@ -99,6 +129,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
         ft.commit();
         mCurrentPage = p;
+        mToolbar.setTitle(TITLES[mCurrentPage]);
+    }
+
+    public void collapsePanel() {
+        mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
     }
 
     @Override
@@ -124,16 +159,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public boolean onNavigationItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_my_music: {
+                invalidateOptionsMenu();
                 switchFragment(0);
             }
             break;
             case R.id.menu_web_music: {
+                invalidateOptionsMenu();
                 switchFragment(1);
             }
             break;
         }
         mDrawerLayout.closeDrawer(Gravity.LEFT);
-        invalidateOptionsMenu();
         return true;
     }
 
@@ -146,10 +182,5 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public void onNavigationClick(View v) {
-        mDrawerLayout.openDrawer(Gravity.LEFT);
     }
 }
