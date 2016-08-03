@@ -10,11 +10,11 @@ import java.util.List;
  */
 public class SongInfoData extends BaseData {
 
-    @JsonProperty("songUrls") public Songurl songUrls;
+    @JsonProperty("songurl") public Songurl songUrls;
     @JsonProperty("songinfo") public SongInfo songinfo;
 
     public static class Songurl {
-        @JsonProperty("urls") public List<Url> urls;
+        @JsonProperty("url") public List<Url> urls;
 
         public static class Url {
             //下载地址

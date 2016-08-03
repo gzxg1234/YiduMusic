@@ -62,14 +62,14 @@ public class PlayListAdapter extends SectionAdapter<PlayListAdapter.SectionHolde
     @Override
     public void onBindRealItemViewHoler(ItemHolder holder, int position) {
         PlayListVO playListVO = mItems.get(position);
-        if (playListVO.getType() == PlayList.TYPE_FAVORITE) {
+        if (playListVO.getPlayList().getType() == PlayList.TYPE_FAVORITE) {
             holder.ivImg.setImageResource(R.mipmap.ic_favorite_list);
-        } else if (playListVO.getType() == PlayList.TYPE_USER) {
+        } else if (playListVO.getPlayList().getType() == PlayList.TYPE_USER) {
             holder.ivImg.setImageResource(R.mipmap.icon_normal_list);
         } else {
 
         }
-        holder.tvName.setText(playListVO.getName());
+        holder.tvName.setText(playListVO.getPlayList().getName());
         holder.tvCount.setText(playListVO.getMusicCount() + "首");
     }
 
@@ -80,8 +80,8 @@ public class PlayListAdapter extends SectionAdapter<PlayListAdapter.SectionHolde
 
     @Override
     public int getSectionForPosition(int position) {
-        int type = mItems.get(position).getType();
-        if (type == PlayListVO.TYPE_FAVORITE || type == PlayListVO.TYPE_USER) {
+        int type = mItems.get(position).getPlayList().getType();
+        if (type == PlayList.TYPE_FAVORITE || type == PlayList.TYPE_USER) {
             return SECTION_SELF;
         } else {
             return SECTION_WEB;

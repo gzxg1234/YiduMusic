@@ -227,7 +227,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
             GedanAdapter.GedanModel model = new GedanAdapter.GedanModel();
             model.type = GedanAdapter.GedanModel.TYPE_GEDAN;
             model.pic = gedan.pic300;
-            model.code = gedan.listid;
+            model.code = gedan.listid+"";
             model.text1 = gedan.title;
             model.text2 = gedan.tag;
             model.num = gedan.listenum;

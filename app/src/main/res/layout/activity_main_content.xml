@@ -8,29 +8,35 @@
     app:umanoPanelHeight="@dimen/small_player_height"
     app:umanoShadowHeight="4dp">
 
-    <LinearLayout
-        android:id="@+id/linear_layout"
+    <FrameLayout
+        android:id="@+id/fragment_front"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/tool_bar"
+        <LinearLayout
+            android:id="@+id/linear_layout"
             android:layout_width="match_parent"
-            android:background="@color/colorPrimary"
-            android:layout_height="?attr/actionBarSize"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            app:elevation="0dp"
-            app:navigationIcon="@mipmap/ic_menu_white_24dp"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:title=" ">
-        </android.support.v7.widget.Toolbar>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/fragment_container_1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/tool_bar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/colorPrimary"
+                android:theme="@style/AppTheme.AppBarOverlay"
+                app:elevation="0dp"
+                app:navigationIcon="@mipmap/ic_menu_white_24dp"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:title=" ">
+            </android.support.v7.widget.Toolbar>
+
+            <FrameLayout
+                android:id="@+id/fragment_container_1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/player_fragment_container"

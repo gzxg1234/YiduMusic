@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanron.yidumusic.data.db.HttpCache;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
@@ -20,12 +21,12 @@ import rx.Subscriber;
 /**
  * Created by sanron on 16-7-19.
  */
-public class LocalDataResource implements DataResource {
+public class LocalDataSource implements DataSource {
 
     private HttpCache mHttpCache;
     private ObjectMapper objectMapper;
 
-    public LocalDataResource(HttpCache httpCache) {
+    public LocalDataSource(HttpCache httpCache) {
         mHttpCache = httpCache;
         objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -77,6 +78,12 @@ public class LocalDataResource implements DataResource {
     public Observable<SongInfoData> getSongInfo(long songid) {
         String url = UrlGenerater.getSongInfo(songid);
         return Observable.create(new GetCacheOnSubscriber<>(url, SongInfoData.class));
+    }
+
+    @Override
+    public Observable<GedanInfoData> getGedanInfo(long listid) {
+        String url = UrlGenerater.getGedanInfo(listid);
+        return Observable.create(new GetCacheOnSubscriber<>(url, GedanInfoData.class));
     }
 
 

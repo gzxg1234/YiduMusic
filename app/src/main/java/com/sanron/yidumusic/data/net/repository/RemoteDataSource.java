@@ -8,6 +8,7 @@ import com.sanron.yidumusic.data.net.bean.SongInfo;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.FocusPicData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.bean.response.HotGedanData;
@@ -28,12 +29,12 @@ import rx.functions.Func4;
 /**
  * Created by sanron on 16-7-19.
  */
-public class RemoteDataResource implements DataResource {
+public class RemoteDataSource implements DataSource {
 
 
     private BaiduApiService mApiService;
 
-    public RemoteDataResource(BaiduApiService apiService) {
+    public RemoteDataSource(BaiduApiService apiService) {
         mApiService = apiService;
     }
 
@@ -146,6 +147,11 @@ public class RemoteDataResource implements DataResource {
         String str = "songid=" + songid + "&ts=" + ts;
         String e = EncryptTool.encrypt(str);
         return mApiService.getSongInfo(songid, e, ts);
+    }
+
+    @Override
+    public Observable<GedanInfoData> getGedanInfo(long listid) {
+        return mApiService.getGedanInfo(listid);
     }
 
 }

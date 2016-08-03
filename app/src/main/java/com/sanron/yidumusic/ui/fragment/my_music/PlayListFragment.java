@@ -22,6 +22,8 @@ import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.data.db.DBObserver;
 import com.sanron.yidumusic.data.db.YiduDB;
 import com.sanron.yidumusic.data.db.model.PlayList;
+import com.sanron.yidumusic.data.db.model.PlayListMembers;
+import com.sanron.yidumusic.data.db.model.PlayListMembers_Table;
 import com.sanron.yidumusic.data.db.model.PlayList_Table;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.ui.adapter.PlayListAdapter;
@@ -60,7 +62,7 @@ public class PlayListFragment extends LazyLoadFragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mPlayListAdapter = new PlayListAdapter(getContext(), null);
-        mTableSubscriber = DBObserver.get().toObservable(PlayList.class)
+        mTableSubscriber = DBObserver.get().toObservable(PlayList.class, PlayListMembers.class)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<Class<? extends Model>>() {
                     @Override
@@ -113,7 +115,13 @@ public class PlayListFragment extends LazyLoadFragment {
                     public List<PlayListVO> call(List<PlayList> playLists) {
                         List<PlayListVO> list = new ArrayList<>();
                         for (PlayList playList : playLists) {
-                            list.add(PlayListVO.from(playList));
+                            PlayListVO playListVO = new PlayListVO();
+                            playListVO.setPlayList(playList);
+                            playListVO.setMusicCount(SQLite.selectCountOf()
+                                    .from(PlayListMembers.class)
+                                    .where(PlayListMembers_Table.playList_id.eq(playList.getId()))
+                                    .count());
+                            list.add(playListVO);
                         }
                         return list;
                     }

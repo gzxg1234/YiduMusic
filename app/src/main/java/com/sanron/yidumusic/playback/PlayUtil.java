@@ -107,7 +107,7 @@ public class PlayUtil {
         return null;
     }
 
-    public static void enqueue(List<PlayTrack> musics) {
+    public static void enqueue(List<? extends PlayTrack> musics) {
         if (sPlayer != null) {
             sPlayer.enqueue(musics);
         }

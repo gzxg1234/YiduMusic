@@ -13,14 +13,14 @@
         android:layout_height="40dp"
         android:layout_alignParentTop="true"
         android:clipToPadding="false"
-        android:orientation="horizontal"
-        android:paddingLeft="16dp">
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/iv"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
             android:src="@mipmap/ic_play_arrow_black_24dp"/>
 
         <TextView

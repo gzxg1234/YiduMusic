@@ -11,7 +11,7 @@ public class Album {
     @JsonProperty("title") public String title;
 
     //专辑id
-    @JsonProperty("album_id") public String albumId;
+    @JsonProperty("album_id") public long albumId;
 
     //专辑信息
     @JsonProperty("info") public String info;
@@ -23,7 +23,7 @@ public class Album {
     @JsonProperty("author") public String author;
 
     //艺术家id
-    @JsonProperty("artist_id") public String artistId;
+    @JsonProperty("artist_id") public long artistId;
 
     //全部艺术家id
     @JsonProperty("all_artist_id") public String allArtistId;
@@ -35,7 +35,7 @@ public class Album {
     @JsonProperty("language") public String language;
 
     //专辑歌曲数量
-    @JsonProperty("songs_total") public String songsTotal;
+    @JsonProperty("songs_total") public int songsTotal;
 
     //发行时间
     @JsonProperty("publishtime") public String publishtime;

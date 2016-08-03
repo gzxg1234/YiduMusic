@@ -2,6 +2,7 @@ package com.sanron.yidumusic.data.net.repository;
 
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
@@ -13,7 +14,7 @@ import rx.Observable;
 /**
  * Created by sanron on 16-7-19.
  */
-public interface DataResource {
+public interface DataSource {
 
     // 获取首页数据
     Observable<HomeData> getHomeData(int foucsNum, int hotGedanNum, int recmdAlbumNum,
@@ -34,9 +35,11 @@ public interface DataResource {
     //官方歌单
     Observable<OfficialGedanData> getOfficialGedan(int offset, int limit);
 
-
     Observable<LrcpicData> getLrcpic(String word, String artist);
 
-
+    //获取音乐信息
     Observable<SongInfoData> getSongInfo(long songid);
+
+    //
+    Observable<GedanInfoData> getGedanInfo(long listid);
 }

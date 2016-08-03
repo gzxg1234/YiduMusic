@@ -1,5 +1,6 @@
 package com.sanron.yidumusic.data.db.model;
 
+import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -25,6 +26,9 @@ public class PlayListMembers extends Base {
     )
     MusicInfo musicInfo;
 
+    @Column
+    long addTime;
+
     public PlayList getPlayList() {
         return playList;
     }
@@ -39,5 +43,13 @@ public class PlayListMembers extends Base {
 
     public void setMusicInfo(MusicInfo musicInfo) {
         this.musicInfo = musicInfo;
+    }
+
+    public long getAddTime() {
+        return addTime;
+    }
+
+    public void setAddTime(long addTime) {
+        this.addTime = addTime;
     }
 }

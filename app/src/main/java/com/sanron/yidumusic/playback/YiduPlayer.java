@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.sanron.yidumusic.YiduApp;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
+import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.util.ToastUtil;
 
 import java.io.File;
@@ -22,8 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import rx.functions.Action1;
 
 public class YiduPlayer extends Binder implements Player, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, AudioManager.OnAudioFocusChangeListener {
 
@@ -74,7 +73,6 @@ public class YiduPlayer extends Binder implements Player, MediaPlayer.OnCompleti
             }
         }
     };
-
 
     public YiduPlayer(Context context) {
         mContext = context;
@@ -185,6 +183,7 @@ public class YiduPlayer extends Binder implements Player, MediaPlayer.OnCompleti
             Log.w(TAG, "IllegalState");
         } catch (IOException e) {
             e.printStackTrace();
+            Log.e(TAG,"uri :"+uri.toString());
             sendPlayError("播放出错");
         }
     }
@@ -222,16 +221,23 @@ public class YiduPlayer extends Binder implements Player, MediaPlayer.OnCompleti
         YiduApp.get()
                 .getDataRepository()
                 .getSongInfo(songid)
-                .subscribe(new Action1<SongInfoData>() {
+                .subscribe(new SubscriberAdapter<SongInfoData>() {
+
                     @Override
-                    public void call(SongInfoData songInfoData) {
+                    public void onNext(SongInfoData songInfoData) {
                         SongInfoData.Songurl.Url url = PlayHelper.selectFileUrl(mContext,
                                 songInfoData, PlayHelper.SELECT_AUTO);
                         if (url == null) {
                             sendPlayError("此歌曲暂无网络资源");
                         } else {
-                            prepare(Uri.parse(url.fileLink));
+                            prepare(Uri.parse(url.showLink));
                         }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        super.onError(e);
+                        sendPlayError("网络错误");
                     }
                 });
     }

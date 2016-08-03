@@ -10,7 +10,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -66,6 +65,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.subscriptions.SerialSubscription;
 
 /**
  * 播放界面
@@ -121,9 +121,9 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
     private Toast mToast;
     private Subscription mSetDefaultImg;
     private Subscription mUpdateProgress;
-    private Subscription mLrcPicSubscription;
-    private Subscription mLyricSubscription;
-    private Subscription mBlurSubscription;
+    private SerialSubscription mLrcPicSubscription;
+    private SerialSubscription mLyricSubscription;
+    private SerialSubscription mBlurSubscription;
     private Target mSongImgTarget;
 
 
@@ -310,44 +310,46 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
             mSivTogglePlay.setImageResource(R.mipmap.ic_pause_blue_24dp);
             mFabTogglePlay.setImageResource(R.mipmap.ic_pause_white_24dp);
         } else {
-            startUpdateProgress();
+            stopUpdateProgress();
             mSivTogglePlay.setImageResource(R.mipmap.ic_play_arrow_blue_24dp);
             mFabTogglePlay.setImageResource(R.mipmap.ic_play_arrow_white_24dp);
         }
     }
 
     private void loadLrcPic(final PlayTrack track) {
-        if (mLrcPicSubscription != null
-                && !mLrcPicSubscription.isUnsubscribed()) {
-            mLrcPicSubscription.unsubscribe();
+        if (mLrcPicSubscription == null) {
+            mLrcPicSubscription = new SerialSubscription();
+            addSub(mLrcPicSubscription);
         }
         String artist = track.getArtist();
         artist = MusicInfo.UNKNOWN.equals(artist) ? "" : artist;
-        mLrcPicSubscription = YiduApp.get()
-                .getDataRepository()
-                .getLrcpic(track.getTitle(), artist)
-                .subscribe(new SubscriberAdapter<LrcpicData>() {
-                    @Override
-                    public void onNext(LrcpicData lrcpicData) {
-                        //加载歌词
-                        if (!TextUtils.isEmpty(lrcpicData.songinfo.lrclink)) {
-                            loadSongLyric(lrcpicData.songinfo.lrclink);
-                        }
-                        //加载图片
-                        if (!TextUtils.isEmpty(lrcpicData.songinfo.picS500)) {
-                            loadSongImg(lrcpicData.songinfo.picS500);
-                        }
-                    }
-                });
+        mLrcPicSubscription.set(
+                YiduApp.get()
+                        .getDataRepository()
+                        .getLrcpic(track.getTitle(), artist)
+                        .subscribe(new SubscriberAdapter<LrcpicData>() {
+                            @Override
+                            public void onNext(LrcpicData lrcpicData) {
+                                //加载歌词
+                                if (!TextUtils.isEmpty(lrcpicData.songinfo.lrclink)) {
+                                    loadSongLyric(lrcpicData.songinfo.lrclink);
+                                }
+                                //加载图片
+                                if (!TextUtils.isEmpty(lrcpicData.songinfo.picS500)) {
+                                    loadSongImg(lrcpicData.songinfo.picS500);
+                                }
+                            }
+                        })
+        );
     }
 
 
     private void loadSongLyric(String lrcLink) {
-        if (mLyricSubscription != null
-                && !mLyricSubscription.isUnsubscribed()) {
-            mLyricSubscription.unsubscribe();
+        if (mLyricSubscription == null) {
+            mLyricSubscription = new SerialSubscription();
+            addSub(mLyricSubscription);
         }
-        mLyricSubscription = RxHttpClient.get()
+        mLyricSubscription.set(RxHttpClient.get()
                 .newRequest()
                 .url(lrcLink)
                 .execute()
@@ -364,7 +366,8 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
                     public void onNext(Lyric s) {
                         mLyricView.setLyric(s);
                     }
-                });
+                })
+        );
     }
 
     private void loadSongImg(String url) {
@@ -416,11 +419,11 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
             removeSetDefaultImg();
             mSivSongPicture.setImageBitmap(img);
             mIvSongPicture.setImageBitmap(img);
-            if (mBlurSubscription != null
-                    && !mBlurSubscription.isUnsubscribed()) {
-                mBlurSubscription.unsubscribe();
+            if (mBlurSubscription == null) {
+                mBlurSubscription = new SerialSubscription();
+                addSub(mBlurSubscription);
             }
-            mBlurSubscription = Observable.create(
+            mBlurSubscription.set(Observable.create(
                     new Observable.OnSubscribe<Bitmap>() {
                         @Override
                         public void call(Subscriber<? super Bitmap> subscriber) {
@@ -449,7 +452,8 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
                         public void onNext(Bitmap bitmap) {
                             setBlurBackground(bitmap);
                         }
-                    });
+                    })
+            );
         }
     }
 

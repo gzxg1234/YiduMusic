@@ -15,7 +15,7 @@ import com.sanron.yidumusic.playback.PlayTrack;
         name = "local_music",
         database = YiduDB.class
 )
-public class LocalMusic extends Base {
+public class LocalMusic extends Base implements PlayTrack {
 
     @Column
     private long addTime;
@@ -23,6 +23,9 @@ public class LocalMusic extends Base {
     private long lastModifyTime;
     @Column
     private boolean isDeleted;
+
+    @Column
+    private long songId;
     @ForeignKey
     private MusicInfo musicInfo;
 
@@ -58,27 +61,57 @@ public class LocalMusic extends Base {
         this.musicInfo = musicInfo;
     }
 
-    public static final String TABLE = "local_music";
-    public static final String COL_MUSIC_ID = "music_id";
-    public static final String COL_ADD_TIME = "add_time";
-    public static final String COL_LAST_MODIFY = "last_modify";
-    public static final String COL_IS_DELETED = "is_deleted";
+    public void setSongId(long songId) {
+        this.songId = songId;
+    }
 
+    public long getSongId() {
+        return songId;
+    }
 
-    public static abstract class MAPPER {
-        public static PlayTrack toPlayTrack(LocalMusic localMusic) {
-            MusicInfo musicInfo = localMusic.getMusicInfo();
-            PlayTrack playTrack = new PlayTrack();
-            playTrack.setName(musicInfo.getName());
-            playTrack.setAlbum(musicInfo.getAlbum());
-            playTrack.setArtist(musicInfo.getArtist());
-            playTrack.setDuration(musicInfo.getDuration());
-            playTrack.setLocalId(musicInfo.getId());
-            playTrack.setBitrate(musicInfo.getBitrate());
-            playTrack.setTitle(musicInfo.getTitle());
-            playTrack.setPath(musicInfo.getPath());
-            playTrack.setSourceType(PlayTrack.SOURCE_LOCAL);
-            return playTrack;
+    @Override
+    public long getLocalId() {
+        return getId();
+    }
+
+    @Override
+    public String getTitle() {
+        return musicInfo.getTitle();
+    }
+
+    @Override
+    public String getAlbum() {
+        return musicInfo.getAlbum();
+    }
+
+    @Override
+    public String getArtist() {
+        return musicInfo.getArtist();
+    }
+
+    @Override
+    public String getPath() {
+        return musicInfo.getPath();
+    }
+
+    @Override
+    public int getDuration() {
+        return musicInfo.getDuration();
+    }
+
+    @Override
+    public int getSourceType() {
+        return PlayTrack.SOURCE_LOCAL;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o != null && o instanceof PlayTrack) {
+            long id = ((PlayTrack) o).getLocalId();
+            if (id == getId()) {
+                return true;
+            }
         }
+        return super.equals(o);
     }
 }

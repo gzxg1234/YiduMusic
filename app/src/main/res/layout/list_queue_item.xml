@@ -59,8 +59,8 @@
         android:background="?android:attr/selectableItemBackground"
         android:padding="8dp"
         android:scaleType="fitXY"
-        android:src="@drawable/ic_close_grey_600_24dp"/>
-
+        android:tint="@color/gray"
+        android:src="@mipmap/ic_close_black_24dp"/>
 
     <View
         android:layout_width="match_parent"

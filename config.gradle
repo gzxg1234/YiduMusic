@@ -38,5 +38,7 @@ ext {
             'dbflow'               : 'com.github.Raizlabs.DBFlow:dbflow:' + dbflowVersion,
             'dbflow-core'          : 'com.github.Raizlabs.DBFlow:dbflow-core:' + dbflowVersion,
             'dbflow-processor'     : 'com.github.Raizlabs.DBFlow:dbflow-processor:' + dbflowVersion,
+            'systembartint'        : 'com.readystatesoftware.systembartint:systembartint:1.0.3',
+            'bottomsheet':'com.cocosw:bottomsheet:1.+@aar'
     ]
 }

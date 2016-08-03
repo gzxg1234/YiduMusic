@@ -45,9 +45,10 @@ dependencies {
     compile libs['converter-jackson']
     compile libs['dbflow']
     compile libs['dbflow-core']
+    compile libs['systembartint']
+    compile libs['bottomsheet']
     apt libs['dbflow-processor']
     debugCompile libs['leakcanary']
-    compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     releaseCompile libs['leakcanary-no-op']
     apt libs['butterknife-compiler']
 }

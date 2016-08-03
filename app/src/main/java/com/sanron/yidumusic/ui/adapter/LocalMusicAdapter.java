@@ -21,20 +21,25 @@ import com.sanron.yidumusic.data.db.model.LocalMusic;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
+import com.sanron.yidumusic.playback.PlayTrack;
+import com.sanron.yidumusic.playback.PlayUtil;
+import com.sanron.yidumusic.playback.Player;
 import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.widget.Indexable;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.Subscription;
+import rx.subscriptions.SerialSubscription;
 
 /**
  * Created by sanron on 16-7-20.
  */
 
-public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.ItemHolder> implements Indexable {
+public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.ItemHolder> implements Indexable, Player.OnPlayStateChangeListener, PlayUtil.OnPlayerReadyListener {
 
     private Context mContext;
     private List<LocalMusic> mData;
@@ -47,14 +52,25 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
     private OnItemActionClickListener mOnItemActionClickListener;
     private OnItemClickListener mOnItemClickListener;
     private MultiModeCallback mMultiModeCallback;
+    private Set<ItemHolder> mHolders = new HashSet<>();
+    private PlayTrack mPlayingTack;
+
+    private int mPlayingTextColor;
+    private int mTitleColor;
+    private int mArtistColor;
 
     public LocalMusicAdapter(Context context, DataRepository dataRepository) {
         mContext = context;
         mDataRepository = dataRepository;
+        mPlayingTextColor = context.getResources().getColor(R.color.colorPrimary);
+        mTitleColor = context.getResources().getColor(R.color.textColorPrimary);
+        mArtistColor = context.getResources().getColor(R.color.textColorSecondary);
+        PlayUtil.addOnPlayerBindListener(this);
     }
 
     public void setData(List<LocalMusic> data) {
         mData = data;
+        mPlayingTack = PlayUtil.getCurrentMusic();
         notifyDataSetChanged();
     }
 
@@ -65,7 +81,6 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
     public List<LocalMusic> getData() {
         return mData;
     }
-
 
     public boolean isMultiMode() {
         return mIsMultiMode;
@@ -83,11 +98,10 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
             if (mMultiModeCallback != null) {
                 mMultiModeCallback.onStart();
             }
-            notifyItemCheckViewChange(true);
         } else {
             mCheckStates.clear();
-            notifyItemCheckViewChange(false);
         }
+        notifyItemCheckViewChange();
     }
 
     public void setMultiModeCallback(MultiModeCallback multiModeCallback) {
@@ -137,8 +151,27 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
     }
 
     @Override
+    public void onViewAttachedToWindow(ItemHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        PlayUtil.addOnPlayerBindListener(this);
+    }
+
+    @Override
+    public void onReady(Player player) {
+        PlayUtil.removeOnPlayerBindListener(this);
+        PlayUtil.addPlayStateChangeListener(this);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        PlayUtil.removePlayStateChangeListener(this);
+    }
+
+    @Override
     public void onBindViewHolder(final ItemHolder holder, final int position) {
-        MusicInfo musicInfo = mData.get(position).getMusicInfo();
+        final LocalMusic localMusic = mData.get(position);
+        MusicInfo musicInfo = localMusic.getMusicInfo();
         String artist = musicInfo.getArtist();
         String album = musicInfo.getAlbum();
         String sArtist = "";
@@ -158,11 +191,19 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
         holder.tvTitle.setText(musicInfo.getTitle());
         holder.tvArtist.setText(albuminfo.toString());
 
-        holder.ivImg.setImageResource(R.mipmap.default_song_pic);
-        if (holder.subscription != null) {
-            holder.subscription.unsubscribe();
+        if (localMusic.equals(mPlayingTack)) {
+            holder.tvTitle.setTextColor(mPlayingTextColor);
+            holder.tvArtist.setTextColor(mPlayingTextColor);
+        } else {
+            holder.tvTitle.setTextColor(mTitleColor);
+            holder.tvArtist.setTextColor(mArtistColor);
         }
-        holder.subscription = mDataRepository.getLrcpic(musicInfo.getTitle(), sArtist)
+
+        if (holder.subscription == null) {
+            holder.subscription = new SerialSubscription();
+        }
+        holder.ivImg.setImageResource(R.mipmap.default_song_pic);
+        holder.subscription.set(mDataRepository.getLrcpic(musicInfo.getTitle(), sArtist)
                 .subscribe(new SubscriberAdapter<LrcpicData>() {
                     @Override
                     public void onNext(LrcpicData lrcpicData) {
@@ -173,7 +214,8 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
                                 .dontAnimate()
                                 .into(holder.ivImg);
                     }
-                });
+                })
+        );
 
         //多选模式下
         if (mIsMultiMode) {
@@ -194,7 +236,6 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
             holder.cbCheck.setVisibility(View.GONE);
             holder.ivAction.setVisibility(View.VISIBLE);
         }
-
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,19 +263,20 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
                 }
             }
         });
+        mHolders.add(holder);
     }
 
+    @Override
+    public void onViewRecycled(ItemHolder holder) {
+        super.onViewRecycled(holder);
+        mHolders.remove(holder);
+    }
 
-    private void notifyItemCheckViewChange(boolean inMultiChoice) {
-        for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
-            View child = mRecyclerView.getChildAt(i);
-            ItemHolder holder = (ItemHolder) mRecyclerView.getChildViewHolder(child);
-            if (holder == null) {
-                continue;
-            }
+    private void notifyItemCheckViewChange() {
+        for (ItemHolder holder : mHolders) {
             holder.cbCheck.setChecked(mCheckStates.get(holder.getAdapterPosition(), false));
-            holder.cbCheck.setVisibility(inMultiChoice ? View.VISIBLE : View.GONE);
-            holder.ivAction.setVisibility(!inMultiChoice ? View.VISIBLE : View.GONE);
+            holder.cbCheck.setVisibility(mIsMultiMode ? View.VISIBLE : View.GONE);
+            holder.ivAction.setVisibility(!mIsMultiMode ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -306,6 +348,31 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
         mOnItemActionClickListener = onItemActionClickListener;
     }
 
+    @Override
+    public void onPlayStateChange(int state) {
+        switch (state) {
+            case Player.STATE_IDLE:
+            case Player.STATE_PREPARING: {
+                mPlayingTack = PlayUtil.getCurrentMusic();
+                notifyPlayingChange();
+            }
+            break;
+        }
+    }
+
+    public void notifyPlayingChange() {
+        for (ItemHolder holder : mHolders) {
+            final LocalMusic localMusic = getItem(holder.getAdapterPosition());
+            if (localMusic.equals(mPlayingTack)) {
+                holder.tvTitle.setTextColor(mPlayingTextColor);
+                holder.tvArtist.setTextColor(mPlayingTextColor);
+            } else {
+                holder.tvTitle.setTextColor(mTitleColor);
+                holder.tvArtist.setTextColor(mArtistColor);
+            }
+        }
+    }
+
     public static class ItemHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.iv_img)
         public ImageView ivImg;
@@ -317,7 +384,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
         public ImageView ivAction;
         @BindView(R.id.cb_check)
         public CheckBox cbCheck;
-        Subscription subscription;
+        public SerialSubscription subscription;
 
         public ItemHolder(View itemView) {
             super(itemView);

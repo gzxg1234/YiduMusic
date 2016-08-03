@@ -19,6 +19,10 @@ public class ToastUtil {
         show(msg, Toast.LENGTH_SHORT);
     }
 
+    public static void $(Context context, String msg) {
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    }
+
     public static void $$(String msg) {
         show(msg, Toast.LENGTH_LONG);
     }

@@ -1,12 +1,10 @@
 package com.sanron.yidumusic.data.net.rxhttpclient;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import okhttp3.Call;
 import okhttp3.Response;
 import rx.Observable;
 import rx.Subscriber;
-import rx.Subscription;
+import rx.android.MainThreadSubscription;
 
 public class RequestSubscriber implements Observable.OnSubscribe<Response> {
 
@@ -19,7 +17,7 @@ public class RequestSubscriber implements Observable.OnSubscribe<Response> {
     @Override
     public void call(Subscriber<? super Response> subscriber) {
 
-        subscriber.add(new RSubscrption() {
+        subscriber.add(new MainThreadSubscription() {
             @Override
             protected void onUnsubscribe() {
                 mCall.cancel();
@@ -31,12 +29,8 @@ public class RequestSubscriber implements Observable.OnSubscribe<Response> {
         }
         try {
             Response response = mCall.execute();
-            if (response.isSuccessful()) {
-                if (!subscriber.isUnsubscribed()) {
-                    subscriber.onNext(response);
-                }
-            } else {
-                throw new HttpException(response.code());
+            if (!subscriber.isUnsubscribed()) {
+                subscriber.onNext(response);
             }
         } catch (Exception e) {
             if (subscriber.isUnsubscribed()) {
@@ -45,24 +39,6 @@ public class RequestSubscriber implements Observable.OnSubscribe<Response> {
         }
         if (!subscriber.isUnsubscribed()) {
             subscriber.onCompleted();
-        }
-    }
-
-    static abstract class RSubscrption implements Subscription {
-        private AtomicBoolean mAtomicBoolean = new AtomicBoolean();
-
-        @Override
-        public void unsubscribe() {
-            if (mAtomicBoolean.compareAndSet(false, true)) {
-                onUnsubscribe();
-            }
-        }
-
-        protected abstract void onUnsubscribe();
-
-        @Override
-        public boolean isUnsubscribed() {
-            return mAtomicBoolean.get();
         }
     }
 }

@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.ui.base.BaseActivity;
+import com.sanron.yidumusic.ui.fragment.GedanDetailFragment;
 import com.sanron.yidumusic.ui.fragment.music_bank.MusicBankFragment;
 import com.sanron.yidumusic.ui.fragment.my_music.MyMusicFragment;
 import com.sanron.yidumusic.ui.fragment.now_playing.NowPlayingFragment;
@@ -32,6 +33,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @BindView(R.id.linear_layout) LinearLayout mLinearLayout;
     @BindView(R.id.tool_bar) Toolbar mToolbar;
 
+    private SystemBarTintManager.SystemBarConfig mSystemBarConfig;
     private NowPlayingFragment mNowPlayingFragment;
     private int mCurrentPage = -1;
     private static final String[] PAGES = new String[]{
@@ -102,6 +104,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         });
     }
 
+    public void showGedanDetail(long listid) {
+        addFragmentToFront(GedanDetailFragment.newInstance(listid));
+    }
+
+    public void addFragmentToFront(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragment_front, fragment)
+                .addToBackStack("front")
+                .commit();
+    }
+
     private void switchFragment(int p) {
         if (p == mCurrentPage) {
             return;
@@ -136,17 +150,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("CurrentPage", mCurrentPage);
-    }
-
     private void setupStatusTintView() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             SystemBarTintManager systemBarTintManager = new SystemBarTintManager(this);
-            int statusBarHeight = systemBarTintManager.getConfig().getPixelInsetTop(false);
+            mSystemBarConfig = systemBarTintManager.getConfig();
+            int statusBarHeight = mSystemBarConfig.getPixelInsetTop(false);
             View tintView = new View(this);
             tintView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     statusBarHeight));
@@ -154,6 +163,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             mLinearLayout.addView(tintView, 0);
         }
     }
+
+    public SystemBarTintManager.SystemBarConfig getSystemBarConfig() {
+        return mSystemBarConfig;
+    }
+
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -182,5 +196,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("CurrentPage", mCurrentPage);
     }
 }

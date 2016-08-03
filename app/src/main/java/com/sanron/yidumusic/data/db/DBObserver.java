@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.sanron.yidumusic.data.db.model.LocalMusic;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.data.db.model.PlayList;
+import com.sanron.yidumusic.data.db.model.PlayListMembers;
 
 import rx.Observable;
 import rx.functions.Func1;
@@ -44,6 +45,7 @@ public class DBObserver implements FlowContentObserver.OnTableChangedListener {
         mFlowContentObserver.registerForContentChanges(context, MusicInfo.class);
         mFlowContentObserver.registerForContentChanges(context, LocalMusic.class);
         mFlowContentObserver.registerForContentChanges(context, PlayList.class);
+        mFlowContentObserver.registerForContentChanges(context, PlayListMembers.class);
     }
 
     @Override
@@ -51,11 +53,16 @@ public class DBObserver implements FlowContentObserver.OnTableChangedListener {
         mSubject.onNext(tableChanged);
     }
 
-    public Observable<Class<? extends Model>> toObservable(final Class<? extends Model> table) {
+    public Observable<Class<? extends Model>> toObservable(final Class<? extends Model>... tables) {
         return mSubject.filter(new Func1<Class<? extends Model>, Boolean>() {
             @Override
             public Boolean call(Class<? extends Model> aClass) {
-                return aClass == table;
+                for (Class table : tables) {
+                    if (table == aClass) {
+                        return true;
+                    }
+                }
+                return false;
             }
         });
     }

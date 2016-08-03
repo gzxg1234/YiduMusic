@@ -3,6 +3,7 @@ package com.sanron.yidumusic.data.net;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.FocusPicData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HotGedanData;
 import com.sanron.yidumusic.data.net.bean.response.HotTagData;
@@ -105,4 +106,7 @@ public interface BaiduApiService {
     Observable<SongInfoData> getSongInfo(@Query("songid") long songid,
                                          @Query("e") String e,
                                          @Query("ts") long ts);
+
+    @GET("ting?method=baidu.ting.diy.gedanInfo")
+    Observable<GedanInfoData> getGedanInfo(@Query("listid") long listid);
 }

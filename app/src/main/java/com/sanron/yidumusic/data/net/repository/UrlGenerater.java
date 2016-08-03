@@ -10,64 +10,62 @@ public abstract class UrlGenerater {
 
     public static String getHomeData(int foucsNum, int hotGedanNum,
                                      int recmdAlbumNum, int recmdSongNum) {
-        return new StringBuilder(BASE)
-                .append("&method=baidu.ting.home")
-                .append("&focusNum=").append(foucsNum)
-                .append("&hotGedanNum=").append(hotGedanNum)
-                .append("&recmdAlbumNum=").append(recmdAlbumNum)
-                .append("&recmdSongNum=").append(recmdSongNum)
-                .toString();
+        return BASE
+                + "&method=baidu.ting.home"
+                + "&focusNum=" + foucsNum
+                + "&hotGedanNum=" + hotGedanNum
+                + "&recmdAlbumNum=" + recmdAlbumNum
+                + "&recmdSongNum=" + recmdSongNum;
     }
 
     public static String getBillCategory() {
-        return new StringBuilder(BASE)
-                .append("&method=baidu.ting.billboard.billCategory&kflag=1")
-                .toString();
+        return BASE
+                + "&method=baidu.ting.billboard.billCategory&kflag=1";
     }
 
     public static String getGedanCategory() {
-        return new StringBuilder(BASE)
-                .append("&method=getGedanCategory")
-                .toString();
+        return BASE
+                + "&method=getGedanCategory";
     }
 
     public static String getGedanList(int page, int pageSize) {
-        return new StringBuilder(BASE)
-                .append("&method=baidu.ting.diy.gedan")
-                .append("&page=").append(page)
-                .append("&pageSize=").append(pageSize)
-                .toString();
+        return BASE
+                + "&method=baidu.ting.diy.gedan"
+                + "&page=" + page
+                + "&pageSize=" + pageSize;
     }
 
     public static String getGedanListByTag(String tagName, int page, int pageSize) {
-        return new StringBuilder(BASE)
-                .append("&method=baidu.ting.diy.search")
-                .append("&query=").append(tagName)
-                .append("&page_no=").append(tagName)
-                .append("&page_size=").append(page)
-                .toString();
+        return BASE
+                + "&method=baidu.ting.diy.search"
+                + "&query=" + tagName
+                + "&page_no=" + tagName
+                + "&page_size=" + page;
     }
 
     public static String getOfficialGedan(int offset, int limit) {
-        return new StringBuilder(BASE)
-                .append("&method=baidu.ting.diy.search")
-                .append("&pn=").append(offset)
-                .append("&rn=").append(limit)
-                .toString();
+        return BASE
+                + "&method=baidu.ting.diy.search"
+                + "&pn=" + offset
+                + "&rn=" + limit;
     }
 
     public static String getLrcpic(String word, String artist) {
-        return new StringBuilder(BASE)
-                .append("&method=baidu.ting.search.lrcpic")
-                .append("&word=").append(word)
-                .append("&artist=").append(artist)
-                .toString();
+        return BASE
+                + "&method=baidu.ting.search.lrcpic"
+                + "&word=" + word
+                + "&artist=" + artist;
     }
 
-    public static String getSongInfo(long songid){
-        return new StringBuilder(BASE)
-                .append("&method=baidu.ting.song.getInfos")
-                .append("&songid=").append(songid)
-                .toString();
+    public static String getSongInfo(long songid) {
+        return BASE
+                + "&method=baidu.ting.song.getInfos"
+                + "&songid=" + songid;
+    }
+
+    public static String getGedanInfo(long listid) {
+        return BASE
+                + "&method=baidu.ting.diy.gedanInfo"
+                + "&listid=" + listid;
     }
 }

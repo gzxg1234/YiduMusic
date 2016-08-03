@@ -29,6 +29,7 @@ import com.sanron.yidumusic.data.net.bean.SongInfo;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.rx.ToastSubscriber;
+import com.sanron.yidumusic.ui.activity.MainActivity;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
 import com.sanron.yidumusic.util.UITool;
 import com.sanron.yidumusic.widget.OffsetDecoration;
@@ -55,7 +56,6 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
     private static final int HOTSONGLIST_NUM = 6;
     private static final int RECMD_ALBUM_NUM = 6;
     private static final int RECMD_SONG_NUM = 5;
-
 
     @Override
     protected void onLazyLoad() {
@@ -281,7 +281,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
         }
     }
 
-    static abstract class CategoryAdapter<T> extends BaseAdapter {
+    abstract class CategoryAdapter<T> extends BaseAdapter {
 
         private Context mContext;
         private List<T> mItems;
@@ -312,6 +312,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                     && mItems.size() > position) {
                 final T t = mItems.get(position);
                 Holder holder = new Holder();
+                holder.itemView = convertView;
                 holder.imageView = ButterKnife.findById(convertView, R.id.iv_img);
                 holder.text1 = ButterKnife.findById(convertView, R.id.tv_text1);
                 holder.text2 = ButterKnife.findById(convertView, R.id.tv_text2);
@@ -320,7 +321,8 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
             return convertView;
         }
 
-        static class Holder {
+        class Holder {
+            View itemView;
             ImageView imageView;
             TextView text1;
             TextView text2;
@@ -333,7 +335,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
     /**
      * 推荐专辑
      */
-    static class RecmdAlbumAdapter extends CategoryAdapter<Album> {
+    class RecmdAlbumAdapter extends CategoryAdapter<Album> {
 
         public RecmdAlbumAdapter(Context context, List<Album> items) {
             super(context, items);
@@ -344,7 +346,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
             Glide.with(getContext())
                     .load(album.picRadio)
                     .into(holder.imageView);
-            holder.text1.setMaxLines(1);
+            holder.text1.setLines(1);
             holder.text1.setText(album.title);
             holder.text2.setText(album.author);
         }
@@ -358,19 +360,26 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
     /**
      * 热门歌单
      */
-    static class HotSongListAdapter extends CategoryAdapter<Gedan> {
+    class HotSongListAdapter extends CategoryAdapter<Gedan> {
 
         public HotSongListAdapter(Context context, List<Gedan> mItems) {
             super(context, mItems);
         }
 
         @Override
-        protected void onBindItem(Gedan songList, Holder holder) {
+        protected void onBindItem(final Gedan songList, Holder holder) {
             Glide.with(getContext())
                     .load(songList.pic)
                     .into(holder.imageView);
             holder.text1.setText(songList.title);
             holder.text2.setVisibility(View.GONE);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    ((MainActivity) getActivity()).showGedanDetail(songList.listid);
+                }
+            });
         }
 
         @Override
@@ -383,7 +392,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
     /**
      * 推荐歌曲
      */
-    static class RecmdSongAdapter extends BaseAdapter {
+    class RecmdSongAdapter extends BaseAdapter {
 
         private Context mContext;
         private List<SongInfo> mItems;
@@ -430,7 +439,7 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
     /**
      * 顶部循环推荐适配器
      */
-    static class FocusPicPagerAdapter extends PagerAdapter {
+    class FocusPicPagerAdapter extends PagerAdapter {
         private List<FocusPic> mFocusPics;
         private boolean mNotify;
         private Context mContext;

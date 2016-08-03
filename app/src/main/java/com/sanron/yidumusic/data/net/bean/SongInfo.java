@@ -12,7 +12,7 @@ public class SongInfo {
     @JsonProperty("title") public String title;
 
     //歌曲id
-    @JsonProperty("song_id") public String songId;
+    @JsonProperty("song_id") public long songId;
 
     //歌曲图片
     @JsonProperty("pic_small") public String picSmall;
@@ -46,7 +46,7 @@ public class SongInfo {
     @JsonProperty("all_rate") public String allRate;
 
     //歌曲时长
-    @JsonProperty("file_duration") public String fileDuration;
+    @JsonProperty("file_duration") public int fileDuration;
 
     //是否有mv
     @JsonProperty("has_mv") public int hasMv;
@@ -112,6 +112,5 @@ public class SongInfo {
     @JsonProperty("copy_type") public String copyType;
     @JsonProperty("songwriting") public String songwriting;
     @JsonProperty("is_charge") public String isCharge;
-
 
 }

@@ -86,7 +86,7 @@
             android:layout_above="@+id/tv3"
             android:layout_centerHorizontal="true"
             android:scaleType="centerInside"
-            android:src="@mipmap/ic_delete_white_24dp"/>
+            android:src="@mipmap/ic_delete_forever_white_24dp"/>
 
     </RelativeLayout>
 </LinearLayout>

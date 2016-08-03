@@ -2,6 +2,7 @@ package com.sanron.yidumusic.ui.dialog;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,8 +33,8 @@ public class ShowPlayQueueWindow extends ScrimPopupWindow implements Player.OnPl
     View mContentView;
     @BindView(R.id.tv_title)
     TextView mTvTitle;
-    @BindView(R.id.ibtn_remove_all)
-    ImageButton mIbtnRemoveAll;
+    @BindView(R.id.view_clear)
+    TextView mViewClear;
     @BindView(R.id.lv_queue_music)
     RecyclerView mLvQueue;
 
@@ -67,7 +68,7 @@ public class ShowPlayQueueWindow extends ScrimPopupWindow implements Player.OnPl
             }
         });
 
-        mIbtnRemoveAll.setOnClickListener(this);
+        mViewClear.setOnClickListener(this);
         PlayUtil.addPlayStateChangeListener(this);
     }
 
@@ -90,7 +91,7 @@ public class ShowPlayQueueWindow extends ScrimPopupWindow implements Player.OnPl
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.ibtn_remove_all: {
+            case R.id.view_clear: {
                 PlayUtil.clearQueue();
                 mQueue.clear();
                 mTvTitle.setText("播放队列(0)");

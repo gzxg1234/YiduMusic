@@ -2,11 +2,12 @@ package com.sanron.yidumusic.ui.fragment.my_music;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -22,6 +23,7 @@ import android.widget.CompoundButton;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.cocosw.bottomsheet.BottomSheet;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -33,7 +35,6 @@ import com.sanron.yidumusic.data.db.YiduDB;
 import com.sanron.yidumusic.data.db.model.LocalMusic;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
-import com.sanron.yidumusic.playback.PlayTrack;
 import com.sanron.yidumusic.playback.PlayUtil;
 import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.rx.TransformerUtil;
@@ -41,6 +42,7 @@ import com.sanron.yidumusic.ui.activity.ScanMusicActivity;
 import com.sanron.yidumusic.ui.adapter.LocalMusicAdapter;
 import com.sanron.yidumusic.ui.base.BackPressHandler;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
+import com.sanron.yidumusic.ui.dialog.SelectPlayListDlg;
 import com.sanron.yidumusic.widget.IndexBar;
 
 import java.util.ArrayList;
@@ -223,6 +225,7 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
         }
     }
 
+
     @Override
     public void onDestroy() {
         mTableWatcher.unsubscribe();
@@ -389,26 +392,53 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
 
     @Override
     public void onItemClick(View view, int position) {
-        List<PlayTrack> playTracks = new ArrayList<>();
-        for (LocalMusic localMusic : mLocalMusicAdapter.getData()) {
-            playTracks.add(LocalMusic.MAPPER.toPlayTrack(localMusic));
-        }
         PlayUtil.clearQueue();
-        PlayUtil.enqueue(playTracks);
+        PlayUtil.enqueue(mLocalMusicAdapter.getData());
         PlayUtil.play(position);
     }
 
     @Override
     public void onItemActionClick(View view, int position) {
-        BottomSheetDialog dialog = new BottomSheetDialog(getContext());
+        final LocalMusic localMusic = mLocalMusicAdapter.getItem(position);
+        final List<LocalMusic> localMusics = new ArrayList<>();
+        localMusics.add(localMusic);
+        MenuItem.OnMenuItemClickListener onMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.menu_add_to_playlist: {
+                        addToPlayList(localMusics);
+                    }
+                    break;
+
+                    case R.id.menu_delete: {
+
+                    }
+                    break;
+                }
+                return false;
+            }
+        };
+        BottomSheet bottomSheet = new BottomSheet.Builder(getActivity())
+                .sheet(R.menu.local_music_action_menu)
+                .title("歌曲:" + localMusic.getMusicInfo().getTitle())
+                .listener(onMenuItemClickListener)
+                .build();
+        //设置菜单图标黑色
+        int size = bottomSheet.getMenu().size();
+        for (int i = 0; i < size; i++) {
+            Drawable icon = bottomSheet.getMenu().getItem(i).getIcon();
+            DrawableCompat.setTint(icon, Color.BLACK);
+        }
+        bottomSheet.show();
     }
 
-    class ActionDialog extends BottomSheetDialog {
-
-        public ActionDialog(@NonNull Context context) {
-            super(context);
-
+    private void addToPlayList(List<LocalMusic> localMusics) {
+        final List<MusicInfo> musicInfos = new ArrayList<>();
+        for (LocalMusic localMusic : localMusics) {
+            musicInfos.add(localMusic.getMusicInfo());
         }
+        SelectPlayListDlg.show(getContext(), musicInfos);
     }
 
     class ActionWindow extends PopupWindow {
@@ -429,19 +459,33 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
             showAtLocation(getView(), Gravity.BOTTOM, 0, 0);
         }
 
-        @OnClick(R.id.view_add_to_list)
+        @OnClick({R.id.view_add_to_list, R.id.view_add_to_queue, R.id.view_delete})
         void onAddToList() {
-
+            final List<MusicInfo> musicInfos = new ArrayList<>();
+            for (int i = 0; i < mLocalMusicAdapter.getCount(); i++) {
+                if (mLocalMusicAdapter.isItemChecked(i)) {
+                    musicInfos.add(mLocalMusicAdapter.getItem(i).getMusicInfo());
+                }
+            }
+            SelectPlayListDlg.show(getContext(), musicInfos);
+            endMultiMode();
         }
 
         @OnClick(R.id.view_add_to_queue)
         void onAddToQuque() {
-
+            final List<LocalMusic> localMusics = new ArrayList<>();
+            for (int i = 0; i < mLocalMusicAdapter.getCount(); i++) {
+                if (mLocalMusicAdapter.isItemChecked(i)) {
+                    localMusics.add(mLocalMusicAdapter.getItem(i));
+                }
+            }
+            PlayUtil.enqueue(localMusics);
+            endMultiMode();
         }
 
         @OnClick(R.id.view_delete)
         void onDelete() {
-
+            endMultiMode();
         }
     }
 }

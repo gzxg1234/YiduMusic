@@ -2,6 +2,7 @@ package com.sanron.yidumusic.data.net.repository;
 
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
@@ -15,15 +16,15 @@ import rx.functions.Action1;
 /**
  * Created by sanron on 16-7-19.
  */
-public class DataRepository implements DataResource {
+public class DataRepository implements DataSource {
 
 
-    private LocalDataResource mLocal;
-    private RemoteDataResource mRemote;
+    private LocalDataSource mLocal;
+    private RemoteDataSource mRemote;
 
     public static final String TAG = "DataRepository";
 
-    public DataRepository(LocalDataResource local, RemoteDataResource remote) {
+    public DataRepository(LocalDataSource local, RemoteDataSource remote) {
         mLocal = local;
         mRemote = remote;
     }
@@ -200,6 +201,28 @@ public class DataRepository implements DataResource {
         return Observable.concat(localData, remoteData)
                 .first()
                 .compose(TransformerUtil.<SongInfoData>io());
+    }
+
+    @Override
+    public Observable<GedanInfoData> getGedanInfo(final long listid) {
+        Observable<GedanInfoData> localData = mLocal
+                .getGedanInfo(listid)
+                .compose(TransformerUtil.<GedanInfoData>checkError());
+        Observable<GedanInfoData> remoteData = mRemote
+                .getGedanInfo(listid)
+                .doOnNext(new Action1<GedanInfoData>() {
+                    @Override
+                    public void call(GedanInfoData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getGedanInfo(listid),
+                                data,
+                                60 * 60 * 1000);
+                    }
+                })
+                .compose(TransformerUtil.<GedanInfoData>checkError());
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<GedanInfoData>io());
     }
 
 }

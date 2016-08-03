@@ -9,8 +9,11 @@ import com.sanron.yidumusic.data.db.model.LocalMusic_Table;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.data.db.model.MusicInfo_Table;
 import com.sanron.yidumusic.data.db.model.PlayList;
+import com.sanron.yidumusic.data.db.model.PlayListMembers;
+import com.sanron.yidumusic.data.db.model.PlayListMembers_Table;
 import com.sanron.yidumusic.data.db.model.PlayList_Table;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -27,9 +30,6 @@ public class YiduDB {
 
     /**
      * 更新本地歌曲
-     *
-     * @param musicInfos
-     * @return
      */
     public static Observable<Boolean> updateLocalMusic(final List<MusicInfo> musicInfos) {
         return createObservable(new Callable<Boolean>() {
@@ -85,6 +85,7 @@ public class YiduDB {
         });
     }
 
+    //获取本地歌曲
     public static Observable<List<LocalMusic>> getLocalMusic() {
         return createObservable(new Callable<List<LocalMusic>>() {
             @Override
@@ -98,6 +99,7 @@ public class YiduDB {
         });
     }
 
+    //获取歌单
     public static Observable<List<PlayList>> getPlayList() {
         return createObservable(new Callable<List<PlayList>>() {
             @Override
@@ -110,6 +112,50 @@ public class YiduDB {
             }
         });
     }
+
+    //添加歌曲到歌单
+    public static Observable<int[]> addToPlayList(final List<MusicInfo> musicInfos, final PlayList playList) {
+        return createObservable(new Callable<int[]>() {
+            @Override
+            public int[] call() throws Exception {
+                //记录添加成功和已存在的数量
+                int[] result = new int[2];
+                DatabaseWrapper database = FlowManager.getDatabase(YiduDB.class)
+                        .getWritableDatabase();
+                DBObserver.get().beginTransaction();
+                database.beginTransaction();
+                try {
+                    long time = new Date().getTime();
+                    for (MusicInfo musicInfo : musicInfos) {
+                        //是否已添加过
+                        boolean exists = SQLite.selectCountOf()
+                                .from(PlayListMembers.class)
+                                .where(PlayListMembers_Table.playList_id.eq(playList.getId()))
+                                .and(PlayListMembers_Table.musicInfo_id.eq(musicInfo.getId()))
+                                .count() > 0;
+                        if (!exists) {
+                            PlayListMembers playListMembers = new PlayListMembers();
+                            playListMembers.setAddTime(time);
+                            playListMembers.setMusicInfo(musicInfo);
+                            playListMembers.setPlayList(playList);
+                            playListMembers.save(database);
+                            result[0]++;
+                        } else {
+                            result[1]++;
+                        }
+                    }
+                    database.setTransactionSuccessful();
+                } catch (Exception e) {
+
+                } finally {
+                    database.endTransaction();
+                    DBObserver.get().endTranscaction();
+                }
+                return result;
+            }
+        });
+    }
+
 
     public static <T> Observable<T> createObservable(final Callable<T> callable) {
         return Observable.create(new Observable.OnSubscribe<T>() {
@@ -124,7 +170,6 @@ public class YiduDB {
                         subscriber.onNext(result);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
                     if (!subscriber.isUnsubscribed()) {
                         subscriber.onError(e);
                     }

@@ -12,8 +12,8 @@ import com.sanron.yidumusic.data.db.model.PlayList;
 import com.sanron.yidumusic.data.db.model.PlayList_Table;
 import com.sanron.yidumusic.data.net.YiduRetrofit;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
-import com.sanron.yidumusic.data.net.repository.LocalDataResource;
-import com.sanron.yidumusic.data.net.repository.RemoteDataResource;
+import com.sanron.yidumusic.data.net.repository.LocalDataSource;
+import com.sanron.yidumusic.data.net.repository.RemoteDataSource;
 import com.sanron.yidumusic.playback.PlayService;
 import com.sanron.yidumusic.util.ToastUtil;
 import com.squareup.leakcanary.LeakCanary;
@@ -50,8 +50,8 @@ public class YiduApp extends Application {
         LeakCanary.install(this);
         initDB();
         mDataRepository = new DataRepository(
-                new LocalDataResource(new HttpCache()),
-                new RemoteDataResource(YiduRetrofit.get().getApiService()));
+                new LocalDataSource(new HttpCache()),
+                new RemoteDataSource(YiduRetrofit.get().getApiService()));
     }
 
     private void initDB() {
