@@ -60,6 +60,11 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
     }
 
     @Override
+    protected void onRetry() {
+        onRefresh();
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBillboardAdapter = new BillboardAdapter(getContext(), null);
@@ -72,6 +77,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mBillboardAdapter);
         mRefreshLayout.setOnRefreshListener(this);
+        mRefreshLayout.setColorSchemeColors(R.color.colorPrimary);
     }
 
     @Override
@@ -81,7 +87,14 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
                     @Override
                     public void onNext(BillCategoryData billCategoryData) {
                         mBillboardAdapter.setData(billCategoryData.content);
-                        mRefreshLayout.setRefreshing(false);
+                        setState(STATE_SUCCESS);
+                        setFirstLoaded(true);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        setState(STATE_FAILED);
+                        setFirstLoaded(true);
                     }
 
                     @Override

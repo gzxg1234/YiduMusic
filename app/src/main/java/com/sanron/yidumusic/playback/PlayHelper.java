@@ -4,8 +4,13 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.text.TextUtils;
 
+import com.sanron.yidumusic.data.db.model.MusicInfo;
+import com.sanron.yidumusic.data.db.model.PlayListMembers;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 import com.sanron.yidumusic.util.NetUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by sanron on 16-7-25.

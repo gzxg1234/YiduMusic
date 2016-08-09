@@ -73,17 +73,31 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 .subscribe(new ToastSubscriber<HomeData>(getContext()) {
                     @Override
                     public void onCompleted() {
-                        super.onCompleted();
                         mRefreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        super.onError(e);
+                        setState(STATE_FAILED);
+                        setFirstLoaded(true);
                     }
 
                     @Override
                     public void onNext(HomeData homeData) {
                         mRecmdAdapter.setData(homeData);
+                        setState(STATE_SUCCESS);
+                        setFirstLoaded(true);
                     }
                 })
         );
     }
+
+    @Override
+    protected void onRetry() {
+        onRefresh();
+    }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,6 +106,10 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
         mDataRepository = YiduApp.get().getDataRepository();
     }
 
+    @Override
+    protected int getLayout() {
+        return R.layout.refresh_with_recycler;
+    }
 
     @Override
     protected void initView(View view, Bundle savedInstanceState) {
@@ -101,11 +119,6 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
         mRecyclerView.addItemDecoration(new OffsetDecoration(0, UITool.dpToPx(getContext(), 16)));
         mRefreshLayout.setOnRefreshListener(this);
         mRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
-    }
-
-    @Override
-    protected int getLayout() {
-        return R.layout.refresh_with_recycler;
     }
 
     @Override
@@ -169,6 +182,19 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
                 }
                 break;
                 case POS_ITEM2: {
+                    Item2Holder item2Holder = (Item2Holder) holder;
+                    item2Holder.tag.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            ((MainActivity) getActivity()).showAllTag();
+                        }
+                    });
+                    item2Holder.singer.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            ((MainActivity) getActivity()).showSingerCategory();
+                        }
+                    });
                 }
                 break;
                 case POS_HOT_SONGLIST: {
@@ -342,13 +368,19 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
         }
 
         @Override
-        protected void onBindItem(Album album, Holder holder) {
+        protected void onBindItem(final Album album, Holder holder) {
             Glide.with(getContext())
                     .load(album.picRadio)
                     .into(holder.imageView);
             holder.text1.setLines(1);
             holder.text1.setText(album.title);
             holder.text2.setText(album.author);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((MainActivity) getActivity()).showAlbumInfo(album.albumId);
+                }
+            });
         }
 
         @Override
@@ -458,15 +490,26 @@ public class RecmdFragment extends LazyLoadFragment implements SwipeRefreshLayou
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             ImageView imageView = mImgViews.get(position);
+            final FocusPic focusPic = mFocusPics.get(position);
             if (imageView == null) {
                 imageView = new ImageView(mContext);
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                 mImgViews.put(position, imageView);
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (focusPic.type == FocusPic.TYPE_ALBUM) {
+                            ((MainActivity) getActivity()).showAlbumInfo(Long.valueOf(focusPic.code));
+                        } else if (focusPic.type == FocusPic.TYPE_SONGLIST) {
+                            ((MainActivity) getActivity()).showGedanDetail(Long.valueOf(focusPic.code));
+                        }
+                    }
+                });
+                Glide.with(mContext)
+                        .load(mFocusPics.get(position).randpic)
+                        .into(imageView);
             }
             container.addView(imageView);
-            Glide.with(mContext)
-                    .load(mFocusPics.get(position).randpic)
-                    .into(imageView);
             return imageView;
         }
 

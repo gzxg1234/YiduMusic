@@ -155,7 +155,7 @@ public class YiduPlayer extends Binder implements Player, MediaPlayer.OnCompleti
         mCurrentPosition = position;
         PlayTrack playTrack = mQueue.get(mCurrentPosition);
         changeState(STATE_PREPARING);
-        if (playTrack.getSourceType() == PlayTrack.SOURCE_LOCAL) {
+         if (playTrack.getPlayType() == PlayTrack.SOURCE_LOCAL) {
             playLocalMusic(playTrack.getPath());
         } else {
             playWebMusic(playTrack.getSongId());

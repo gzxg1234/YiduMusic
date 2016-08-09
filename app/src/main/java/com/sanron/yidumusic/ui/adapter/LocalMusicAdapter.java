@@ -39,7 +39,7 @@ import rx.subscriptions.SerialSubscription;
  * Created by sanron on 16-7-20.
  */
 
-public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.ItemHolder> implements Indexable, Player.OnPlayStateChangeListener, PlayUtil.OnPlayerReadyListener {
+public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.ItemHolder> implements Indexable, Player.OnPlayStateChangeListener, PlayUtil.OnPlayerBindListener {
 
     private Context mContext;
     private List<LocalMusic> mData;
@@ -68,7 +68,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
         PlayUtil.addOnPlayerBindListener(this);
     }
 
-    public void setData(List<LocalMusic> data) {
+    public void setItems(List<LocalMusic> data) {
         mData = data;
         mPlayingTack = PlayUtil.getCurrentMusic();
         notifyDataSetChanged();
@@ -78,7 +78,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
         return mData.get(position);
     }
 
-    public List<LocalMusic> getData() {
+    public List<LocalMusic> getItems() {
         return mData;
     }
 
@@ -130,7 +130,35 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
     public ItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.list_local_music_item, parent, false);
-        return new ItemHolder(view);
+        final ItemHolder holder = new ItemHolder(view);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mIsMultiMode) {
+                    setItemChecked(holder.getAdapterPosition(),
+                            !isItemChecked(holder.getAdapterPosition()));
+                } else if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(holder.itemView, holder.getAdapterPosition());
+                }
+            }
+        });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                setMultiMode(true);
+                setItemChecked(holder.getAdapterPosition(), true);
+                return true;
+            }
+        });
+        holder.ivAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemActionClickListener != null) {
+                    mOnItemActionClickListener.onItemActionClick(v, holder.getAdapterPosition());
+                }
+            }
+        });
+        return holder;
     }
 
     @Override
@@ -148,11 +176,6 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
                 }
             }
         });
-    }
-
-    @Override
-    public void onViewAttachedToWindow(ItemHolder holder) {
-        super.onViewAttachedToWindow(holder);
         PlayUtil.addOnPlayerBindListener(this);
     }
 
@@ -237,32 +260,6 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.It
             holder.ivAction.setVisibility(View.VISIBLE);
         }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mIsMultiMode) {
-                    setItemChecked(position, !isItemChecked(position));
-                } else if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(holder.itemView, position);
-                }
-            }
-        });
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                setMultiMode(true);
-                setItemChecked(position, true);
-                return true;
-            }
-        });
-        holder.ivAction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnItemActionClickListener != null) {
-                    mOnItemActionClickListener.onItemActionClick(v, position);
-                }
-            }
-        });
         mHolders.add(holder);
     }
 

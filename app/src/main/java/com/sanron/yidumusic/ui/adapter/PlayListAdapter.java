@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.data.db.model.PlayList;
+import com.sanron.yidumusic.ui.base.SectionAdapter;
 import com.sanron.yidumusic.ui.vo.PlayListVO;
 
 import java.util.List;
@@ -25,6 +27,9 @@ public class PlayListAdapter extends SectionAdapter<PlayListAdapter.SectionHolde
     private Context mContext;
     private List<PlayListVO> mItems;
 
+    private OnItemActionClickListener mOnItemActionClickListener;
+    private OnItemClickListener mOnItemClickListener;
+
     public static final int SECTION_SELF = 1;
     public static final int SECTION_WEB = 2;
 
@@ -33,19 +38,27 @@ public class PlayListAdapter extends SectionAdapter<PlayListAdapter.SectionHolde
         mItems = items;
     }
 
-    public void setData(List<PlayListVO> items) {
+    public void setItems(List<PlayListVO> items) {
         mItems = items;
         notifyDataSetChanged();
     }
 
+    public List<PlayListVO> getItems(){
+        return mItems;
+    }
+
+    public PlayListVO getItem(int position){
+        return mItems.get(position);
+    }
+
     @Override
-    public SectionHolder onCreateSectionViewHolder(ViewGroup parent) {
+    public SectionHolder onCreateSectionView(ViewGroup parent) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.list_playlist_section_item, parent, false);
         return new SectionHolder(view);
     }
 
     @Override
-    public void onBindSectionViewHolder(SectionHolder holder, int section) {
+    public void onBindSectionView(SectionHolder holder, int section) {
         if (section == SECTION_SELF) {
             holder.tv.setText("自建歌单");
         } else {
@@ -54,23 +67,41 @@ public class PlayListAdapter extends SectionAdapter<PlayListAdapter.SectionHolde
     }
 
     @Override
-    public ItemHolder onCreateRealItemViewHolder(ViewGroup parent, int viewType) {
+    public ItemHolder onCreateItemView(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.list_playlist_item, parent, false);
-        return new ItemHolder(view);
+        return  new ItemHolder(view);
     }
 
     @Override
-    public void onBindRealItemViewHoler(ItemHolder holder, int position) {
+    public void onBindItemView(ItemHolder holder, final int position) {
         PlayListVO playListVO = mItems.get(position);
         if (playListVO.getPlayList().getType() == PlayList.TYPE_FAVORITE) {
             holder.ivImg.setImageResource(R.mipmap.ic_favorite_list);
         } else if (playListVO.getPlayList().getType() == PlayList.TYPE_USER) {
             holder.ivImg.setImageResource(R.mipmap.icon_normal_list);
         } else {
-
+            Glide.with(mContext)
+                    .load(playListVO.getPlayList().getIcon())
+                    .into(holder.ivImg);
         }
         holder.tvName.setText(playListVO.getPlayList().getName());
         holder.tvCount.setText(playListVO.getMusicCount() + "首");
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(v, position);
+                }
+            }
+        });
+        holder.ivAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemActionClickListener != null) {
+                    mOnItemActionClickListener.onItemActionClick(v, position);
+                }
+            }
+        });
     }
 
     @Override
@@ -111,5 +142,21 @@ public class PlayListAdapter extends SectionAdapter<PlayListAdapter.SectionHolde
             super(itemView);
             tv = (TextView) itemView;
         }
+    }
+
+    public void setOnItemActionClickListener(OnItemActionClickListener onItemActionClickListener) {
+        mOnItemActionClickListener = onItemActionClickListener;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    public interface OnItemActionClickListener {
+        void onItemActionClick(View view, int position);
     }
 }

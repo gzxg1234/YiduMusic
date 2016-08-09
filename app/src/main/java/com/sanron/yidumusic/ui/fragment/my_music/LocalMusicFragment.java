@@ -26,15 +26,17 @@ import android.widget.TextView;
 import com.cocosw.bottomsheet.BottomSheet;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.YiduApp;
 import com.sanron.yidumusic.config.LocalMusicConfig;
 import com.sanron.yidumusic.data.db.DBObserver;
-import com.sanron.yidumusic.data.db.YiduDB;
 import com.sanron.yidumusic.data.db.model.LocalMusic;
+import com.sanron.yidumusic.data.db.model.LocalMusic_Table;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
+import com.sanron.yidumusic.playback.PlayTrack;
 import com.sanron.yidumusic.playback.PlayUtil;
 import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.rx.TransformerUtil;
@@ -54,10 +56,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.functions.Func1;
 
 /**
  * Created by Administrator on 2015/12/21.
@@ -153,11 +156,6 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
     };
 
     @Override
-    protected int getLayout() {
-        return R.layout.fragment_local_music;
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
@@ -206,6 +204,11 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
         mCurrentSortType = mLocalMusicConfig.getSortType();
         configSortType();
         getBaseActivity().addBackPressHandler(this);
+    }
+
+    @Override
+    protected int getLayout() {
+        return R.layout.fragment_local_music;
     }
 
     @Override
@@ -338,23 +341,41 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
     }
 
     private void loadData() {
-        addSub(YiduDB.getLocalMusic()
-                .map(new Func1<List<LocalMusic>, List<LocalMusic>>() {
-                    @Override
-                    public List<LocalMusic> call(List<LocalMusic> localMusics) {
-                        Collections.sort(localMusics, mSortCompator);
-                        return localMusics;
-                    }
-                })
-                .compose(TransformerUtil.<List<LocalMusic>>io())
-                .subscribe(new SubscriberAdapter<List<LocalMusic>>() {
-                    @Override
-                    public void onNext(List<LocalMusic> localMusics) {
-                        mLocalMusicAdapter.setData(localMusics);
-                        mPlayAll.setText(getString(R.string.play_all, localMusics.size()));
-                    }
-                })
-        );
+        Observable.create(new Observable.OnSubscribe<List<LocalMusic>>() {
+            @Override
+            public void call(Subscriber<? super List<LocalMusic>> subscriber) {
+                List<LocalMusic> localMusics = SQLite.select()
+                        .from(LocalMusic.class)
+                        .where(LocalMusic_Table.isDeleted.eq(false))
+                        .queryList();
+                Collections.sort(localMusics, mSortCompator);
+                subscriber.onNext(localMusics);
+                subscriber.onCompleted();
+            }
+        }).compose(TransformerUtil.<List<LocalMusic>>io()
+        ).subscribe(new SubscriberAdapter<List<LocalMusic>>() {
+            @Override
+            public void onNext(List<LocalMusic> localMusics) {
+                mLocalMusicAdapter.setItems(localMusics);
+                mPlayAll.setText(getString(R.string.play_all, localMusics.size()));
+                if (!isFirstLoaded()) {
+                    setState(STATE_SUCCESS);
+                }
+            }
+
+            @Override
+            public void onCompleted() {
+                super.onCompleted();
+                setFirstLoaded(true);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if (!isFirstLoaded()) {
+                    setState(STATE_FAILED);
+                }
+            }
+        });
     }
 
     private void setMultiBarVisiable(boolean visiable) {
@@ -393,7 +414,12 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
     @Override
     public void onItemClick(View view, int position) {
         PlayUtil.clearQueue();
-        PlayUtil.enqueue(mLocalMusicAdapter.getData());
+        List<PlayTrack> playTracks = new ArrayList<>();
+        List<LocalMusic> localMusics = mLocalMusicAdapter.getItems();
+        for (LocalMusic localMusic : localMusics) {
+            playTracks.add(localMusic.toPlayTrack());
+        }
+        PlayUtil.enqueue(playTracks);
         PlayUtil.play(position);
     }
 
@@ -473,13 +499,13 @@ public class LocalMusicFragment extends LazyLoadFragment implements BackPressHan
 
         @OnClick(R.id.view_add_to_queue)
         void onAddToQuque() {
-            final List<LocalMusic> localMusics = new ArrayList<>();
+            List<PlayTrack> playTracks = new ArrayList<>();
             for (int i = 0; i < mLocalMusicAdapter.getCount(); i++) {
                 if (mLocalMusicAdapter.isItemChecked(i)) {
-                    localMusics.add(mLocalMusicAdapter.getItem(i));
+                    playTracks.add(mLocalMusicAdapter.getItem(i).toPlayTrack());
                 }
             }
-            PlayUtil.enqueue(localMusics);
+            PlayUtil.enqueue(playTracks);
             endMultiMode();
         }
 

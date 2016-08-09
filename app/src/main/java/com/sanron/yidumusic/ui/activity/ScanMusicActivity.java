@@ -25,15 +25,16 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.data.db.YiduDB;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
+import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.ui.base.BaseActivity;
 import com.sanron.yidumusic.util.AudioTool;
+import com.sanron.yidumusic.util.MusicScanner;
 import com.sanron.yidumusic.util.ToastUtil;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import butterknife.BindView;
-import rx.functions.Action1;
 
 /**
  * Created by sanron on 16-3-22.
@@ -105,7 +106,7 @@ public class ScanMusicActivity extends BaseActivity implements View.OnClickListe
 
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
-                    String displayName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+//                    String displayName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
                     String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
                     String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
                     String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
@@ -114,7 +115,7 @@ public class ScanMusicActivity extends BaseActivity implements View.OnClickListe
                     int bitrate = AudioTool.readBitrate(path);
                     long modifiedDate = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED));
                     MusicInfo music = new MusicInfo();
-                    music.setName(displayName);
+//                    music.setName(displayName);
                     music.setTitle(title);
                     music.setAlbum(album);
                     music.setArtist(artist);
@@ -261,18 +262,21 @@ public class ScanMusicActivity extends BaseActivity implements View.OnClickListe
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setMessage("正在更新数据，请稍等");
+        progressDialog.setIndeterminate(true);
         progressDialog.show();
         YiduDB.updateLocalMusic(musicInfos)
-                .subscribe(new Action1<Boolean>() {
+                .subscribe(new SubscriberAdapter<Void>() {
                     @Override
-                    public void call(Boolean aBoolean) {
-                        if (aBoolean) {
-                            ToastUtil.$("更新完成");
-                        } else {
-                            ToastUtil.$("更新失败");
-                        }
+                    public void onNext(Void aBoolean) {
+                        ToastUtil.$("更新完成");
                         progressDialog.cancel();
                         finish();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        super.onError(e);
+                        ToastUtil.$("更新失败");
                     }
                 });
     }

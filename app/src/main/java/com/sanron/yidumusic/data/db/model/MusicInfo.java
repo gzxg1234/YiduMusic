@@ -11,31 +11,31 @@ import com.sanron.yidumusic.data.db.YiduDB;
 public class MusicInfo extends Base {
 
     @Column
-    private String name;
+     String name;
 
     @Column
-    private String title;
+     String title;
 
     @Column
-    private String album;
+     String album;
 
     @Column
-    private String artist;
+     String artist;
 
     @Column
-    private String path;
+     String path;
 
     @Column
-    private long lastModifyTime;
+     long lastModifyTime;
 
     @Column
-    private int duration;
+     int duration;
 
     @Column
-    private long songId;
+     long songId;
 
     @Column
-    private int bitrate;
+     int bitrate;
 
     public static final String UNKNOWN = "<unknown>";
 
@@ -113,7 +113,7 @@ public class MusicInfo extends Base {
     }
 
 
-//    public static final String TABLE = "music_info";
+    //    public static final String TABLE = "music_info";
 //    public static final String COL_NAME = "name";
 //    public static final String COL_TITLE = "title";
 //    public static final String COL_TITLE_KEY = "title_key";

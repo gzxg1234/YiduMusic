@@ -21,7 +21,7 @@ public class MusicBankFragment extends ViewPageFragment {
     private static final String[] FRAGMENTS = {
             RecmdFragment.class.getName(),
             BillFragment.class.getName(),
-            GedanFragment.class.getName(),
+            GedanListFragment.class.getName(),
             RadioFragment.class.getName(),
             MVFragment.class.getName()
     };

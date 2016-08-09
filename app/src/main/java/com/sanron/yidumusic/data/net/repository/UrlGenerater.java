@@ -68,4 +68,38 @@ public abstract class UrlGenerater {
                 + "&method=baidu.ting.diy.gedanInfo"
                 + "&listid=" + listid;
     }
+
+    public static String getAlbumInfo(long albumId) {
+        return BASE
+                + "&method=baidu.ting.album.getAlbumInfo"
+                + "&album_id=" + albumId;
+    }
+
+    public static String getHotTag(int nums) {
+        return BASE
+                + "&method=baidu.ting.tag.getHotTag"
+                + "&nums=" + nums;
+    }
+
+    public static String getAllTag() {
+        return BASE
+                + "&method=baidu.ting.tag.getAllTag";
+    }
+
+    public static String getOfficialGedanInfo(String code) {
+        return BASE
+                + "&method=baidu.ting.diy.getSongFromOfficalList"
+                + "&code=" + code;
+    }
+
+    public static String getSingerList(int offset, int limit, int area, int sex, int order, String abc) {
+        return BASE
+                + "&method=baidu.ting.artist.getList"
+                + "&offset=" + offset
+                + "&limit=" + limit
+                + "&order=" + order
+                + "&sex=" + sex
+                + "&area=" + area
+                + "&abc=" + abc;
+    }
 }

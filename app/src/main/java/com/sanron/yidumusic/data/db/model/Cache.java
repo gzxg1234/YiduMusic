@@ -16,13 +16,13 @@ public class Cache extends Base {
 
     @Index
     @Column
-    private String key;
+     String key;
     @Column
-    private String value;
+     String value;
     @Column
-    private long addTime;
+     long addTime;
     @Column
-    private long maxAge;
+     long maxAge;
 
     public String getKey() {
         return key;

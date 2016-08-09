@@ -30,7 +30,6 @@ import android.widget.ViewSwitcher;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.sanron.lyricview.model.Lyric;
 import com.sanron.lyricview.view.LyricView;
 import com.sanron.yidumusic.R;
@@ -48,6 +47,7 @@ import com.sanron.yidumusic.ui.activity.MainActivity;
 import com.sanron.yidumusic.ui.base.BaseFragment;
 import com.sanron.yidumusic.ui.dialog.ShowPlayQueueWindow;
 import com.sanron.yidumusic.util.FastBlur;
+import com.sanron.yidumusic.util.StatusBarUtil;
 import com.sanron.yidumusic.util.ToastUtil;
 import com.viewpagerindicator.PageIndicator;
 
@@ -72,7 +72,7 @@ import rx.subscriptions.SerialSubscription;
  * Created by Administrator on 2016/3/5.
  */
 public class NowPlayingFragment extends BaseFragment implements View.OnClickListener,
-        Player.OnPlayStateChangeListener, Player.OnBufferListener, SeekBar.OnSeekBarChangeListener, PlayUtil.OnPlayerReadyListener {
+        Player.OnPlayStateChangeListener, Player.OnBufferListener, SeekBar.OnSeekBarChangeListener, PlayUtil.OnPlayerBindListener {
 
     @BindView(R.id.small_player) ViewGroup mSmallPlayer;
     @BindView(R.id.s_play_progress) ProgressBar mSplayProgress;
@@ -139,8 +139,7 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
         setListeners();
 
         //设置间距
-        SystemBarTintManager.SystemBarConfig sbc = new SystemBarTintManager(getActivity()).getConfig();
-        mTopBar.setPadding(0, sbc.getPixelInsetTop(false), 0, 0);
+        StatusBarUtil.applyInsertTop(getActivity(), mTopBar);
 
         setupViewPager();
 
@@ -261,6 +260,7 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
                 setArtistText(music.getArtist());
                 setSongDuration(0);
                 setPlayProgress(0);
+                mPlayProgress.setSecondaryProgress(0);
                 mLyricView.setLyric(null);
                 setIsPlaying(false);
                 loadLrcPic(music);
@@ -274,9 +274,9 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
                 }
                 setSongDuration(PlayUtil.getDuration());
                 setPlayProgress(PlayUtil.getProgress());
-                if (music.getSourceType() == PlayTrack.SOURCE_LOCAL) {
+                if (music.getPlayType() == PlayTrack.SOURCE_LOCAL) {
                     mPlayProgress.setSecondaryProgress(PlayUtil.getDuration());
-                } else if (music.getSourceType() == PlayTrack.SOURCE_WEB) {
+                } else if (music.getPlayType() == PlayTrack.SOURCE_WEB) {
                     mPlayProgress.setSecondaryProgress(0);
                 }
             }
@@ -284,8 +284,8 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
         }
     }
 
+    //3秒后设置默认图片
     private void setDefaultImgDelay() {
-        //3秒后设置默认图片
         removeSetDefaultImg();
         mSetDefaultImg = Observable.timer(3000, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -297,6 +297,7 @@ public class NowPlayingFragment extends BaseFragment implements View.OnClickList
                 });
     }
 
+    //取消设置默认
     private void removeSetDefaultImg() {
         if (mSetDefaultImg != null
                 && !mSetDefaultImg.isUnsubscribed()) {

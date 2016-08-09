@@ -10,10 +10,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.data.db.YiduDB;
 import com.sanron.yidumusic.data.db.model.MusicInfo;
 import com.sanron.yidumusic.data.db.model.PlayList;
+import com.sanron.yidumusic.data.db.model.PlayList_Table;
 import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.util.ToastUtil;
@@ -24,6 +26,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import rx.Observable;
+import rx.Subscriber;
 
 
 /**
@@ -57,8 +61,20 @@ public class SelectPlayListDlg extends BottomSheetDialog implements AdapterView.
         super.show();
     }
 
-    public static void show(final Context context, final List<MusicInfo> musicInfos){
-        YiduDB.getPlayList()
+    public static void show(final Context context, final List<MusicInfo> musicInfos) {
+        Observable
+                .create(new Observable.OnSubscribe<List<PlayList>>() {
+                    @Override
+                    public void call(Subscriber<? super List<PlayList>> subscriber) {
+                        List<PlayList> playLists = SQLite.select()
+                                .from(PlayList.class)
+                                .where(PlayList_Table.type.eq(PlayList.TYPE_USER))
+                                .or(PlayList_Table.type.eq(PlayList.TYPE_FAVORITE))
+                                .orderBy(PlayList_Table.addTime, false)
+                                .queryList();
+                        subscriber.onNext(playLists);
+                    }
+                })
                 .compose(TransformerUtil.<List<PlayList>>io())
                 .subscribe(new SubscriberAdapter<List<PlayList>>() {
                     @Override

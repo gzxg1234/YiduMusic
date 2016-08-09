@@ -1,5 +1,7 @@
 package com.sanron.yidumusic.data.net;
 
+import com.sanron.yidumusic.data.net.bean.response.AlbumDetailData;
+import com.sanron.yidumusic.data.net.bean.response.AllTagData;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.FocusPicData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
@@ -8,9 +10,11 @@ import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HotGedanData;
 import com.sanron.yidumusic.data.net.bean.response.HotTagData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
-import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanInfoData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanListData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdAlbumData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdSongData;
+import com.sanron.yidumusic.data.net.bean.response.SingerListData;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 
 import retrofit2.http.GET;
@@ -43,6 +47,12 @@ public interface BaiduApiService {
     Observable<HotTagData> getHotTag(@Query("nums") int num);
 
     /**
+     * 所有标签
+     */
+    @GET("ting?method=baidu.ting.tag.getAllTag")
+    Observable<AllTagData> getAllTag();
+
+    /**
      * 热门歌单
      *
      * @param num
@@ -73,40 +83,107 @@ public interface BaiduApiService {
     Observable<RecmdSongData> getRecmdSong(@Query("page_no") int page,
                                            @Query("page_size") int pageSize);
 
-    //排行榜
+    /**
+     * 排行榜
+     *
+     * @return
+     */
     @GET("ting?method=baidu.ting.billboard.billCategory&kflag=1")
     Observable<BillCategoryData> getBillCategory();
 
-    //歌单分类
+    /**
+     * 歌单分类
+     *
+     * @return
+     */
     @GET("ting?method=baidu.ting.diy.gedanCategory")
     Observable<GedanCategoryData> getGedanCategory();
 
-    //歌单列表
+    /**
+     * 歌单列表
+     *
+     * @param page
+     * @param pageSize
+     * @return
+     */
     @GET("ting?method=baidu.ting.diy.gedan")
     Observable<GedanListData> getGedanList(@Query("page_no") int page,
                                            @Query("page_size") int pageSize);
 
-    //标签歌单
+    /**
+     * 标签歌单
+     *
+     * @param tagName
+     * @param page
+     * @param pageSize
+     * @return
+     */
     @GET("ting?method=baidu.ting.diy.search")
     Observable<GedanListData> getGedanListByTag(@Query("query") String tagName,
                                                 @Query("page_no") int page,
                                                 @Query("page_size") int pageSize);
 
-    //官方歌单
+    /**
+     * 官方歌单
+     *
+     * @param offset
+     * @param limit
+     * @return
+     */
     @GET("ting?method=baidu.ting.diy.getOfficialDiyList&ver=2&type=1")
-    Observable<OfficialGedanData> getOfficialGedan(@Query("pn") int offset,
-                                                   @Query("rn") int limit);
+    Observable<OfficialGedanListData> getOfficialGedan(@Query("pn") int offset,
+                                                       @Query("rn") int limit);
 
+    /**
+     * 搜索歌词
+     *
+     * @param query
+     * @param e
+     * @param ts
+     * @return
+     */
     @GET("ting?method=baidu.ting.search.lrcpic")
     Observable<LrcpicData> getLrcpic(@Query("query") String query,
                                      @Query("e") String e,
                                      @Query("ts") long ts);
 
+    /**
+     * 歌曲详细详细(包括下载地址)
+     *
+     * @param songid
+     * @param e
+     * @param ts
+     * @return
+     */
     @GET("ting?method=baidu.ting.song.getInfos")
     Observable<SongInfoData> getSongInfo(@Query("songid") long songid,
                                          @Query("e") String e,
                                          @Query("ts") long ts);
 
+    /**
+     * 歌单信息(包括歌单下的歌曲)
+     *
+     * @param listid
+     * @return
+     */
     @GET("ting?method=baidu.ting.diy.gedanInfo")
     Observable<GedanInfoData> getGedanInfo(@Query("listid") long listid);
+
+    /**
+     * 官方歌单信息
+     *
+     * @param code
+     * @return
+     */
+    @GET("ting?method=baidu.ting.diy.getSongFromOfficalList")
+    Observable<OfficialGedanInfoData> getOfficialGedanInfo(@Query("code") String code);
+
+
+    @GET("ting?method=baidu.ting.album.getAlbumInfo")
+    Observable<AlbumDetailData> getAlbumInfo(@Query("album_id") long albumId);
+
+    @GET("ting?method=baidu.ting.artist.getList")
+    Observable<SingerListData> getSingerList(@Query("offset") int offset, @Query("limit") int limit, @Query("area") int area,
+                                             @Query("sex") int sex,
+                                             @Query("order") int order, @Query("abc") String abc);
 }

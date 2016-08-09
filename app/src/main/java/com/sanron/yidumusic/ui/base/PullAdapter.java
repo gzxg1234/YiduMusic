@@ -1,4 +1,4 @@
-package com.sanron.yidumusic.widget;
+package com.sanron.yidumusic.ui.base;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,22 +15,22 @@ public abstract class PullAdapter<VH extends RecyclerView.ViewHolder> extends Re
     private OnLoadMoreListener mOnLoadMoreListener;
     private static final int TYPE_FOOTER = -1;
 
-    public abstract VH onCreateRealViewHolder(ViewGroup parent, int viewType);
+    public abstract VH onCreateView(ViewGroup parent, int viewType);
 
-    public abstract void onBindRealViewHolder(VH holder, int position);
+    public abstract void onBindView(VH holder, int position);
 
-    public abstract int getRealItemCount();
+    public abstract int getCount();
 
     public abstract RecyclerView.ViewHolder onCreateFooterView(ViewGroup parent);
 
-    public abstract void onBindFooterViewHolder(RecyclerView.ViewHolder viewHolder, boolean hasMore);
+    public abstract void onBindFooterView(RecyclerView.ViewHolder viewHolder, boolean hasMore);
 
     @Override
     public final RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_FOOTER) {
             return onCreateFooterView(parent);
         } else {
-            return onCreateRealViewHolder(parent, viewType);
+            return onCreateView(parent, viewType);
         }
     }
 
@@ -76,7 +76,7 @@ public abstract class PullAdapter<VH extends RecyclerView.ViewHolder> extends Re
                     throw new IllegalStateException("not support " + lm.getClass().getName());
                 }
                 if (lastVisiablePosition != RecyclerView.NO_POSITION
-                        && lastVisiablePosition >= getRealItemCount() - 1) {
+                        && lastVisiablePosition >= getCount() - 1) {
                     if (mLoadEnable
                             && !mIsLoading
                             && mHasMore
@@ -130,15 +130,15 @@ public abstract class PullAdapter<VH extends RecyclerView.ViewHolder> extends Re
     public final void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int type = getItemViewType(position);
         if (type == TYPE_FOOTER) {
-            onBindFooterViewHolder(holder, mHasMore);
+            onBindFooterView(holder, mHasMore);
         } else {
-            onBindRealViewHolder((VH) holder, position);
+            onBindView((VH) holder, position);
         }
     }
 
     @Override
     public final int getItemCount() {
-        int itemCount = getRealItemCount();
+        int itemCount = getCount();
         if (itemCount > 0
                 && mLoadEnable) {
             return 1 + itemCount;
@@ -167,18 +167,22 @@ public abstract class PullAdapter<VH extends RecyclerView.ViewHolder> extends Re
         if (mHasMore != hasMore) {
             mHasMore = hasMore;
             if (mLoadEnable) {
-                notifyItemChanged(getRealItemCount());
+                notifyItemChanged(getCount());
             }
         }
+    }
+
+    public void setError(boolean error){
+
     }
 
     public void setLoadEnable(boolean loadEnable) {
         if (loadEnable != mLoadEnable) {
             mLoadEnable = loadEnable;
             if (mLoadEnable) {
-                notifyItemInserted(getRealItemCount());
+                notifyItemInserted(getCount());
             } else {
-                notifyItemRemoved(getRealItemCount());
+                notifyItemRemoved(getCount());
             }
         }
     }

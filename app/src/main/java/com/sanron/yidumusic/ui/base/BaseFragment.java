@@ -26,16 +26,22 @@ public abstract class BaseFragment extends Fragment {
         int layoutResId = getLayout();
         if (layoutResId != 0) {
             View view = inflater.inflate(layoutResId, container, false);
-            mUnbinder = ButterKnife.bind(this, view);
+            bindView(view);
             initView(view, savedInstanceState);
             return view;
         }
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
+    protected void bindView(View view){
+        mUnbinder = ButterKnife.bind(this, view);
+    }
+
     @Override
     public void onDestroyView() {
-        mUnbinder.unbind();
+        if(mUnbinder!=null) {
+            mUnbinder.unbind();
+        }
         if (mCompositeSubscription != null
                 && !mCompositeSubscription.isUnsubscribed()) {
             mCompositeSubscription.unsubscribe();

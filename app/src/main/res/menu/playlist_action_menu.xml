@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <item
+        android:id="@+id/menu_play_now"
+        android:title="播放"
+        android:icon="@mipmap/ic_queue_music_white_24dp"/>
+
+    <item
+        android:id="@+id/menu_rename"
+        android:title="重命名"
+        android:icon="@mipmap/ic_play_arrow_black_24dp"/>
+    <item
+        android:id="@+id/menu_delete"
+        android:title="删除"
+        android:icon="@mipmap/ic_playlist_add_white_24dp"/>
+
+</menu>

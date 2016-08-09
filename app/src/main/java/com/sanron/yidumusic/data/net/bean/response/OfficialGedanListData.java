@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by sanron on 16-7-17.
  */
-public class OfficialGedanData {
+public class OfficialGedanListData {
 
     @JsonProperty("total") public int total;
     @JsonProperty("havemore") public int havemore;

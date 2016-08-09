@@ -15,19 +15,19 @@ import com.sanron.yidumusic.playback.PlayTrack;
         name = "local_music",
         database = YiduDB.class
 )
-public class LocalMusic extends Base implements PlayTrack {
+public class LocalMusic extends Base {
 
     @Column
-    private long addTime;
+    long addTime;
     @Column
-    private long lastModifyTime;
+    long lastModifyTime;
     @Column
-    private boolean isDeleted;
+    boolean isDeleted;
 
     @Column
-    private long songId;
+    long songId;
     @ForeignKey
-    private MusicInfo musicInfo;
+    MusicInfo musicInfo;
 
     public long getAddTime() {
         return addTime;
@@ -69,49 +69,15 @@ public class LocalMusic extends Base implements PlayTrack {
         return songId;
     }
 
-    @Override
-    public long getLocalId() {
-        return getId();
-    }
 
-    @Override
-    public String getTitle() {
-        return musicInfo.getTitle();
-    }
-
-    @Override
-    public String getAlbum() {
-        return musicInfo.getAlbum();
-    }
-
-    @Override
-    public String getArtist() {
-        return musicInfo.getArtist();
-    }
-
-    @Override
-    public String getPath() {
-        return musicInfo.getPath();
-    }
-
-    @Override
-    public int getDuration() {
-        return musicInfo.getDuration();
-    }
-
-    @Override
-    public int getSourceType() {
-        return PlayTrack.SOURCE_LOCAL;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o != null && o instanceof PlayTrack) {
-            long id = ((PlayTrack) o).getLocalId();
-            if (id == getId()) {
-                return true;
-            }
-        }
-        return super.equals(o);
+    public PlayTrack toPlayTrack() {
+        PlayTrack playTrack = new PlayTrack();
+        playTrack.setPath(musicInfo.getPath());
+        playTrack.setTitle(musicInfo.getTitle());
+        playTrack.setAlbum(musicInfo.getAlbum());
+        playTrack.setDuration(musicInfo.getDuration());
+        playTrack.setArtist(musicInfo.getArtist());
+        playTrack.setPlayType(PlayTrack.SOURCE_LOCAL);
+        return playTrack;
     }
 }

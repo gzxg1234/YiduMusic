@@ -2,10 +2,7 @@ package com.sanron.yidumusic.data.db.model;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.sanron.yidumusic.data.db.YiduDB;
-
-import java.util.List;
 
 /**
  * 播放列表
@@ -24,19 +21,19 @@ public class PlayList extends Base {
     public static final int TYPE_OFFICIAL_GEDAN = 5;
 
     @Column
-    private String name;
+     String name;
 
     @Column
-    private int type;
+     int type;
 
     @Column
-    private long addTime;
+     long addTime;
 
     @Column
-    private String icon;
+     String icon;
 
     @Column
-    private String code;
+     String code;
 
     public String getName() {
         return name;

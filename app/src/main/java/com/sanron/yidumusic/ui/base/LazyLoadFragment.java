@@ -9,10 +9,10 @@ import android.view.ViewGroup;
 /**
  * Created by sanron on 16-7-13.
  */
-public abstract class LazyLoadFragment extends BaseFragment {
+public abstract class LazyLoadFragment extends LoadFragment {
 
     private boolean mInitedView;
-    private boolean mLoaded;
+    private boolean mFirstLoaded;
 
     @Nullable
     @Override
@@ -20,11 +20,18 @@ public abstract class LazyLoadFragment extends BaseFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         mInitedView = true;
         if (getUserVisibleHint()
-                && !mLoaded) {
+                && !mFirstLoaded) {
             onLazyLoad();
-            mLoaded = true;
         }
         return view;
+    }
+
+    public boolean isFirstLoaded() {
+        return mFirstLoaded;
+    }
+
+    public void setFirstLoaded(boolean firstLoaded) {
+        mFirstLoaded = firstLoaded;
     }
 
     @Override
@@ -39,10 +46,9 @@ public abstract class LazyLoadFragment extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (getUserVisibleHint()
-                && !mLoaded
+                && !mFirstLoaded
                 && mInitedView) {
             onLazyLoad();
-            mLoaded = true;
         }
     }
 }

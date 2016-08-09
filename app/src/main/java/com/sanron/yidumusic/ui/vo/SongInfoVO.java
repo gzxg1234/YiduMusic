@@ -7,7 +7,7 @@ import com.sanron.yidumusic.playback.PlayTrack;
 /**
  * Created by sanron on 16-8-3.
  */
-public class RemotePlayTrack implements PlayTrack {
+public class SongInfoVO {
 
     private SongInfo mSongInfo;
 
@@ -27,46 +27,6 @@ public class RemotePlayTrack implements PlayTrack {
 
     public void setMatchLocalMusic(LocalMusic matchLocalMusic) {
         mMatchLocalMusic = matchLocalMusic;
-    }
-
-    @Override
-    public long getSongId() {
-        return mSongInfo.songId;
-    }
-
-    @Override
-    public long getLocalId() {
-        return mMatchLocalMusic == null ? 0 : mMatchLocalMusic.getId();
-    }
-
-    @Override
-    public String getTitle() {
-        return mSongInfo.title;
-    }
-
-    @Override
-    public String getAlbum() {
-        return mSongInfo.albumTitle;
-    }
-
-    @Override
-    public String getArtist() {
-        return mSongInfo.author;
-    }
-
-    @Override
-    public String getPath() {
-        return mMatchLocalMusic == null ? null : mMatchLocalMusic.getPath();
-    }
-
-    @Override
-    public int getDuration() {
-        return mSongInfo.fileDuration;
-    }
-
-    @Override
-    public int getSourceType() {
-        return mMatchLocalMusic == null ? SOURCE_WEB : SOURCE_LOCAL;
     }
 
     @Override

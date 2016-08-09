@@ -5,6 +5,8 @@ import com.sanron.yidumusic.data.net.bean.Album;
 import com.sanron.yidumusic.data.net.bean.FocusPic;
 import com.sanron.yidumusic.data.net.bean.Gedan;
 import com.sanron.yidumusic.data.net.bean.SongInfo;
+import com.sanron.yidumusic.data.net.bean.response.AlbumDetailData;
+import com.sanron.yidumusic.data.net.bean.response.AllTagData;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.FocusPicData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
@@ -12,10 +14,13 @@ import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
 import com.sanron.yidumusic.data.net.bean.response.HotGedanData;
+import com.sanron.yidumusic.data.net.bean.response.HotTagData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
-import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanInfoData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanListData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdAlbumData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdSongData;
+import com.sanron.yidumusic.data.net.bean.response.SingerListData;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.util.baidu.EncryptTool;
@@ -129,7 +134,7 @@ public class RemoteDataSource implements DataSource {
     }
 
     @Override
-    public Observable<OfficialGedanData> getOfficialGedan(int offset, int limit) {
+    public Observable<OfficialGedanListData> getOfficialGedan(int offset, int limit) {
         return mApiService.getOfficialGedan(offset, limit);
     }
 
@@ -152,6 +157,31 @@ public class RemoteDataSource implements DataSource {
     @Override
     public Observable<GedanInfoData> getGedanInfo(long listid) {
         return mApiService.getGedanInfo(listid);
+    }
+
+    @Override
+    public Observable<AlbumDetailData> getAlbumInfo(long albumId) {
+        return mApiService.getAlbumInfo(albumId);
+    }
+
+    @Override
+    public Observable<HotTagData> getHotTag(int num) {
+        return mApiService.getHotTag(num);
+    }
+
+    @Override
+    public Observable<AllTagData> getAllTag() {
+        return mApiService.getAllTag();
+    }
+
+    @Override
+    public Observable<OfficialGedanInfoData> getOfficialGedanInfo(String code) {
+        return mApiService.getOfficialGedanInfo(code);
+    }
+
+    @Override
+    public Observable<SingerListData> getSingerList(int offset, int limit, int area, int sex, int order, String abc) {
+        return mApiService.getSingerList(offset, limit, area, sex, order, abc);
     }
 
 }

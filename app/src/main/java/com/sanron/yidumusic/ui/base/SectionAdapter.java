@@ -1,4 +1,4 @@
-package com.sanron.yidumusic.ui.adapter;
+package com.sanron.yidumusic.ui.base;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
@@ -30,17 +30,17 @@ public abstract class SectionAdapter<S extends RecyclerView.ViewHolder, VH exten
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_SECTION) {
-            return onCreateSectionViewHolder(parent);
+            return onCreateSectionView(parent);
         }
-        return onCreateRealItemViewHolder(parent, viewType);
+        return onCreateItemView(parent, viewType);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_SECTION) {
-            onBindSectionViewHolder((S) holder, mSectionPositions.keyAt(mSectionPositions.indexOfValue(position)));
+            onBindSectionView((S) holder, mSectionPositions.keyAt(mSectionPositions.indexOfValue(position)));
         } else {
-            onBindRealItemViewHoler((VH) holder, mRealPosition.get(position));
+            onBindItemView((VH) holder, mRealPosition.get(position));
         }
     }
 
@@ -84,13 +84,13 @@ public abstract class SectionAdapter<S extends RecyclerView.ViewHolder, VH exten
         return 0;
     }
 
-    public abstract S onCreateSectionViewHolder(ViewGroup parent);
+    public abstract S onCreateSectionView(ViewGroup parent);
 
-    public abstract void onBindSectionViewHolder(S holder, int section);
+    public abstract void onBindSectionView(S holder, int section);
 
-    public abstract VH onCreateRealItemViewHolder(ViewGroup parent, int viewType);
+    public abstract VH onCreateItemView(ViewGroup parent, int viewType);
 
-    public abstract void onBindRealItemViewHoler(VH holder, int position);
+    public abstract void onBindItemView(VH holder, int position);
 
     public abstract int getRealItemCount();
 

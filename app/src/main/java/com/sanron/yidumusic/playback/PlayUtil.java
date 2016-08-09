@@ -6,10 +6,15 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import com.sanron.yidumusic.data.db.model.LocalMusic;
+import com.sanron.yidumusic.data.net.bean.SongInfo;
+import com.sanron.yidumusic.ui.vo.SongInfoVO;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by sanron on 16-4-18.
@@ -17,9 +22,9 @@ import java.util.Map;
 public class PlayUtil {
     private static Player sPlayer;
     private static Map<Context, ServiceBinder> sBinders = new HashMap<>();
-    private static List<OnPlayerReadyListener> sOnPlayBindListeners = new ArrayList<>();
+    private static List<OnPlayerBindListener> sOnPlayBindListeners = new CopyOnWriteArrayList<>();
 
-    public interface OnPlayerReadyListener {
+    public interface OnPlayerBindListener {
         void onReady(Player player);
     }
 
@@ -52,15 +57,15 @@ public class PlayUtil {
         sPlayer = null;
     }
 
-    public static void addOnPlayerBindListener(OnPlayerReadyListener onPlayerReadyListener) {
+    public static void addOnPlayerBindListener(OnPlayerBindListener onPlayerBindListener) {
         if (sPlayer != null) {
-            onPlayerReadyListener.onReady(sPlayer);
+            onPlayerBindListener.onReady(sPlayer);
         }
-        sOnPlayBindListeners.add(onPlayerReadyListener);
+        sOnPlayBindListeners.add(onPlayerBindListener);
     }
 
-    public static void removeOnPlayerBindListener(OnPlayerReadyListener onPlayerReadyListener) {
-        sOnPlayBindListeners.remove(onPlayerReadyListener);
+    public static void removeOnPlayerBindListener(OnPlayerBindListener onPlayerBindListener) {
+        sOnPlayBindListeners.remove(onPlayerBindListener);
     }
 
     public static class ServiceBinder implements ServiceConnection {
@@ -74,7 +79,7 @@ public class PlayUtil {
         public void onServiceConnected(ComponentName name, IBinder service) {
             if (sPlayer == null) {
                 sPlayer = (Player) service;
-                for (OnPlayerReadyListener listener : sOnPlayBindListeners) {
+                for (OnPlayerBindListener listener : sOnPlayBindListeners) {
                     listener.onReady(sPlayer);
                 }
             }
@@ -111,6 +116,29 @@ public class PlayUtil {
         if (sPlayer != null) {
             sPlayer.enqueue(musics);
         }
+    }
+
+    public static void enqueueSongInfoVOs(List<SongInfoVO> songInfoVOs) {
+        List<PlayTrack> playTracks = new ArrayList<>();
+        for (SongInfoVO songInfoVO : songInfoVOs) {
+            SongInfo songInfo = songInfoVO.getSongInfo();
+            LocalMusic localMusic = songInfoVO.getMatchLocalMusic();
+            PlayTrack playTrack = new PlayTrack();
+            playTrack.setTitle(songInfo.title);
+            playTrack.setAlbum(songInfo.albumTitle);
+            playTrack.setArtist(songInfo.author);
+            playTrack.setDuration(songInfo.fileDuration);
+            playTrack.setSongId(songInfo.songId);
+            if (localMusic != null) {
+                playTrack.setDuration(localMusic.getMusicInfo().getDuration());
+                playTrack.setPath(localMusic.getMusicInfo().getPath());
+                playTrack.setPlayType(PlayTrack.SOURCE_LOCAL);
+            } else {
+                playTrack.setPlayType(PlayTrack.SOURCE_WEB);
+            }
+            playTracks.add(playTrack);
+        }
+        enqueue(playTracks);
     }
 
     public static void dequeue(int position) {

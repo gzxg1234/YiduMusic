@@ -29,6 +29,9 @@ public class PlayListMembers extends Base {
     @Column
     long addTime;
 
+    @Column
+    boolean isLocal;
+
     public PlayList getPlayList() {
         return playList;
     }
@@ -51,5 +54,13 @@ public class PlayListMembers extends Base {
 
     public void setAddTime(long addTime) {
         this.addTime = addTime;
+    }
+
+    public boolean isLocal() {
+        return isLocal;
+    }
+
+    public void setLocal(boolean local) {
+        isLocal = local;
     }
 }

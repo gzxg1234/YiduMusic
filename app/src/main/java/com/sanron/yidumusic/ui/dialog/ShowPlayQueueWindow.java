@@ -2,7 +2,6 @@ package com.sanron.yidumusic.ui.dialog;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -64,7 +63,8 @@ public class ShowPlayQueueWindow extends ScrimPopupWindow implements Player.OnPl
         mLvQueue.post(new Runnable() {
             @Override
             public void run() {
-                mLvQueue.scrollToPosition(PlayUtil.getCurrentIndex());
+                (mLvQueue.getLayoutManager())
+                        .scrollToPosition(PlayUtil.getCurrentIndex());
             }
         });
 
@@ -78,12 +78,12 @@ public class ShowPlayQueueWindow extends ScrimPopupWindow implements Player.OnPl
         PlayUtil.removePlayStateChangeListener(this);
     }
 
-
     @Override
     public void onPlayStateChange(int state) {
         if (state == Player.STATE_PREPARING) {
             mAdapter.notifyDataSetChanged();
-            mLvQueue.scrollToPosition(PlayUtil.getCurrentIndex());
+            (mLvQueue.getLayoutManager())
+                    .scrollToPosition(PlayUtil.getCurrentIndex());
         }
     }
 

@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.sanron.yidumusic.R;
-import com.sanron.yidumusic.widget.PullAdapter;
+import com.sanron.yidumusic.ui.base.PullAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +28,13 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.ItemHolder> {
         mContext = context;
     }
 
-    public void setData(List<GedanModel> data) {
+    public void setItems(List<GedanModel> data) {
         mItems = data;
         notifyDataSetChanged();
     }
 
 
-    public void addAll(List<? extends GedanModel> models) {
+    public void addItems(List<? extends GedanModel> models) {
         if (models != null) {
             if (mItems == null) {
                 mItems = new ArrayList<>();
@@ -44,8 +44,16 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.ItemHolder> {
         }
     }
 
+    public List<GedanModel> getItems() {
+        return mItems;
+    }
+
+    public GedanModel getItem(int position){
+        return mItems.get(position);
+    }
+
     @Override
-    public ItemHolder onCreateRealViewHolder(ViewGroup parent, int viewType) {
+    public ItemHolder onCreateView(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.list_gedan_item, parent, false);
         return new ItemHolder(view);
     }
@@ -68,7 +76,7 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.ItemHolder> {
     }
 
     @Override
-    public void onBindRealViewHolder(ItemHolder holder, int position) {
+    public void onBindView(final ItemHolder holder, int position) {
         GedanModel data = mItems.get(position);
         holder.tvText1.setText(data.text1);
         holder.tvText2.setText(data.text2);
@@ -86,10 +94,18 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.ItemHolder> {
         Glide.with(mContext)
                 .load(data.pic)
                 .into(holder.ivImg);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(holder.itemView, holder.getAdapterPosition());
+                }
+            }
+        });
     }
 
     @Override
-    public int getRealItemCount() {
+    public int getCount() {
         return mItems == null ? 0 : mItems.size();
     }
 
@@ -101,7 +117,7 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.ItemHolder> {
     }
 
     @Override
-    public void onBindFooterViewHolder(RecyclerView.ViewHolder viewHolder, boolean hasMore) {
+    public void onBindFooterView(RecyclerView.ViewHolder viewHolder, boolean hasMore) {
         String label = hasMore ? "加载中" : "没有更多";
         ((FooterHolder) viewHolder).tvLabel.setText(label);
     }
@@ -141,6 +157,16 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.ItemHolder> {
         public int type;
         public static final int TYPE_GEDAN = 1;
         public static final int TYPE_OFFICIAL = 2;
+    }
+
+    private OnItemClickListener mOnItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
     }
 }
 

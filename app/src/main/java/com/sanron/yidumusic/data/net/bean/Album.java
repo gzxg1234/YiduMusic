@@ -1,6 +1,9 @@
 package com.sanron.yidumusic.data.net.bean;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Date;
 
 /**
  * Created by sanron on 16-7-16.
@@ -38,7 +41,9 @@ public class Album {
     @JsonProperty("songs_total") public int songsTotal;
 
     //发行时间
-    @JsonProperty("publishtime") public String publishtime;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonProperty("publishtime")
+    public Date publishtime;
 
     //发行公司
     @JsonProperty("publishcompany") public String publishcompany;

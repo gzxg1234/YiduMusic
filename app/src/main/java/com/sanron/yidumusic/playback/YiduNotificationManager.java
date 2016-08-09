@@ -165,7 +165,7 @@ public class YiduNotificationManager extends BroadcastReceiver {
         if (mDDPlayer.getCurrentPosition() != -1) {
             PlayTrack playTrack = mDDPlayer.getCurrentTrack();
             String artist = playTrack.getArtist();
-            artist = artist.equals("<unknown>") ? "未知歌手" : artist;
+            artist = "<unknown>".equals(artist) ? "未知歌手" : artist;
             String musicInfo = playTrack.getTitle() + "-" + artist;
 
             bigContentView.setTextViewText(R.id.tv_music_info, musicInfo);

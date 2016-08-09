@@ -14,16 +14,17 @@ import com.sanron.yidumusic.data.net.bean.Gedan;
 import com.sanron.yidumusic.data.net.bean.OfficicalGedan;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
-import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanListData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.rx.ToastSubscriber;
 import com.sanron.yidumusic.rx.TransformerUtil;
+import com.sanron.yidumusic.ui.activity.MainActivity;
 import com.sanron.yidumusic.ui.adapter.GedanAdapter;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
+import com.sanron.yidumusic.ui.base.PullAdapter;
 import com.sanron.yidumusic.ui.dialog.SelectGedanCategoryDialog;
 import com.sanron.yidumusic.util.UITool;
 import com.sanron.yidumusic.widget.OffsetDecoration;
-import com.sanron.yidumusic.widget.PullAdapter;
 import com.sanron.yidumusic.widget.RecyclerViewFloatHeader;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ import rx.functions.Func1;
 /**
  * Created by sanron on 16-7-16.
  */
-public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayout.OnRefreshListener, PullAdapter.OnLoadMoreListener {
+public class GedanListFragment extends LazyLoadFragment implements SwipeRefreshLayout.OnRefreshListener, PullAdapter.OnLoadMoreListener, GedanAdapter.OnItemClickListener {
 
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
@@ -67,7 +68,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
 
     @Override
     protected int getLayout() {
-        return R.layout.fragment_gedan;
+        return R.layout.fragment_gedan_list;
     }
 
     @Override
@@ -89,6 +90,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         mRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         mRefreshLayout.setOnRefreshListener(this);
         mGedanAdapter.setOnLoadMoreListener(this);
+        mGedanAdapter.setOnItemClickListener(this);
         mTvCurTag.setText(mCurrentTag);
     }
 
@@ -161,16 +163,16 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
         } else if ("音乐专题".equals(mCurrentTag)) {
             observable = mDataRepository
                     .getOfficialGedan((page - 1) * PAGE_SIZE, PAGE_SIZE)
-                    .compose(TransformerUtil.<OfficialGedanData>io())
-                    .map(new Func1<OfficialGedanData, GedanData>() {
+                    .compose(TransformerUtil.<OfficialGedanListData>io())
+                    .map(new Func1<OfficialGedanListData, GedanData>() {
                         @Override
-                        public GedanData call(OfficialGedanData officialGedanData) {
+                        public GedanData call(OfficialGedanListData officialGedanListData) {
                             GedanData gedanData = new GedanData();
 //                            数据错误
-//                            gedanData.haveMore = officialGedanData.havemore == 1;
-                            gedanData.haveMore = mGedanAdapter.getRealItemCount()
-                                    < officialGedanData.total;
-                            gedanData.data = tranformOfficialGedan(officialGedanData.gedanList);
+//                            gedanData.haveMore = officialGedanListData.havemore == 1;
+                            gedanData.haveMore = mGedanAdapter.getCount()
+                                    < officialGedanListData.total;
+                            gedanData.data = tranformOfficialGedan(officialGedanListData.gedanList);
                             return gedanData;
                         }
                     });
@@ -196,9 +198,11 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                     public void onNext(GedanData gedanData) {
                         mGedanAdapter.setHasMore(gedanData.haveMore);
                         if (refresh) {
-                            mGedanAdapter.setData(gedanData.data);
+                            mGedanAdapter.setItems(gedanData.data);
+                            setState(STATE_SUCCESS);
+                            setFirstLoaded(true);
                         } else {
-                            mGedanAdapter.addAll(gedanData.data);
+                            mGedanAdapter.addItems(gedanData.data);
                         }
                         mPage = page;
                     }
@@ -214,11 +218,19 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
                     public void onError(Throwable e) {
                         super.onError(e);
                         if (refresh) {
-                            mGedanAdapter.setData(null);
+                            mGedanAdapter.setItems(null);
+                            setState(STATE_FAILED);
+                            setFirstLoaded(true);
                         }
                     }
                 })
         );
+    }
+
+
+    @Override
+    protected void onRetry() {
+        onRefresh();
     }
 
     private List<GedanAdapter.GedanModel> tranformGedan(List<Gedan> gedenList) {
@@ -227,7 +239,7 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
             GedanAdapter.GedanModel model = new GedanAdapter.GedanModel();
             model.type = GedanAdapter.GedanModel.TYPE_GEDAN;
             model.pic = gedan.pic300;
-            model.code = gedan.listid+"";
+            model.code = gedan.listid + "";
             model.text1 = gedan.title;
             model.text2 = gedan.tag;
             model.num = gedan.listenum;
@@ -248,6 +260,16 @@ public class GedanFragment extends LazyLoadFragment implements SwipeRefreshLayou
             models.add(model);
         }
         return models;
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        GedanAdapter.GedanModel model = mGedanAdapter.getItem(position);
+        if (model.type == GedanAdapter.GedanModel.TYPE_GEDAN) {
+            ((MainActivity) getActivity()).showGedanDetail(Long.valueOf(model.code));
+        } else if (model.type == GedanAdapter.GedanModel.TYPE_OFFICIAL) {
+            ((MainActivity) getActivity()).showOfficialGedanDetail(model.code);
+        }
     }
 
     static class GedanData {

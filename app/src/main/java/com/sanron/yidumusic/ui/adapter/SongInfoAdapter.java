@@ -18,7 +18,7 @@ import com.sanron.yidumusic.data.net.bean.SongInfo;
 import com.sanron.yidumusic.playback.PlayTrack;
 import com.sanron.yidumusic.playback.PlayUtil;
 import com.sanron.yidumusic.playback.Player;
-import com.sanron.yidumusic.ui.vo.RemotePlayTrack;
+import com.sanron.yidumusic.ui.vo.SongInfoVO;
 import com.sanron.yidumusic.util.UITool;
 
 import java.util.List;
@@ -26,28 +26,29 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class GedanItemAdapter extends RecyclerView.Adapter<GedanItemAdapter.ItemHolder> implements Player.OnPlayStateChangeListener, PlayUtil.OnPlayerReadyListener {
+public class SongInfoAdapter extends RecyclerView.Adapter<SongInfoAdapter.ItemHolder> implements Player.OnPlayStateChangeListener, PlayUtil.OnPlayerBindListener {
 
     private Context mContext;
-    private List<RemotePlayTrack> mItems;
+    private List<SongInfoVO> mItems;
     private PlayTrack mCurrentPlayTrack;
+    private int mPlayingPosition = -1;
 
-    public GedanItemAdapter(Context context, List<RemotePlayTrack> items) {
+    public SongInfoAdapter(Context context, List<SongInfoVO> items) {
         mContext = context;
         mItems = items;
     }
 
-    public void setData(List<RemotePlayTrack> data) {
+    public void setItems(List<SongInfoVO> data) {
         mItems = data;
         mCurrentPlayTrack = PlayUtil.getCurrentMusic();
         notifyDataSetChanged();
     }
 
-    public RemotePlayTrack getData(int position) {
+    public SongInfoVO getItems(int position) {
         return mItems.get(position);
     }
 
-    public List<RemotePlayTrack> getData() {
+    public List<SongInfoVO> getItems() {
         return mItems;
     }
 
@@ -77,12 +78,12 @@ public class GedanItemAdapter extends RecyclerView.Adapter<GedanItemAdapter.Item
 
     @Override
     public void onBindViewHolder(ItemHolder holder, int position) {
-        final RemotePlayTrack remotePlayTrack = getData(position);
-        final SongInfo songInfo = remotePlayTrack.getSongInfo();
+        final SongInfoVO songInfoVO = getItems(position);
+        final SongInfo songInfo = songInfoVO.getSongInfo();
         holder.tvPos.setText(String.valueOf(position + 1));
         holder.tvTitle.setText(songInfo.title);
         SpannableStringBuilder ssb = new SpannableStringBuilder(songInfo.author + " - " + songInfo.albumTitle);
-        if (remotePlayTrack.getMatchLocalMusic() != null) {
+        if (songInfoVO.getMatchLocalMusic() != null) {
             //本地歌曲有记录
             ssb.insert(0, " ");
             Drawable drawable = UITool.getTintDrawable(mContext,
@@ -96,7 +97,10 @@ public class GedanItemAdapter extends RecyclerView.Adapter<GedanItemAdapter.Item
         }
         holder.tvArtist.setText(ssb);
 
-        if (remotePlayTrack.equals(mCurrentPlayTrack)) {
+
+        if (mCurrentPlayTrack != null
+                && songInfoVO.getSongInfo().songId == mCurrentPlayTrack.getSongId()) {
+            mPlayingPosition = position;
             holder.tvPos.setVisibility(View.GONE);
             holder.icPlaying.setVisibility(View.VISIBLE);
         } else {
@@ -105,6 +109,9 @@ public class GedanItemAdapter extends RecyclerView.Adapter<GedanItemAdapter.Item
         }
     }
 
+    public int getPlayingPosition() {
+        return mPlayingPosition;
+    }
 
     @Override
     public int getItemCount() {

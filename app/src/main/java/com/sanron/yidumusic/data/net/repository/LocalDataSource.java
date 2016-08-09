@@ -4,13 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sanron.yidumusic.data.db.HttpCache;
+import com.sanron.yidumusic.data.net.bean.response.AlbumDetailData;
+import com.sanron.yidumusic.data.net.bean.response.AllTagData;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
+import com.sanron.yidumusic.data.net.bean.response.HotTagData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
-import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanInfoData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanListData;
+import com.sanron.yidumusic.data.net.bean.response.SingerListData;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 
 import java.io.IOException;
@@ -63,9 +68,9 @@ public class LocalDataSource implements DataSource {
     }
 
     @Override
-    public Observable<OfficialGedanData> getOfficialGedan(int offset, int limit) {
+    public Observable<OfficialGedanListData> getOfficialGedan(int offset, int limit) {
         String url = UrlGenerater.getOfficialGedan(offset, limit);
-        return Observable.create(new GetCacheOnSubscriber<>(url, OfficialGedanData.class));
+        return Observable.create(new GetCacheOnSubscriber<>(url, OfficialGedanListData.class));
     }
 
     @Override
@@ -84,6 +89,36 @@ public class LocalDataSource implements DataSource {
     public Observable<GedanInfoData> getGedanInfo(long listid) {
         String url = UrlGenerater.getGedanInfo(listid);
         return Observable.create(new GetCacheOnSubscriber<>(url, GedanInfoData.class));
+    }
+
+    @Override
+    public Observable<AlbumDetailData> getAlbumInfo(long albumId) {
+        String url = UrlGenerater.getGedanInfo(albumId);
+        return Observable.create(new GetCacheOnSubscriber<>(url, AlbumDetailData.class));
+    }
+
+    @Override
+    public Observable<HotTagData> getHotTag(int num) {
+        String url = UrlGenerater.getHotTag(num);
+        return Observable.create(new GetCacheOnSubscriber<>(url, HotTagData.class));
+    }
+
+    @Override
+    public Observable<AllTagData> getAllTag() {
+        String url = UrlGenerater.getAllTag();
+        return Observable.create(new GetCacheOnSubscriber<>(url, AllTagData.class));
+    }
+
+    @Override
+    public Observable<OfficialGedanInfoData> getOfficialGedanInfo(String code) {
+        String url = UrlGenerater.getOfficialGedanInfo(code);
+        return Observable.create(new GetCacheOnSubscriber<>(url, OfficialGedanInfoData.class));
+    }
+
+    @Override
+    public Observable<SingerListData> getSingerList(int offset, int limit, int area, int sex, int order, String abc) {
+        String url = UrlGenerater.getSingerList(offset, limit, area, sex, order, abc);
+        return Observable.create(new GetCacheOnSubscriber<>(url, SingerListData.class));
     }
 
 

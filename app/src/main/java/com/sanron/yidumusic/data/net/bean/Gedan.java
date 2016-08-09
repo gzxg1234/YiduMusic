@@ -36,6 +36,6 @@ public class Gedan {
     @JsonProperty("desc") public String desc;
 
     //歌曲
-    @JsonProperty("content") public List<SongInfo> songs;
+    @JsonProperty("content") public List<SongInfo> songList;
 
 }

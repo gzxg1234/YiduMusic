@@ -1,12 +1,17 @@
 package com.sanron.yidumusic.data.net.repository;
 
+import com.sanron.yidumusic.data.net.bean.response.AlbumDetailData;
+import com.sanron.yidumusic.data.net.bean.response.AllTagData;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
 import com.sanron.yidumusic.data.net.bean.response.HomeData;
+import com.sanron.yidumusic.data.net.bean.response.HotTagData;
 import com.sanron.yidumusic.data.net.bean.response.LrcpicData;
-import com.sanron.yidumusic.data.net.bean.response.OfficialGedanData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanInfoData;
+import com.sanron.yidumusic.data.net.bean.response.OfficialGedanListData;
+import com.sanron.yidumusic.data.net.bean.response.SingerListData;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 
@@ -140,14 +145,14 @@ public class DataRepository implements DataSource {
     }
 
     @Override
-    public Observable<OfficialGedanData> getOfficialGedan(final int offset, final int limit) {
-        Observable<OfficialGedanData> localData = mLocal
+    public Observable<OfficialGedanListData> getOfficialGedan(final int offset, final int limit) {
+        Observable<OfficialGedanListData> localData = mLocal
                 .getOfficialGedan(offset, limit);
-        Observable<OfficialGedanData> remoteData = mRemote
+        Observable<OfficialGedanListData> remoteData = mRemote
                 .getOfficialGedan(offset, limit)
-                .doOnNext(new Action1<OfficialGedanData>() {
+                .doOnNext(new Action1<OfficialGedanListData>() {
                     @Override
-                    public void call(OfficialGedanData data) {
+                    public void call(OfficialGedanListData data) {
                         mLocal.putCache(
                                 UrlGenerater.getOfficialGedan(offset, limit),
                                 data,
@@ -156,7 +161,7 @@ public class DataRepository implements DataSource {
                 });
         return Observable.concat(localData, remoteData)
                 .first()
-                .compose(TransformerUtil.<OfficialGedanData>io());
+                .compose(TransformerUtil.<OfficialGedanListData>io());
     }
 
     @Override
@@ -223,6 +228,106 @@ public class DataRepository implements DataSource {
         return Observable.concat(localData, remoteData)
                 .first()
                 .compose(TransformerUtil.<GedanInfoData>io());
+    }
+
+    @Override
+    public Observable<AlbumDetailData> getAlbumInfo(final long albumId) {
+        Observable<AlbumDetailData> localData = mLocal
+                .getAlbumInfo(albumId);
+        Observable<AlbumDetailData> remoteData = mRemote
+                .getAlbumInfo(albumId)
+                .doOnNext(new Action1<AlbumDetailData>() {
+                    @Override
+                    public void call(AlbumDetailData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getAlbumInfo(albumId),
+                                data,
+                                60 * 60 * 1000);
+                    }
+                });
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<AlbumDetailData>io());
+    }
+
+    @Override
+    public Observable<HotTagData> getHotTag(final int num) {
+        Observable<HotTagData> localData = mLocal
+                .getHotTag(num);
+        Observable<HotTagData> remoteData = mRemote
+                .getHotTag(num)
+                .doOnNext(new Action1<HotTagData>() {
+                    @Override
+                    public void call(HotTagData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getHotTag(num),
+                                data,
+                                24 * 60 * 60 * 1000);
+                    }
+                });
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<HotTagData>io());
+    }
+
+    @Override
+    public Observable<AllTagData> getAllTag() {
+        Observable<AllTagData> localData = mLocal
+                .getAllTag();
+        Observable<AllTagData> remoteData = mRemote
+                .getAllTag()
+                .doOnNext(new Action1<AllTagData>() {
+                    @Override
+                    public void call(AllTagData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getAllTag(),
+                                data,
+                                7 * 24 * 60 * 60 * 1000);
+                    }
+                });
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<AllTagData>io());
+    }
+
+    @Override
+    public Observable<OfficialGedanInfoData> getOfficialGedanInfo(final String code) {
+        Observable<OfficialGedanInfoData> localData = mLocal
+                .getOfficialGedanInfo(code);
+        Observable<OfficialGedanInfoData> remoteData = mRemote
+                .getOfficialGedanInfo(code)
+                .doOnNext(new Action1<OfficialGedanInfoData>() {
+                    @Override
+                    public void call(OfficialGedanInfoData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getOfficialGedanInfo(code),
+                                data,
+                                24 * 60 * 60 * 1000);
+                    }
+                });
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<OfficialGedanInfoData>io());
+    }
+
+    @Override
+    public Observable<SingerListData> getSingerList(final int offset, final int limit, final int area, final int sex, final int order, final String abc) {
+        Observable<SingerListData> localData = mLocal
+                .getSingerList(offset, limit, area, sex, order, abc);
+        Observable<SingerListData> remoteData = mRemote
+                .getSingerList(offset, limit, area, sex, order, abc)
+                .doOnNext(new Action1<SingerListData>() {
+                    @Override
+                    public void call(SingerListData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getSingerList(offset, limit, area, sex, order, abc),
+                                data,
+                                3 * 24 * 60 * 60 * 1000);
+                    }
+                });
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<SingerListData>io());
     }
 
 }
