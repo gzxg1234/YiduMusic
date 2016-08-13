@@ -3,6 +3,7 @@ package com.sanron.yidumusic.data.net.repository;
 import com.sanron.yidumusic.data.net.bean.response.AlbumDetailData;
 import com.sanron.yidumusic.data.net.bean.response.AllTagData;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.BillSongListData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
@@ -13,6 +14,7 @@ import com.sanron.yidumusic.data.net.bean.response.OfficialGedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.OfficialGedanListData;
 import com.sanron.yidumusic.data.net.bean.response.SingerListData;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
+import com.sanron.yidumusic.data.net.bean.response.TagSongListData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 
 import rx.Observable;
@@ -253,7 +255,8 @@ public class DataRepository implements DataSource {
     @Override
     public Observable<HotTagData> getHotTag(final int num) {
         Observable<HotTagData> localData = mLocal
-                .getHotTag(num);
+                .getHotTag(num)
+                .compose(TransformerUtil.<HotTagData>checkError());
         Observable<HotTagData> remoteData = mRemote
                 .getHotTag(num)
                 .doOnNext(new Action1<HotTagData>() {
@@ -264,7 +267,8 @@ public class DataRepository implements DataSource {
                                 data,
                                 24 * 60 * 60 * 1000);
                     }
-                });
+                })
+                .compose(TransformerUtil.<HotTagData>checkError());
         return Observable.concat(localData, remoteData)
                 .first()
                 .compose(TransformerUtil.<HotTagData>io());
@@ -273,7 +277,8 @@ public class DataRepository implements DataSource {
     @Override
     public Observable<AllTagData> getAllTag() {
         Observable<AllTagData> localData = mLocal
-                .getAllTag();
+                .getAllTag()
+                .compose(TransformerUtil.<AllTagData>checkError());
         Observable<AllTagData> remoteData = mRemote
                 .getAllTag()
                 .doOnNext(new Action1<AllTagData>() {
@@ -284,7 +289,8 @@ public class DataRepository implements DataSource {
                                 data,
                                 7 * 24 * 60 * 60 * 1000);
                     }
-                });
+                })
+                .compose(TransformerUtil.<AllTagData>checkError());
         return Observable.concat(localData, remoteData)
                 .first()
                 .compose(TransformerUtil.<AllTagData>io());
@@ -330,4 +336,47 @@ public class DataRepository implements DataSource {
                 .compose(TransformerUtil.<SingerListData>io());
     }
 
+    @Override
+    public Observable<TagSongListData> getTagSongList(final String tagname, final int limit, final int offset) {
+        Observable<TagSongListData> localData = mLocal
+                .getTagSongList(tagname, limit, offset)
+                .compose(TransformerUtil.<TagSongListData>checkError());
+        Observable<TagSongListData> remoteData = mRemote
+                .getTagSongList(tagname, limit, offset)
+                .doOnNext(new Action1<TagSongListData>() {
+                    @Override
+                    public void call(TagSongListData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getTagSongList(tagname, limit, offset),
+                                data,
+                                24 * 60 * 60 * 1000);
+                    }
+                })
+                .compose(TransformerUtil.<TagSongListData>checkError());
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<TagSongListData>io());
+    }
+
+    @Override
+    public Observable<BillSongListData> getBillSongList(final int type, final int offset, final int size) {
+        Observable<BillSongListData> localData = mLocal
+                .getBillSongList(type, offset, size)
+                .compose(TransformerUtil.<BillSongListData>checkError());
+        Observable<BillSongListData> remoteData = mRemote
+                .getBillSongList(type, offset, size)
+                .doOnNext(new Action1<BillSongListData>() {
+                    @Override
+                    public void call(BillSongListData data) {
+                        mLocal.putCache(
+                                UrlGenerater.getBillSongList(type, offset, size),
+                                data,
+                                24 * 60 * 60 * 1000);
+                    }
+                })
+                .compose(TransformerUtil.<BillSongListData>checkError());
+        return Observable.concat(localData, remoteData)
+                .first()
+                .compose(TransformerUtil.<BillSongListData>io());
+    }
 }

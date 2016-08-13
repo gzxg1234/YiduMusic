@@ -53,7 +53,7 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.ItemHolder> {
     }
 
     @Override
-    public ItemHolder onCreateView(ViewGroup parent, int viewType) {
+    public ItemHolder onCreateItemView(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.list_gedan_item, parent, false);
         return new ItemHolder(view);
     }
@@ -76,7 +76,7 @@ public class GedanAdapter extends PullAdapter<GedanAdapter.ItemHolder> {
     }
 
     @Override
-    public void onBindView(final ItemHolder holder, int position) {
+    public void onBindItemView(final ItemHolder holder, int position) {
         GedanModel data = mItems.get(position);
         holder.tvText1.setText(data.text1);
         holder.tvText2.setText(data.text2);

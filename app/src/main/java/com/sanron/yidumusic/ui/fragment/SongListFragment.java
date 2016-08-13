@@ -32,7 +32,6 @@ import com.sanron.yidumusic.ui.base.BaseFragment;
 import com.sanron.yidumusic.ui.vo.SongInfoVO;
 import com.sanron.yidumusic.util.FastBlur;
 import com.sanron.yidumusic.util.StatusBarUtil;
-import com.sanron.yidumusic.widget.ItemClickHelper;
 import com.sanron.yidumusic.widget.StickNavHeader;
 
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ import rx.functions.Func1;
  * 歌单详情界面
  * Created by sanron on 16-8-3.
  */
-public abstract class SongListFragment extends BaseFragment implements ItemClickHelper.OnItemClickListener {
+public abstract class SongListFragment extends BaseFragment {
 
     @BindView(R.id.iv_collect) protected ImageView mIvCollect;
     @BindView(R.id.iv_share) protected ImageView mIvShare;
@@ -85,6 +84,7 @@ public abstract class SongListFragment extends BaseFragment implements ItemClick
         });
         mIvFlur.setColorFilter(getResources().getColor(R.color.darkGray), PorterDuff.Mode.MULTIPLY);
         mSongInfoAdapter = new SongInfoAdapter(getContext(), null);
+        mSongInfoAdapter.setLoadEnable(false);
         mRecyclerView.setAdapter(mSongInfoAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -115,7 +115,6 @@ public abstract class SongListFragment extends BaseFragment implements ItemClick
                 PlayUtil.play(0);
             }
         });
-        ItemClickHelper.setOnItemClickListener(mRecyclerView, this, R.id.iv_action);
     }
 
     protected void setTitle(String title) {
@@ -203,22 +202,6 @@ public abstract class SongListFragment extends BaseFragment implements ItemClick
                                 .start();
                     }
                 });
-    }
-
-    @Override
-    public void onItemClick(View view, boolean isItemView, int position) {
-        if (isItemView) {
-            if (position == mSongInfoAdapter.getPlayingPosition()) {
-                PlayUtil.togglePlayPause();
-                return;
-            }
-
-            PlayUtil.clearQueue();
-            PlayUtil.enqueueSongInfoVOs(mSongInfoAdapter.getItems());
-            PlayUtil.play(position);
-        } else if (view.getId() == R.id.iv_action) {
-
-        }
     }
 
 }

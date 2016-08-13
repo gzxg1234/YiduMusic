@@ -22,6 +22,7 @@ import com.sanron.yidumusic.data.net.bean.SongInfo;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
 import com.sanron.yidumusic.data.net.repository.DataRepository;
 import com.sanron.yidumusic.rx.ToastSubscriber;
+import com.sanron.yidumusic.ui.activity.MainActivity;
 import com.sanron.yidumusic.ui.base.LazyLoadFragment;
 
 import java.util.List;
@@ -105,7 +106,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
         );
     }
 
-    static class BillboardAdapter extends RecyclerView.Adapter<BillboardAdapter.ItemHolder> {
+    class BillboardAdapter extends RecyclerView.Adapter<BillboardAdapter.ItemHolder> {
 
         private Context mContext;
         private List<BillCategoryData.BillCategory> mItems;
@@ -132,7 +133,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
 
         @Override
         public void onBindViewHolder(ItemHolder itemHolder, int position) {
-            BillCategoryData.BillCategory data = mItems.get(position);
+            final BillCategoryData.BillCategory data = mItems.get(position);
             Glide.with(mContext)
                     .load(data.picS192)
                     .into(itemHolder.ivImg);
@@ -147,6 +148,13 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
                         .append(songInfo.author);
                 itemHolder.tvTops.get(i).setText(ssb);
             }
+
+            itemHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((MainActivity) getActivity()).showBillSongList(data.type);
+                }
+            });
         }
 
         @Override
@@ -154,7 +162,7 @@ public class BillFragment extends LazyLoadFragment implements SwipeRefreshLayout
             return mItems == null ? 0 : mItems.size();
         }
 
-        static class ItemHolder extends RecyclerView.ViewHolder {
+        class ItemHolder extends RecyclerView.ViewHolder {
             @BindView(R.id.tv_billcategory)
             TextView tvTitle;
             @BindView(R.id.iv_img)

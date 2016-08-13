@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -186,14 +187,14 @@ public class SingerListFragment extends BaseFragment implements PullAdapter.OnLo
         }
 
         @Override
-        public ItemHolder onCreateView(ViewGroup parent, int viewType) {
+        public ItemHolder onCreateItemView(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(getContext())
                     .inflate(R.layout.list_singer_item, parent, false);
             return new ItemHolder(view);
         }
 
         @Override
-        public void onBindView(ItemHolder holder, int position) {
+        public void onBindItemView(ItemHolder holder, int position) {
             Artist artist = mItems.get(position);
             holder.tvName.setText(artist.name);
             Glide.with(getContext())
@@ -295,7 +296,7 @@ public class SingerListFragment extends BaseFragment implements PullAdapter.OnLo
                     textView = new TextView(mContext);
                     final int height = UITool.dpToPx(mContext, 40);
                     textView.setLayoutParams(
-                            new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+                            new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
                     textView.setGravity(Gravity.CENTER);
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
                 }

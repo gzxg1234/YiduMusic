@@ -102,4 +102,25 @@ public abstract class UrlGenerater {
                 + "&area=" + area
                 + "&abc=" + abc;
     }
+
+
+    public static String getTagSongList(String tagname,
+                                        int limit,
+                                        int offset) {
+        return BASE
+                + "&method=baidu.ting.tag.songlist"
+                + "&tagname=" + tagname
+                + "&offset=" + offset
+                + "&limit=" + limit;
+    }
+
+    public static String getBillSongList(int type,
+                                         int offset,
+                                         int size) {
+        return BASE
+                + "&method=baidu.ting.billboard.billList"
+                + "&type=" + type
+                + "&offset=" + offset
+                + "&size=" + size;
+    }
 }

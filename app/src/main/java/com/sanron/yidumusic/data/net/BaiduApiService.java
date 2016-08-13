@@ -3,6 +3,7 @@ package com.sanron.yidumusic.data.net;
 import com.sanron.yidumusic.data.net.bean.response.AlbumDetailData;
 import com.sanron.yidumusic.data.net.bean.response.AllTagData;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.BillSongListData;
 import com.sanron.yidumusic.data.net.bean.response.FocusPicData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
@@ -16,6 +17,7 @@ import com.sanron.yidumusic.data.net.bean.response.RecmdAlbumData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdSongData;
 import com.sanron.yidumusic.data.net.bean.response.SingerListData;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
+import com.sanron.yidumusic.data.net.bean.response.TagSongListData;
 
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -51,6 +53,18 @@ public interface BaiduApiService {
      */
     @GET("ting?method=baidu.ting.tag.getAllTag")
     Observable<AllTagData> getAllTag();
+
+    /**
+     * 标签歌曲
+     * @param tagname
+     * @param limit
+     * @param offset
+     * @return
+     */
+    @GET("ting?method=baidu.ting.tag.songlist")
+    Observable<TagSongListData> getTagSongList(@Query("tagname") String tagname,
+                                               @Query("limit") int limit,
+                                               @Query("offset") int offset);
 
     /**
      * 热门歌单
@@ -90,6 +104,11 @@ public interface BaiduApiService {
      */
     @GET("ting?method=baidu.ting.billboard.billCategory&kflag=1")
     Observable<BillCategoryData> getBillCategory();
+
+    @GET("ting?method=baidu.ting.billboard.billList")
+    Observable<BillSongListData> getBillSongList(@Query("type") int type,
+                                                 @Query("offset") int offset,
+                                                 @Query("size") int size);
 
     /**
      * 歌单分类

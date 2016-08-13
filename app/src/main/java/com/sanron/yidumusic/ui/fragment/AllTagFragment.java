@@ -24,6 +24,7 @@ import com.sanron.yidumusic.data.net.bean.response.HotTagData;
 import com.sanron.yidumusic.data.net.repository.DataSource;
 import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.rx.TransformerUtil;
+import com.sanron.yidumusic.ui.activity.MainActivity;
 import com.sanron.yidumusic.ui.base.ToolbarLoadFragment;
 import com.sanron.yidumusic.util.UITool;
 import com.sanron.yidumusic.widget.NoScrollGridView;
@@ -318,7 +319,7 @@ public class AllTagFragment extends ToolbarLoadFragment {
             tvTag.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    getMainActivity().showTagSong(tags.get(position).title);
+                    ((MainActivity)getActivity()).showTagSong(tags.get(position).title);
                 }
             });
             return tvTag;

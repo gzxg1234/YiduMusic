@@ -8,6 +8,7 @@ import com.sanron.yidumusic.data.net.bean.SongInfo;
 import com.sanron.yidumusic.data.net.bean.response.AlbumDetailData;
 import com.sanron.yidumusic.data.net.bean.response.AllTagData;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.BillSongListData;
 import com.sanron.yidumusic.data.net.bean.response.FocusPicData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
@@ -22,6 +23,7 @@ import com.sanron.yidumusic.data.net.bean.response.RecmdAlbumData;
 import com.sanron.yidumusic.data.net.bean.response.RecmdSongData;
 import com.sanron.yidumusic.data.net.bean.response.SingerListData;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
+import com.sanron.yidumusic.data.net.bean.response.TagSongListData;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.util.baidu.EncryptTool;
 
@@ -184,4 +186,13 @@ public class RemoteDataSource implements DataSource {
         return mApiService.getSingerList(offset, limit, area, sex, order, abc);
     }
 
+    @Override
+    public Observable<TagSongListData> getTagSongList(String tagname, int limit, int offset) {
+        return mApiService.getTagSongList(tagname, limit, offset);
+    }
+
+    @Override
+    public Observable<BillSongListData> getBillSongList(int type, int offset, int size) {
+        return mApiService.getBillSongList(type, offset, size);
+    }
 }

@@ -19,10 +19,12 @@ import com.sanron.yidumusic.R;
 import com.sanron.yidumusic.ui.base.BaseActivity;
 import com.sanron.yidumusic.ui.fragment.AlbumDetailFragment;
 import com.sanron.yidumusic.ui.fragment.AllTagFragment;
+import com.sanron.yidumusic.ui.fragment.BillInfoFragment;
 import com.sanron.yidumusic.ui.fragment.GedanDetailFragment;
 import com.sanron.yidumusic.ui.fragment.OfficialGedanDetailFragment;
 import com.sanron.yidumusic.ui.fragment.SingerCategoryFragment;
 import com.sanron.yidumusic.ui.fragment.SingerListFragment;
+import com.sanron.yidumusic.ui.fragment.TagSongListFragment;
 import com.sanron.yidumusic.ui.fragment.music_bank.MusicBankFragment;
 import com.sanron.yidumusic.ui.fragment.my_music.MyMusicFragment;
 import com.sanron.yidumusic.ui.fragment.now_playing.NowPlayingFragment;
@@ -178,6 +180,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         addFragmentToFront(AllTagFragment.newInstance());
     }
 
+
+    public void showTagSong(String tag) {
+        addFragmentToFront(TagSongListFragment.newInstance(tag));
+    }
+
     public void showGedanDetail(long listid) {
         addFragmentToFront(GedanDetailFragment.newInstance(listid));
     }
@@ -188,6 +195,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     public void showOfficialGedanDetail(String code) {
         addFragmentToFront(OfficialGedanDetailFragment.newInstance(code));
+    }
+
+    public void showBillSongList(int type) {
+        addFragmentToFront(BillInfoFragment.newInstance(type));
     }
 
     public void showSingerCategory() {
@@ -235,5 +246,4 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         super.onSaveInstanceState(outState);
         outState.putInt("CurrentPage", mCurrentPage);
     }
-
 }

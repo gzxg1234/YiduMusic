@@ -15,9 +15,9 @@ public abstract class PullAdapter<VH extends RecyclerView.ViewHolder> extends Re
     private OnLoadMoreListener mOnLoadMoreListener;
     private static final int TYPE_FOOTER = -1;
 
-    public abstract VH onCreateView(ViewGroup parent, int viewType);
+    public abstract VH onCreateItemView(ViewGroup parent, int viewType);
 
-    public abstract void onBindView(VH holder, int position);
+    public abstract void onBindItemView(VH holder, int position);
 
     public abstract int getCount();
 
@@ -30,7 +30,7 @@ public abstract class PullAdapter<VH extends RecyclerView.ViewHolder> extends Re
         if (viewType == TYPE_FOOTER) {
             return onCreateFooterView(parent);
         } else {
-            return onCreateView(parent, viewType);
+            return onCreateItemView(parent, viewType);
         }
     }
 
@@ -132,7 +132,7 @@ public abstract class PullAdapter<VH extends RecyclerView.ViewHolder> extends Re
         if (type == TYPE_FOOTER) {
             onBindFooterView(holder, mHasMore);
         } else {
-            onBindView((VH) holder, position);
+            onBindItemView((VH) holder, position);
         }
     }
 

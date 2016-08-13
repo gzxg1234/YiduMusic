@@ -18,6 +18,7 @@ import com.sanron.yidumusic.data.net.bean.SongInfo;
 import com.sanron.yidumusic.playback.PlayTrack;
 import com.sanron.yidumusic.playback.PlayUtil;
 import com.sanron.yidumusic.playback.Player;
+import com.sanron.yidumusic.ui.base.PullAdapter;
 import com.sanron.yidumusic.ui.vo.SongInfoVO;
 import com.sanron.yidumusic.util.UITool;
 
@@ -26,7 +27,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SongInfoAdapter extends RecyclerView.Adapter<SongInfoAdapter.ItemHolder> implements Player.OnPlayStateChangeListener, PlayUtil.OnPlayerBindListener {
+public class SongInfoAdapter extends PullAdapter<SongInfoAdapter.ItemHolder> implements Player.OnPlayStateChangeListener, PlayUtil.OnPlayerBindListener {
 
     private Context mContext;
     private List<SongInfoVO> mItems;
@@ -36,6 +37,15 @@ public class SongInfoAdapter extends RecyclerView.Adapter<SongInfoAdapter.ItemHo
     public SongInfoAdapter(Context context, List<SongInfoVO> items) {
         mContext = context;
         mItems = items;
+    }
+
+    public void addItems(List<SongInfoVO> items) {
+        if (mItems == null) {
+            mItems = items;
+        } else {
+            mItems.addAll(items);
+        }
+        notifyDataSetChanged();
     }
 
     public void setItems(List<SongInfoVO> data) {
@@ -71,13 +81,13 @@ public class SongInfoAdapter extends RecyclerView.Adapter<SongInfoAdapter.ItemHo
     }
 
     @Override
-    public ItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ItemHolder onCreateItemView(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.list_gedan_song_item, parent, false);
         return new ItemHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ItemHolder holder, int position) {
+    public void onBindItemView(final ItemHolder holder, final int position) {
         final SongInfoVO songInfoVO = getItems(position);
         final SongInfo songInfo = songInfoVO.getSongInfo();
         holder.tvPos.setText(String.valueOf(position + 1));
@@ -97,7 +107,6 @@ public class SongInfoAdapter extends RecyclerView.Adapter<SongInfoAdapter.ItemHo
         }
         holder.tvArtist.setText(ssb);
 
-
         if (mCurrentPlayTrack != null
                 && songInfoVO.getSongInfo().songId == mCurrentPlayTrack.getSongId()) {
             mPlayingPosition = position;
@@ -107,15 +116,44 @@ public class SongInfoAdapter extends RecyclerView.Adapter<SongInfoAdapter.ItemHo
             holder.tvPos.setVisibility(View.VISIBLE);
             holder.icPlaying.setVisibility(View.GONE);
         }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (position == mPlayingPosition) {
+                    PlayUtil.togglePlayPause();
+                    return;
+                }
+
+                PlayUtil.clearQueue();
+                PlayUtil.enqueueSongInfoVOs(mItems);
+                PlayUtil.play(position);
+            }
+        });
+    }
+
+    @Override
+    public int getCount() {
+        return mItems == null ? 0 : mItems.size();
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateFooterView(ViewGroup parent) {
+        View view = LayoutInflater.from(mContext).inflate(R.layout.loading_footer_layout, parent, false);
+        return new FooterHolder(view);
+    }
+
+    @Override
+    public void onBindFooterView(RecyclerView.ViewHolder viewHolder, boolean hasMore) {
+        if (hasMore) {
+            ((FooterHolder) viewHolder).text.setText("加载中");
+        } else {
+            ((FooterHolder) viewHolder).text.setText("没有更多");
+        }
     }
 
     public int getPlayingPosition() {
         return mPlayingPosition;
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems == null ? 0 : mItems.size();
     }
 
     @Override
@@ -130,7 +168,7 @@ public class SongInfoAdapter extends RecyclerView.Adapter<SongInfoAdapter.ItemHo
         }
     }
 
-    class ItemHolder extends RecyclerView.ViewHolder {
+    static class ItemHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.ic_playing) public ImageView icPlaying;
         @BindView(R.id.tv_pos) public TextView tvPos;
         @BindView(R.id.tv_title) public TextView tvTitle;
@@ -138,6 +176,15 @@ public class SongInfoAdapter extends RecyclerView.Adapter<SongInfoAdapter.ItemHo
         @BindView(R.id.iv_action) public ImageView ivAction;
 
         public ItemHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    static class FooterHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.tv_text) TextView text;
+
+        public FooterHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

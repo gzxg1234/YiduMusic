@@ -15,7 +15,6 @@ import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.rx.SubscriberAdapter;
 import com.sanron.yidumusic.rx.TransformerUtil;
 import com.sanron.yidumusic.util.ToastUtil;
-import com.sanron.yidumusic.widget.ItemClickHelper;
 
 import java.util.Date;
 
@@ -27,7 +26,7 @@ import rx.Subscriber;
  * 歌单详情界面
  * Created by sanron on 16-8-3.
  */
-public class GedanDetailFragment extends SongListFragment implements ItemClickHelper.OnItemClickListener {
+public class GedanDetailFragment extends SongListFragment {
 
     private long mListId;
     private Gedan mGedan;

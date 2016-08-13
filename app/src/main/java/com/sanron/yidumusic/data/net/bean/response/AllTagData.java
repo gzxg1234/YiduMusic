@@ -9,11 +9,7 @@ import java.util.Map;
 /**
  * Created by sanron on 16-4-14.
  */
-public class AllTagData {
-
-
-    @JsonProperty( "error_code")
-    public int errorCode;
+public class AllTagData extends BaseData{
 
     @JsonProperty("taglist")
     public Map<String,List<Tag>> tagList;

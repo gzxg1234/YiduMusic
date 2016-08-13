@@ -7,6 +7,7 @@ import com.sanron.yidumusic.data.db.HttpCache;
 import com.sanron.yidumusic.data.net.bean.response.AlbumDetailData;
 import com.sanron.yidumusic.data.net.bean.response.AllTagData;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.BillSongListData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
@@ -17,6 +18,7 @@ import com.sanron.yidumusic.data.net.bean.response.OfficialGedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.OfficialGedanListData;
 import com.sanron.yidumusic.data.net.bean.response.SingerListData;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
+import com.sanron.yidumusic.data.net.bean.response.TagSongListData;
 
 import java.io.IOException;
 
@@ -121,6 +123,17 @@ public class LocalDataSource implements DataSource {
         return Observable.create(new GetCacheOnSubscriber<>(url, SingerListData.class));
     }
 
+    @Override
+    public Observable<TagSongListData> getTagSongList(String tagname, int limit, int offset) {
+        String url = UrlGenerater.getTagSongList(tagname, limit, offset);
+        return Observable.create(new GetCacheOnSubscriber<>(url, TagSongListData.class));
+    }
+
+    @Override
+    public Observable<BillSongListData> getBillSongList(int type, int offset, int size) {
+        String url = UrlGenerater.getBillSongList(type, offset, size);
+        return Observable.create(new GetCacheOnSubscriber<>(url, BillSongListData.class));
+    }
 
     public <T> void putCache(String url, T t, long maxAge) {
         try {

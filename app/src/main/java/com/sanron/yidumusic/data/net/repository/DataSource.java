@@ -3,6 +3,7 @@ package com.sanron.yidumusic.data.net.repository;
 import com.sanron.yidumusic.data.net.bean.response.AlbumDetailData;
 import com.sanron.yidumusic.data.net.bean.response.AllTagData;
 import com.sanron.yidumusic.data.net.bean.response.BillCategoryData;
+import com.sanron.yidumusic.data.net.bean.response.BillSongListData;
 import com.sanron.yidumusic.data.net.bean.response.GedanCategoryData;
 import com.sanron.yidumusic.data.net.bean.response.GedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.GedanListData;
@@ -13,6 +14,7 @@ import com.sanron.yidumusic.data.net.bean.response.OfficialGedanInfoData;
 import com.sanron.yidumusic.data.net.bean.response.OfficialGedanListData;
 import com.sanron.yidumusic.data.net.bean.response.SingerListData;
 import com.sanron.yidumusic.data.net.bean.response.SongInfoData;
+import com.sanron.yidumusic.data.net.bean.response.TagSongListData;
 
 import rx.Observable;
 
@@ -60,7 +62,16 @@ public interface DataSource {
     //全部标签
     Observable<OfficialGedanInfoData> getOfficialGedanInfo(String code);
 
+    //歌手列表
     Observable<SingerListData> getSingerList(int offset, int limit, int area,
                                              int sex,
                                              int order, String abc);
+
+    //标签歌曲列表
+    Observable<TagSongListData> getTagSongList(String tagname, int limit, int offset);
+
+    //排行榜歌曲列表
+    Observable<BillSongListData> getBillSongList(int type,
+                                                 int offset,
+                                                  int size);
 }
